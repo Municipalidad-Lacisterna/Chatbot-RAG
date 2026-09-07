@@ -324,7 +324,22 @@ def _respuesta_sensible() -> str:
     )
 
 
-_PATRONES_CHISTE = ["chiste", "estoy aburrido", "cuentame algo", "cuéntame algo"]
+
+_PATRONES_DESPEDIDA = {
+    "no", "no gracias", "nada mas", "nada más", "chau", "chao", "adios", "adiós",
+    "gracias", "muchas gracias", "eso es todo", "listo", "ok", "vale", "bueno",
+    "nop", "nop gracias", "ninguna", "ninguno"
+}
+
+def _es_despedida_o_gracias(texto: str) -> bool:
+    t = texto.lower().strip(" ¡!¿?.,")
+    return t in _PATRONES_DESPEDIDA
+
+def _respuesta_despedida() -> str:
+    return "¡De nada, vecino! Recuerda que estoy aquí 24/7 para cualquier otra duda municipal. ¡Que tengas un excelente día! 👋"
+
+_PATRONES_CHISTE = [
+"chiste", "estoy aburrido", "cuentame algo", "cuéntame algo"]
 _PATRONES_SED = ["tengo sed", "una chela", "cerveza", "botilleria", "botillería"]
 _PATRONES_AGUANTE = ["aguante la cisterna", "arriba la cisterna", "mejor comuna"]
 
@@ -463,7 +478,16 @@ def query_chatbot(question: str, session_id: str = None) -> str:
         chat_memory.add_message(session_id, "assistant", respuesta_ee)
         return respuesta_ee
 
+
+    # 0e. Corto-circuito: Despedidas y Agradecimientos (Evitar transferir por un "no gracias")
+    if _es_despedida_o_gracias(question):
+        respuesta_desp = _respuesta_despedida()
+        chat_memory.add_message(session_id, "user", question)
+        chat_memory.add_message(session_id, "assistant", respuesta_desp)
+        return respuesta_desp
+
     # 1. Recuperar contexto de documentos
+
 
     docs = retrieve(question, k=settings.TOP_K)
     # Defensa en profundidad: eliminar posibles None/entradas vacías que
