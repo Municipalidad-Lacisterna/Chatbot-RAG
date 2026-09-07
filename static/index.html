@@ -100,6 +100,19 @@
     }
     footer button:disabled { opacity: 0.4; cursor: not-allowed; }
     footer button:hover:not(:disabled) { opacity: 0.85; }
+
+    /* Typing indicator */
+    .typing { display: flex; gap: 4px; padding: 12px 16px; align-items: center; width: fit-content; }
+    .typing span { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    /* Quick replies */
+    .quick-replies { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .quick-reply-btn { background: #fff; border: 1px solid var(--verde-oscuro); color: var(--verde-oscuro); padding: 6px 12px; border-radius: 16px; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+    .quick-reply-btn:hover { background: var(--verde-oscuro); color: #fff; }
+
     .aviso {
       text-align: center; font-size: 12px; color: #888; padding: 4px 12px;
     }
@@ -139,6 +152,59 @@
     let ws = null;
     let enModoAgente = false;
     let txtTransferir = false; // si la última respuesta ofrecía transferir
+
+
+    let typingDiv = null;
+
+    function showTyping() {
+      if (typingDiv) return;
+      typingDiv = document.createElement('div');
+      typingDiv.className = 'msg bot typing';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      chat.appendChild(typingDiv);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideTyping() {
+      if (typingDiv && typingDiv.parentNode) {
+        typingDiv.parentNode.removeChild(typingDiv);
+      }
+      typingDiv = null;
+    }
+
+    function removeQuickReplies() {
+      const qrCont = document.getElementById('qr-container');
+      if (qrCont && qrCont.parentNode) qrCont.parentNode.removeChild(qrCont);
+    }
+
+    function sendQuickReply(texto) {
+      removeQuickReplies();
+      entrada.value = texto;
+      enviarMensaje();
+    }
+
+    function renderQuickReplies() {
+      const cont = document.createElement('div');
+      cont.id = 'qr-container';
+      cont.className = 'quick-replies';
+      
+      const options = [
+        "💊 Farmacia Comunal",
+        "📋 Ficha Protección Social",
+        "🗣️ Hablar con un agente"
+      ];
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-reply-btn';
+        btn.textContent = opt;
+        btn.onclick = () => sendQuickReply(opt);
+        cont.appendChild(btn);
+      });
+
+      chat.appendChild(cont);
+      chat.scrollTop = chat.scrollHeight;
+    }
 
     function hora() {
       return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
@@ -214,6 +280,7 @@
 
     function bienvenida() {
       bubble('¡Hola, vecino! Soy Cisternin y estoy aquí para orientarte con cualquier proceso municipal que necesites. ¿En qué te ayudo hoy?', 'bot');
+      renderQuickReplies();
     }
 
     // --- WebSocket con el agente (modo transferido) ---
@@ -271,6 +338,8 @@
       }
 
       enviar.disabled = true;
+      removeQuickReplies();
+      showTyping();
       try {
         const res = await fetch('/query', {
           method: 'POST',
@@ -293,6 +362,7 @@
       } catch (e) {
         bubble('Ocurrió un error al conectarme. Intenta de nuevo.', 'bot');
       } finally {
+        hideTyping();
         enviar.disabled = false;
         entrada.focus();
       }
