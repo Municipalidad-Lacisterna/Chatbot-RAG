@@ -24,11 +24,12 @@ import sys
 
 import requests
 
-# Preguntas documentadas (los 3 PDFs de prueba indexados)
+# Preguntas documentadas (base REAL: CSVs de Transparencia Activa del Drive,
+# indexados como chunks atómicos por trámite/norma).
 _PREGUNTAS_DOCUMENTADAS = [
-    "¿Cuáles son los requisitos para la beca de estudio?",
-    "¿Cómo hago el pago de un parte de tránsito?",
-    "¿Qué datos personales se protegen según la política de privacidad?",
+    "¿Dónde queda la farmacia comunal?",
+    "¿Qué necesito para la Ficha de Protección Social?",
+    "¿Qué requisitos tiene el Centro de Emprendimiento?",
 ]
 
 # Preguntas NO documentadas (el bot NO debe inventar → debe derivar)
@@ -116,15 +117,16 @@ def main():
 
     # ── 3. Memoria en cadena (la sesión recuerda el contexto) ───
     ses = "bateria-memoria"
-    q1 = _PREGUNTAS_DOCUMENTADAS[0]  # la beca
+    q1 = _PREGUNTAS_DOCUMENTADAS[0]  # la farmacia comunal
     _query(base, q1, ses)
     # seguimiento sin repetir el tema explícito (confía en la memoria)
-    q2 = "¿Y qué documentos debo presentar para postular a esa beca?"
+    q2 = "¿Y qué documentos debo llevar?"
     resp2, _ = _query(base, q2, ses)
-    # la memória debe haber "atado" la beca → debería mencionar "beca" o
-    # responder con detalles documentados de los requisitos (no derivar).
-    menciona_beca = ("beca" in resp2.lower() or "requisito" in resp2.lower()
-                     or "formulario" in resp2.lower() or "postul" in resp2.lower())
+    # la memória debe haber "atado" la farmacia → debería mencionar "farmacia",
+    # "receta", "cédula" o "domicilio" (no derivar a humano).
+    menciona_beca = ("farmacia" in resp2.lower() or "receta" in resp2.lower()
+                     or "cédula" in resp2.lower() or "cedula" in resp2.lower()
+                     or "domicilio" in resp2.lower())
     registrar("Memoria: la sesión sigue el contexto del turno anterior", menciona_beca, f"resp2: {resp2[:60]}...")
 
     # ── 4. Historial guardado ──────────────────────────────────

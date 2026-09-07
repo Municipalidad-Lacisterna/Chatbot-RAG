@@ -486,10 +486,24 @@ def query_chatbot(question: str, session_id: str = None) -> str:
         chat_memory.add_message(session_id, "assistant", respuesta_desp)
         return respuesta_desp
 
+    # 0f. Recuperar historial corto de la sesión (se usa para expansión de
+    # la consulta de retrieval y para el contexto conversacional del prompt).
+    history = chat_memory.get_history(session_id)
+    history_text = "\n".join(
+        f"{m['role']}: {m['content']}" for m in history
+    ) or "(sin historial previo)"
+
     # 1. Recuperar contexto de documentos
+    # Expansión de consulta con memoria: las preguntas de seguimiento
+    # ("¿y qué documentos debo llevar?") no repiten el tema ("farmacia").
+    # Anexamos la última interacción del historial a la consulta de retrieval
+    # para que recupere chunks del MISMO trámite conversado. Si no hay
+    # historial, la consulta queda igual (no rompe nada).
+    query_retrieval = question
+    if history:
+        query_retrieval = f"{question} {history[-1]['content'][:200]}"
 
-
-    docs = retrieve(question, k=settings.TOP_K)
+    docs = retrieve(query_retrieval, k=settings.TOP_K)
     # Defensa en profundidad: eliminar posibles None/entradas vacías que
     # podrían romper el join (p. ej. en colecciones recién vaciadas o con
     # documentos sin contenido).
@@ -497,12 +511,6 @@ def query_chatbot(question: str, session_id: str = None) -> str:
     context = "\n\n".join(docs) if docs else "No hay información disponible."
     if len(context) > _MAX_CONTEXT_CHARS:
         context = context[:_MAX_CONTEXT_CHARS] + "..."
-
-    # 2. Recuperar historial corto de la sesión
-    history = chat_memory.get_history(session_id)
-    history_text = "\n".join(
-        f"{m['role']}: {m['content']}" for m in history
-    ) or "(sin historial previo)"
 
     # 3. Invocar la cadena RAG (salida estructurada)
     answer = _chain.invoke(
