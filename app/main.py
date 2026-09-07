@@ -22,7 +22,7 @@ import os
 import json
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
@@ -111,11 +111,29 @@ async def clear_history(session_id: str):
     return {"session_id": session_id, "cleared": True}
 
 
+
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from fastapi import Depends, HTTPException, status
+import secrets
+
+security = HTTPBasic()
+
+def verificar_auth_paneles(credentials: HTTPBasicCredentials = Depends(security)):
+    from app import settings
+    correct_password = secrets.compare_digest(credentials.password, settings.AGENTE_PANEL_CLAVE)
+    if not correct_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales incorrectas",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
 # ---------------------------------------------------------------------------
 # Panel de administración / monitoreo del servidor
 # ---------------------------------------------------------------------------
 @app.get("/admin", include_in_schema=False)
-async def admin_ui():
+async def admin_ui(username: str = Depends(verificar_auth_paneles)):
     """Sirve el panel de administración (estado del servidor y de la base)."""
     html = os.path.join(_STATIC_DIR, "admin.html")
     if os.path.isfile(html):
@@ -229,7 +247,7 @@ async def admin_api(clave: str = ""):
 # Transferencia a agente humano (centro de atención / demo)
 # ---------------------------------------------------------------------------
 @app.get("/agente", include_in_schema=False)
-async def agente_ui():
+async def agente_ui(username: str = Depends(verificar_auth_paneles)):
     """Sirve el panel del agente humano (dashboard)."""
     html = os.path.join(_STATIC_DIR, "agente.html")
     if os.path.isfile(html):
