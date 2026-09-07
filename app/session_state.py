@@ -109,29 +109,12 @@ def evaluar(session_id: str, pregunta: str) -> dict:
                     "mensaje_personalizado": "🚫 Has excedido el límite de faltas de respeto (3/3). El chat ha sido cerrado."
                 }
 
-        # CASO A: la sesión estaba esperando confirmación de "¿hay alguien ahí?"
-        if st["esperando_confirmacion"]:
-            # Envió un mensaje (el que estamos procesando ahora) dentro de la ventana
-            if ahora - st["ultima_actividad"] <= CONFIRMAR_SEG:
-                st["esperando_confirmacion"] = False
-                st["ultima_actividad"] = ahora
-                # Procesar la pregunta pendiente (la que motivó el aviso)
-                return {"accion": "confirmar", "pregunta": st["pregunta_pendiente"] or pregunta}
-            # No confirmó a tiempo → cerrar sesión (NO procesar, solo despedida)
-            else:
-                st["esperando_confirmacion"] = False
-                st["pregunta_pendiente"] = None
-                st["ultima_actividad"] = ahora
-                return {"accion": "cerrar"}
-
-        # CASO B: hubo demasiada inactividad (> 5 min sin interacción previa)
-        if not st["esperando_confirmacion"] and ahora - st["ultima_actividad"] > INACTIVO_SEG:
-            st["esperando_confirmacion"] = True
-            st["ultima_actividad"] = ahora
-            st["pregunta_pendiente"] = pregunta
-            return {"accion": "preguntar"}
-
-        # CASO C: procesar normalmente
+        # Si pasó mucho tiempo (> 5 min), reseteamos el historial corto
+        # para que empiece una conversación fresca, pero respondemos su pregunta al tiro.
+        if ahora - st["ultima_actividad"] > INACTIVO_SEG:
+            from app.chat_memory import clear_session
+            clear_session(session_id)
+        
         st["ultima_actividad"] = ahora
         return {"accion": "procesar"}
 
