@@ -22,7 +22,7 @@ import os
 import json
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
@@ -140,6 +140,39 @@ async def admin_ui(username: str = Depends(verificar_auth_paneles)):
         return FileResponse(html)
     return {"error": "No se encontró static/admin.html"}
 
+
+# ---------------------------------------------------------------------------
+# Sincronización manual de Google Drive
+# ---------------------------------------------------------------------------
+import subprocess
+
+def _correr_sincronizacion_drive():
+    """Ejecuta el script de sincronización bash en background."""
+    script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'gdown_sync.sh')
+    if os.path.exists(script_path):
+        subprocess.run(["bash", script_path], check=False)
+
+@app.post("/admin_sync_drive")
+async def admin_sync_drive(background_tasks: BackgroundTasks, clave: str = ""):
+    """Lanza la sincronización de Drive a ChromaDB en segundo plano."""
+    if not _admin_valida(clave):
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    background_tasks.add_task(_correr_sincronizacion_drive)
+    return {"status": "Sincronización iniciada en segundo plano."}
+
+@app.get("/admin_sync_status")
+async def admin_sync_status(clave: str = ""):
+    """Lee las últimas líneas del log de sincronización."""
+    if not _admin_valida(clave):
+        raise HTTPException(status_code=403, detail="Acceso denegado")
+    log_file = "/tmp/gdown_sync.log"
+    if not os.path.exists(log_file):
+        return {"log": "No hay registro de sincronización previa."}
+    try:
+        out = subprocess.check_output(["tail", "-n", "15", log_file], text=True)
+        return {"log": out}
+    except Exception as e:
+        return {"log": f"Error leyendo log: {e}"}
 
 @app.get("/admin_api")
 async def admin_api(clave: str = ""):

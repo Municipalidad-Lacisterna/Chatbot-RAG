@@ -258,6 +258,29 @@
     // ====================== HISTORIAL DE CHATS ======================
     function claveAdmin() { return localStorage.getItem("admin_clave") || ""; }
 
+    
+    async function sincronizarDrive() {
+      if (!CLAVE) return;
+      document.getElementById('log-sync').textContent = "Iniciando sincronización en background...";
+      try {
+        await fetch('/admin_sync_drive?clave=' + CLAVE, { method: 'POST' });
+        setTimeout(verEstadoSync, 2000);
+      } catch (e) {
+        document.getElementById('log-sync').textContent = "Error al iniciar sincronización.";
+      }
+    }
+
+    async function verEstadoSync() {
+      if (!CLAVE) return;
+      try {
+        const r = await fetch('/admin_sync_status?clave=' + CLAVE, );
+        const d = await r.json();
+        document.getElementById('log-sync').textContent = d.log || "Sin datos.";
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     async function cargarHistorial() {
       const c = claveAdmin(); if (!c) return;
       const cont = document.getElementById("historial-chats");
