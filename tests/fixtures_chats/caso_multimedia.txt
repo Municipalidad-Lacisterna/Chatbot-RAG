@@ -1,0 +1,5 @@
+[16/08/2026, 10:00:00] Juan: hola, <Media omitido>
+[16/08/2026, 10:01:00] Atención Vecino: Buenos días, ¿en qué puedo ayudarle?
+[16/08/2026, 10:02:00] Carlos: <Audio omitido>
+[16/08/2026, 10:03:00] Ana: ¿puedo pagar el impuesto territorial en línea?
+[16/08/2026, 10:05:00] Atención Vecino: Sí, en la web municipal.

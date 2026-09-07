@@ -1,0 +1,11 @@
+[Unit]
+Description=Dispara la ingesta programada de documentos diariamente a las 17:01
+
+[Timer]
+OnCalendar=*-*-* 17:01:00
+Persistent=true
+# Nunca ejecutar si el sistema estuvo dormido/apagado y se despierta
+Unit=ingest_programado.service
+
+[Install]
+WantedBy=timers.target

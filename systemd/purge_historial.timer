@@ -1,0 +1,13 @@
+[Unit]
+Description=Dispara la purga del historial cada 6 horas (retención 24h)
+
+[Timer]
+# Cada 6 horas: garantiza que ningún mensaje supere en exceso la retención
+# de 24 horas (peor caso ~30h).
+OnCalendar=*-*-* 00/6:30:00
+Persistent=true
+# Nunca ejecutar si el sistema estuvo dormido/apagado y se despierta
+Unit=purge_historial.service
+
+[Install]
+WantedBy=timers.target

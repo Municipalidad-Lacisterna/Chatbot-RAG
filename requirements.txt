@@ -1,0 +1,23 @@
+# --- Core RAG / LangChain ---
+langchain
+langchain-core
+# Proveedor Google/Gemini (usado en desarrollo, free tier costo $0)
+langchain-google-genai
+# Proveedor LLM local / Ollama (producción con GPU). Instalar SOLO si se usa
+# LLM_PROVIDER=ollama:  pip install langchain-ollama
+# langchain-ollama
+chromadb
+sentence-transformers
+pymupdf
+pymupdf4llm
+
+# --- API / Servidor ---
+fastapi
+uvicorn
+
+# --- Configuración ---
+python-dotenv
+
+# --- Dataframe/NumPy (usado por análisis auxiliares/embeddings) ---
+pandas
+numpy

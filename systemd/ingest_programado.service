@@ -1,0 +1,11 @@
+[Unit]
+Description=Ingesta programada de documentos municipales (RAG)
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/aspen/Alcaldia_Practica
+ExecStart=/home/aspen/Alcaldia_Practica/venv/bin/python /home/aspen/Alcaldia_Practica/scripts/ingest_programado.py
+# Ejecutar con prioridad baja para no molestar a los servicios web en horario
+Nice=10
+IOSchedulingClass=idle

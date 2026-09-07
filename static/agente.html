@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel del Agente · La Cisterna</title>
+  <style>
+    :root {
+      --verde: #25D366;
+      --verde-oscuro: #128C7E;
+      --fondo: #f0f2f5;
+      --borde: #d9dde1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--fondo);
+      color: #222;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(90deg, var(--verde-oscuro), var(--verde));
+      color: #fff;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .dot { width: 12px; height: 12px; border-radius: 50%; background: #8cf08c; }
+    header h1 { font-size: 18px; }
+    header p { font-size: 12px; opacity: 0.9; }
+    .wrap { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+    h2 { font-size: 15px; margin: 18px 0 8px; color: #333; }
+
+    /* Login */
+    #login { max-width: 360px; margin: 60px auto; background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 24px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+    #login h1 { font-size: 18px; margin-bottom: 6px; }
+    #login p { font-size: 13px; color: #666; margin-bottom: 16px; }
+    #login input { width: 100%; padding: 11px; border: 1px solid var(--borde); border-radius: 8px; margin-bottom: 10px; font-size: 14px; }
+    #login button { width: 100%; padding: 11px; background: var(--verde); border: none; border-radius: 8px; color: #fff; font-size: 15px; cursor: pointer; }
+    .error { color: #c0392b; font-size: 13px; margin-top: 8px; }
+
+    /* Cola */
+    .cola-vacio { text-align: center; padding: 30px; background: #fff; border: 1px dashed var(--borde); border-radius: 10px; color: #888; font-size: 14px; }
+    .item-cola {
+      background: #fff; border: 1px solid var(--borde); border-radius: 10px;
+      padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center;
+      justify-content: space-between;
+    }
+    .item-cola .meta { font-size: 12px; color: #666; }
+    .item-cola button { padding: 9px 16px; border: none; border-radius: 18px; background: var(--verde); color: #fff; font-size: 13px; cursor: pointer; }
+
+    /* Chat en vivo */
+    #chatbox {
+      background: #fff; border: 1px solid var(--borde); border-radius: 10px;
+      min-height: 260px; padding: 14px; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;
+    }
+    .m { padding: 8px 12px; border-radius: 12px; font-size: 14px; max-width: 80%; line-height: 1.4; }
+    .m.vecino { background: #dcf8c6; align-self: flex-start; }
+    .m.agente { background: #d9f1fd; align-self: flex-end; }
+    .m.sistema { background: #eef1f4; align-self: center; font-size: 12px; color: #666; }
+    .m .hora { display: block; font-size: 10px; color: #999; text-align: right; margin-top: 3px; }
+    #responder-row { display: flex; gap: 8px; margin-top: 10px; }
+    #responder-row input { flex: 1; padding: 11px 14px; border: 1px solid var(--borde); border-radius: 22px; font-size: 14px; outline: none; }
+    #responder-row button { padding: 10px 20px; border: none; border-radius: 22px; background: var(--verde); color: #fff; font-size: 14px; cursor: pointer; }
+    #acciones-row { display: flex; gap: 8px; margin-top: 8px; }
+    #btn-terminar {
+      padding: 9px 16px; border: 1px solid #e74c3c; border-radius: 22px;
+      background: #fff; color: #e74c3c; font-size: 13px; cursor: pointer;
+    }
+    #btn-terminar:disabled { opacity: 0.45; cursor: not-allowed; }
+    .estado-band { padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-top: 8px; }
+    .estado-band.ocupado { background: #fff3cd; color: #7a6200; }
+    .estado-band.libre { background: #e9fbe9; color: #1e7a1e; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="dot"></div>
+    <div>
+      <h1>Panel de Atención al Vecino</h1>
+      <p id="estado-hdr">Agente humano</p>
+    </div>
+  </header>
+
+  <!-- Login -->
+  <div id="login">
+    <h1>Acceso del agente</h1>
+    <p>Ingrese la clave para atender a los vecinos.</p>
+    <input type="password" id="clave" placeholder="Clave de acceso" />
+    <button id="btn-login">Ingresar</button>
+    <div class="error" id="login-error"></div>
+  </div>
+
+  <!-- Panel principal -->
+  <div class="wrap" id="panel" style="display:none;">
+    <h2>Vecinos en espera</h2>
+    <div id="cola"></div>
+
+    <h2>Chat en vivo</h2>
+    <div id="chatbox">
+      <div class="m sistema">Selecciona un vecino de la cola para atenderlo.</div>
+    </div>
+    <div class="estado-band libre" id="banda-estado">Estás libre. Esperando vecinos…</div>
+
+    <div id="responder-row">
+      <input id="respuesta" placeholder="Escribe tu respuesta…" disabled />
+      <button id="btn-enviar" disabled>Enviar</button>
+    </div>
+    <div id="acciones-row">
+      <button id="btn-terminar" disabled>Terminar chat</button>
+    </div>
+  </div>
+
+  <script>
+    const LOGIN = document.getElementById('login');
+    const PANEL = document.getElementById('panel');
+    const claveInput = document.getElementById('clave');
+    const loginError = document.getElementById('login-error');
+    const btnLogin = document.getElementById('btn-login');
+    const ESTADO_HDR = document.getElementById('estado-hdr');
+    const BANDA = document.getElementById('banda-estado');
+    const chatbox = document.getElementById('chatbox');
+    const respuestaInput = document.getElementById('respuesta');
+    const btnEnviar = document.getElementById('btn-enviar');
+    const btnTerminar = document.getElementById('btn-terminar');
+    const colaDiv = document.getElementById('cola');
+
+    const PROTO = location.protocol === 'https:' ? 'wss' : 'ws';
+    let ws = null;
+    let autenticado = false;
+    let sesionActual = null; // session_id que estamos atendiendo
+
+    // --- Login ---
+    btnLogin.onclick = () => {
+      // Clave compartida definida en el servidor; la pedimos a un endpoint simple.
+      fetch('/agente_auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clave: claveInput.value }),
+      }).then(r => r.json()).then(d => {
+        if (d.ok) {
+          autenticado = true;
+          LOGIN.style.display = 'none';
+          PANEL.style.display = 'block';
+          conectar();
+        } else {
+          loginError.textContent = 'Clave incorrecta.';
+        }
+      }).catch(() => { loginError.textContent = 'Error de conexión.'; });
+    };
+    claveInput.addEventListener('keydown', e => { if (e.key === 'Enter') btnLogin.onclick(); });
+
+    function hora() { return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' }); }
+
+    function bubbleSistema(txt) {
+      const d = document.createElement('div');
+      d.className = 'm sistema';
+      d.textContent = txt;
+      chatbox.appendChild(d);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function bubbleVecino(txt) {
+      const d = document.createElement('div');
+      d.className = 'm vecino';
+      d.textContent = txt;
+      const t = document.createElement('span');
+      t.className = 'hora';
+      t.textContent = hora();
+      d.appendChild(t);
+      chatbox.appendChild(d);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function bubbleAgente(txt) {
+      // Respuesta propia del agente (o mensaje de un agente en la sesión)
+      const d = document.createElement('div');
+      d.className = 'm agente';
+      d.textContent = txt;
+      const t = document.createElement('span');
+      t.className = 'hora';
+      t.textContent = hora();
+      d.appendChild(t);
+      chatbox.appendChild(d);
+      chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function renderCola(cola) {
+      colaDiv.innerHTML = '';
+      if (!cola || cola.length === 0) {
+        colaDiv.innerHTML = '<div class="cola-vacio">No hay vecinos en espera ahora mismo.</div>';
+        return;
+      }
+      cola.forEach(s => {
+        const item = document.createElement('div');
+        item.className = 'item-cola';
+        item.innerHTML = `<div><strong>Vecino ${s.session_id}</strong><div class="meta">Esperando</div></div>`;
+        const btn = document.createElement('button');
+        btn.textContent = 'Atender';
+        btn.onclick = () => tomar(s.session_id);
+        item.appendChild(btn);
+        colaDiv.appendChild(item);
+      });
+    }
+
+    function tomar(sid) {
+      ws.send(JSON.stringify({ accion: 'tomar', session_id: sid }));
+    }
+
+    function setSesion(sid) {
+      sesionActual = sid;
+      const activa = !!sid;
+      respuestaInput.disabled = !activa;
+      btnEnviar.disabled = !activa;
+      btnTerminar.disabled = !activa;
+    }
+
+    function finalizar() {
+      if (!sesionActual) return;
+      if (!confirm('¿Finalizar la atención con este vecino? Se cerrará el chat y podrá atender a otro.')) return;
+      const sid = sesionActual;
+      ws.send(JSON.stringify({ accion: 'finalizar', session_id: sid }));
+      setSesion(null);
+      chatbox.innerHTML = '';
+      bubbleSistema('Atención finalizada.');
+    }
+
+    btnTerminar.onclick = () => finalizar();
+
+    btnEnviar.onclick = () => {
+      const txt = respuestaInput.value.trim();
+      if (!txt || !sesionActual) return;
+      ws.send(JSON.stringify({ accion: 'responder', session_id: sesionActual, texto: txt }));
+      respuestaInput.value = '';
+    };
+    respuestaInput.addEventListener('keydown', e => { if (e.key === 'Enter') btnEnviar.onclick(); });
+
+    function conectar() {
+      ws = new WebSocket(`${PROTO}://${location.host}/ws/agente`);
+      ws.onopen = () => { ESTADO_HDR.textContent = 'Conectado. Esperando vecinos…'; };
+      ws.onmessage = (evt) => {
+        const m = JSON.parse(evt.data);
+        if (m.tipo === 'cola') renderCola(m.cola);
+        else if (m.tipo === 'tomada') {
+          setSesion(m.session_id);
+          chatbox.innerHTML = '';
+          bubbleSistema(`Comenzando atención al vecino ${m.session_id}.`);
+          BANDA.className = 'estado-band ocupado';
+          BANDA.textContent = `Atendiendo al vecino ${m.session_id}.`;
+        } else if (m.tipo === 'en_curso') {
+          // El agente ya estaba atendiendo a alguien (al reconectar)
+          setSesion(m.session_id);
+          bubbleSistema(`Ya estás atendiendo al vecino ${m.session_id}.`);
+          BANDA.className = 'estado-band ocupado';
+          BANDA.textContent = `Atendiendo al vecino ${m.session_id}.`;
+        } else if (m.tipo === 'finalizado') {
+          setSesion(null);
+          chatbox.innerHTML = '';
+          bubbleSistema('Atención finalizada.');
+          BANDA.className = 'estado-band libre';
+          BANDA.textContent = 'Estás libre. Esperando vecinos…';
+        } else if (m.tipo === 'msg') {
+          const msg = m.msg;
+          if (msg.autor === 'vecino') bubbleVecino(msg.texto);
+          else if (msg.autor === 'agente') bubbleAgente(msg.texto);
+        } else if (m.tipo === 'error') {
+          bubbleSistema(m.texto || 'Error');
+        }
+      };
+      ws.onclose = () => { ESTADO_HDR.textContent = 'Desconectado.'; };
+    }
+  </script>
+</body>
+</html>

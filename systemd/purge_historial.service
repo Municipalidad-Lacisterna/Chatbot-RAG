@@ -1,0 +1,11 @@
+[Unit]
+Description=Purga periódica del historial de conversaciones (retención Ley 19.628)
+After=network.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/aspen/Alcaldia_Practica
+ExecStart=/home/aspen/Alcaldia_Practica/venv/bin/python /home/aspen/Alcaldia_Practica/scripts/purge_historial.py
+# Prioridad baja para no molestar a los servicios en horario
+Nice=10
+IOSchedulingClass=idle

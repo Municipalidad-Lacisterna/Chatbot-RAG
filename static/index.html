@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chatbot Municipal · La Cisterna</title>
+  <style>
+    :root {
+      --verde: #25D366;
+      --verde-oscuro: #128C7E;
+      --fondo-chat: #ece5dd;
+      --burbleja-mia: #dcf8c6;
+      --burbleja-otro: #ffffff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--fondo-chat);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #app {
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      max-height: 780px;
+      display: flex;
+      flex-direction: column;
+      background: var(--fondo-chat);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    header {
+      background: linear-gradient(90deg, var(--verde-oscuro), var(--verde));
+      color: #fff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    header h1 { font-size: 17px; font-weight: 600; }
+    header p { font-size: 12px; opacity: 0.9; }
+    #chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .msg {
+      max-width: 82%;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 14.5px;
+      line-height: 1.45;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.12);
+      word-wrap: break-word;
+    }
+    .msg.bot {
+      background: var(--burbleja-otro);
+      align-self: flex-start;
+      border-top-left-radius: 2px;
+    }
+    .msg.user {
+      background: var(--burbleja-mia);
+      align-self: flex-end;
+      border-top-right-radius: 2px;
+    }
+    .msg .hora { display: block; font-size: 10.5px; color: #999; text-align: right; margin-top: 3px; }
+    footer {
+      background: #f0f0f0;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      border-top: 1px solid #ddd;
+    }
+    footer input {
+      flex: 1;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 22px;
+      font-size: 14px;
+      outline: none;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+    footer button {
+      width: 46px; height: 46px; border: none; border-radius: 50%;
+      background: var(--verde); color: #fff; font-size: 20px; cursor: pointer;
+      transition: opacity .15s;
+    }
+    footer button:disabled { opacity: 0.4; cursor: not-allowed; }
+    footer button:hover:not(:disabled) { opacity: 0.85; }
+    .aviso {
+      text-align: center; font-size: 12px; color: #888; padding: 4px 12px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="avatar">🏛️</div>
+      <div>
+        <h1>Municipalidad de La Cisterna</h1>
+        <p>Cisternin · asistente virtual en línea</p>
+      </div>
+    </header>
+
+    <div id="chat" role="log" aria-live="polite"></div>
+
+    <div class="aviso">Prototipo educativo · Chatbot RAG (documentos disponibles)</div>
+
+    <footer>
+      <input id="entrada" type="text" placeholder="Escribe tu consulta…" autocomplete="off" />
+      <button id="enviar" title="Enviar">➤</button>
+    </footer>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const entrada = document.getElementById('entrada');
+    const enviar = document.getElementById('enviar');
+    const headerTitulo = document.querySelector('header h1');
+    const headerSub = document.querySelector('header p');
+
+    // Sesión persistente por navegador
+    const SESSION = localStorage.getItem('session_id') || ('vecino-' + Math.random().toString(36).slice(2, 8));
+    localStorage.setItem('session_id', SESSION);
+
+    let ws = null;
+    let enModoAgente = false;
+    let txtTransferir = false; // si la última respuesta ofrecía transferir
+
+    function hora() {
+      return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function bubble(texto, quien) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + quien;
+      div.textContent = texto;
+      const time = document.createElement('span');
+      time.className = 'hora';
+      time.textContent = hora();
+      div.appendChild(time);
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    // Botones de transferencia ("Sí / No")
+    function mostrarBotonesTransferir() {
+      const cont = document.createElement('div');
+      cont.className = 'msg bot';
+      cont.style.maxWidth = '100%';
+
+      const info = document.createElement('div');
+      info.textContent = '¿Desea ser transferido con un agente?';
+      info.style.marginBottom = '8px';
+      info.style.fontWeight = '600';
+      cont.appendChild(info);
+
+      const fila = document.createElement('div');
+      fila.style.display = 'flex';
+      fila.style.gap = '8px';
+
+      const btnSi = document.createElement('button');
+      btnSi.textContent = 'Sí, transfíerame';
+      btnSi.style.flex = '1';
+      btnSi.style.padding = '10px';
+      btnSi.style.border = 'none';
+      btnSi.style.borderRadius = '20px';
+      btnSi.style.background = '#128C7E';
+      btnSi.style.color = '#fff';
+      btnSi.style.cursor = 'pointer';
+      btnSi.style.fontSize = '13px';
+      btnSi.onclick = () => {
+        // Fix: Evitar el "botón infinito", lo borramos apenas hace clic
+        chat.removeChild(cont);
+        aceptarTransferencia();
+      };
+
+      const btnNo = document.createElement('button');
+      btnNo.textContent = 'No, gracias';
+      btnNo.style.flex = '1';
+      btnNo.style.padding = '10px';
+      btnNo.style.border = 'none';
+      btnNo.style.borderRadius = '20px';
+      btnNo.style.background = '#e0e0e0';
+      btnNo.style.color = '#333';
+      btnNo.style.cursor = 'pointer';
+      btnNo.style.fontSize = '13px';
+      btnNo.onclick = () => {
+        txtTransferir = false;
+        bubble('Entendido, ¿necesita algo más?', 'bot');
+        chat.removeChild(cont);
+      };
+
+      fila.appendChild(btnSi);
+      fila.appendChild(btnNo);
+      cont.appendChild(fila);
+      chat.appendChild(cont);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function bienvenida() {
+      bubble('¡Hola, vecino! Soy Cisternin y estoy aquí para orientarte con cualquier proceso municipal que necesites. ¿En qué te ayudo hoy?', 'bot');
+    }
+
+    // --- WebSocket con el agente (modo transferido) ---
+    function conectarConAgente() {
+      enModoAgente = true;
+      txtTransferir = false;
+      headerTitulo.textContent = 'Agente de atención';
+      headerSub.textContent = 'Conexión con una persona real · en vivo';
+      bubble('Conectando con un agente, espere un momento por favor…', 'bot');
+
+      const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(`${proto}://${location.host}/ws/vecino/${SESSION}`);
+      ws.onopen = () => {
+        headerSub.textContent = 'Conectado con un agente humano';
+        bubble('Te has conectado con un agente. Escribe tu consulta y te atenderá en breve.', 'bot');
+      };
+      ws.onmessage = (evt) => {
+        const m = JSON.parse(evt.data);
+        if (m.tipo === 'texto' && m.autor === 'agente') {
+          bubble(m.texto, 'bot');
+        } else if (m.tipo === 'estado' && m.estado === 'cerrado') {
+          // El agente finalizó
+          enModoAgente = false;
+          headerTitulo.textContent = 'Municipalidad de La Cisterna';
+          headerSub.textContent = 'Cisternin · asistente virtual en línea';
+          bubble(m.texto || 'La atención con el agente ha finalizado.', 'bot');
+          if (ws) { ws.close(); ws = null; }
+        }
+      };
+      ws.onerror = () => bubble('Hubo un problema al conectar con el agente. Intenta de nuevo.', 'bot');
+      ws.onclose = () => {
+        if (enModoAgente) {
+          headerSub.textContent = 'Se perdió la conexión con el agente';
+        }
+      };
+    }
+
+    function aceptarTransferencia() {
+      // Limpiar botones (si quedaron)
+      conectarConAgente();
+    }
+
+    async function enviarMensaje() {
+      // Fix: Bloquear el "Enter bala" si el bot ya está respondiendo
+      if (enviar.disabled) return;
+      const texto = entrada.value.trim();
+      if (!texto) return;
+      entrada.value = '';
+      bubble(texto, 'user');
+
+      // En modo agente -> por WebSocket
+      if (enModoAgente && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ tipo: 'texto', texto }));
+        return;
+      }
+
+      enviar.disabled = true;
+      try {
+        const res = await fetch('/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: texto, session_id: SESSION }),
+        });
+        const data = await res.json();
+        const respuesta = data.answer || '';
+
+        // Detectar token de transferencia
+        const idx = respuesta.indexOf('[[TRANSFERIR]]');
+        if (idx !== -1) {
+          const textoLimpio = respuesta.replace('[[TRANSFERIR]]', '').trim();
+          bubble(textoLimpio, 'bot');
+          txtTransferir = true;
+          mostrarBotonesTransferir();
+        } else {
+          bubble(respuesta, 'bot');
+        }
+      } catch (e) {
+        bubble('Ocurrió un error al conectarme. Intenta de nuevo.', 'bot');
+      } finally {
+        enviar.disabled = false;
+        entrada.focus();
+      }
+    }
+
+    enviar.addEventListener('click', enviarMensaje);
+    entrada.addEventListener('keydown', (e) => { if (e.key === 'Enter') enviarMensaje(); });
+
+    bienvenida();
+    entrada.focus();
+  </script>
+</body>
+</html>

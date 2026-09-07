@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de Administración — Alcaldía Bot</title>
+  <style>
+    :root {
+      --bg: #0f1117; --card: #1a1f2b; --borde: #2a3340;
+      --texto: #e6e6ea; --sub: #9aa3b2;
+      --verde: #34c98a; --amarillo: #e6b64c; --rojo: #e5534b; --azul: #4a9eff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--texto);
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 24px 32px;
+    }
+    h1 { font-size: 22px; font-weight: 600; letter-spacing: .3px; }
+    .subt { color: var(--sub); font-size: 13px; margin-top: 6px; }
+    header {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      border-bottom: 1px solid var(--borde); padding-bottom: 14px;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .badge-online { color: #8be9a7; background: rgba(52,201,138,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+    .badge-offline { color: #ff9ba0; background: rgba(229,83,75,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+
+    .grid { display: grid; gap: 18px; }
+    .card { background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 18px 20px; }
+    .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .8px; color: var(--sub); margin-bottom: 12px; }
+
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 18px; }
+    .metrica {
+      background: var(--card); border: 1px solid var(--borde); border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .metrica .label { color: var(--sub); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .metrica .valor { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .metrica .detalle { color: var(--sub); font-size: 12px; }
+
+    .barra { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .barra .nombre { width: 220px; color: var(--texto); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .barra .fill { flex: 1; height: 10px; background: #232a38; border-radius: 5px; overflow: hidden; position: relative; }
+    .barra .fill .inner { display: block; height: 100%; width: 0%; background: var(--azul); border-radius: 5px; transition: width .4s; }
+    .barra .n { width: 42px; text-align: right; color: var(--sub); font-size: 12px; }
+
+    .tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tabla th { color: var(--sub); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--borde); text-transform: uppercase; font-size: 11px; letter-spacing: .4px; }
+    .tabla td { padding: 9px 12px; border-bottom: 1px solid #232a38; }
+    .tabla tr:last-child td { border-bottom: none; }
+    .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+    .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
+    .pill.amarilla { background: rgba(230,182,76,.15); color: #f3cf7a; }
+    .pill.roja { background: rgba(229,83,75,.15); color: #ff9ba0; }
+
+    .empty { color: var(--sub); font-size: 13px; padding: 14px; text-align: center; }
+    .foot { color: var(--sub); font-size: 12px; margin-top: 22px; text-align: right; }
+    .login { max-width: 360px; margin: 80px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 26px; }
+    .login h2 { font-size: 18px; margin-bottom: 12px; }
+    .login input, .login button { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: var(--texto); }
+    .login button { background: var(--azul); color: #fff; border: none; font-weight: 600; cursor: pointer; }
+    .login .err { color: var(--rojo); font-size: 13px; min-height: 18px; }
+    #msg-login { color: var(--rojo); font-size: 13px; }
+
+    .btn {
+      background: var(--azul); color: #fff; border: none; border-radius: 8px;
+      padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.peligro { background: var(--rojo); }
+    .btn.acc { background: #2a3340; color: var(--texto); }
+    .lbl { color: var(--sub); font-size: 12px; align-self: center; }
+    .sep { width: 1px; height: 22px; background: var(--borde); align-self: center; }
+    .hist-sesion { border: 1px solid var(--borde); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+    .hist-sesion .head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hist-sesion .head .id { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; flex: 1; }
+    .hist-acciones { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .transc { margin-top: 10px; border-left: 3px solid var(--azul); padding-left: 12px; font-size: 13px; max-height: 260px; overflow: auto; }
+    .transc .msg { margin-bottom: 6px; }
+    .transc .rol { font-weight: 600; color: var(--sub); }
+    .transc .canal { color: var(--verde); font-size: 11px; margin-left: 6px; }
+  </style>
+</head>
+<body>
+  <div id="login-view" style="display:none;">
+    <div class="login">
+      <h2>🔐 Panel de Administración</h2>
+      <div class="subt">Ingresa la clave para ver el estado del servidor.</div>
+      <input type="password" id="clave" placeholder="Clave de administración" onkeydown="if(event.key==='Enter')login()">
+      <div id="msg-login"></div>
+      <button onclick="login()">Entrar</button>
+    </div>
+  </div>
+
+  <div id="main-view" style="display:none;">
+    <header>
+      <h1>Alcaldía Bot — Administración</h1>
+      <span id="online-badge" class="badge-online">● en línea</span>
+      <div class="subt" id="subinfo"></div>
+    </header>
+
+    <div class="metricas" style="margin-top:22px">
+      <div class="metrica"><div class="label">Carga (1/5/15m)</div><div class="valor" id="m-carga">--</div><div class="detalle" id="m-carga-deta">nucleos: --</div></div>
+      <div class="metrica"><div class="label">Memoria RAM</div><div class="valor" id="m-ram">--</div><div class="detalle" id="m-ram-deta">--</div></div>
+      <div class="metrica"><div class="label">Disco (vectorial)</div><div class="valor" id="m-disk">--</div><div class="detalle" id="m-disk-deta">--</div></div>
+      <div class="metrica"><div class="label">Documentos indexados</div><div class="valor" id="m-docs">--</div><div class="detalle" id="m-docs-deta">chunks: --</div></div>
+      <div class="metrica"><div class="label">Pendientes en inbox</div><div class="valor" id="m-inbox">--</div><div class="detalle" id="m-inbox-deta">--</div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Documentos cargados (por fuente)</h2>
+        <div id="fuentes"></div>
+      </div>
+
+      <div class="card">
+        <h2>Cola de procesamiento (inbox)</h2>
+        <div id="inbox-list"></div>
+      </div>
+
+      <div class="card">
+        <h2>Servidor</h2>
+        <table class="tabla">
+          <tbody>
+            <tr><td>Hostname</td><td class="mono" id="s-hostname">--</td></tr>
+            <tr><td>Sistema</td><td class="mono" id="s-so">--</td></tr>
+            <tr><td>Arquitectura</td><td class="mono" id="s-arch">--</td></tr>
+            <tr><td>Frecuencia servidor</td><td class="mono" id="s-freq">--</td></tr>
+            <tr><td>Última ingesta / escritura</td><td class="mono" id="s-ult">--</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <h2>Historial de chats</h2>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+        <button class="btn" onclick="cargarHistorial()">🔄 Refrescar</button>
+        <span class="sep"></span>
+        <span class="lbl">Exportar todo:</span>
+        <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
+        <button class="btn" onclick="exportarHistorial('json')">JSON</button>
+        <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
+        <span class="sep"></span>
+        <button class="btn peligro" onclick="borrarTodo()">🗑 Borrar todo</button>
+      </div>
+      <div id="historial-chats"><div class="empty">Cargando historial…</div></div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <h2>Conocimiento aprendido de agentes (memoria del bot)</h2>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+        <button class="btn" onclick="cargarAprendizajes()">🔄 Refrescar</button>
+        <span class="lbl">El bot aprende automáticamente de las respuestas de los agentes al cerrar cada atención.</span>
+      </div>
+      <div id="aprendizajes-list"><div class="empty">Cargando…</div></div>
+    </div>
+
+    <div class="foot" id="foot">Actualizado: --</div>
+  </div>
+
+  <script>
+    const API = "/admin_api";
+    let timing = 5000; // refresco cada 5s
+
+    async function fetchEstado(clave) {
+      // accede a la URL relativa; si la app está bajo un proxy la clave se pasa por query
+      const sep = API.includes("?") ? "&" : "?";
+      const r = await fetch(API + sep + "clave=" + encodeURIComponent(clave));
+      return await r.json();
+    }
+
+    function fmtBytes(b) {
+      if (b >= 1073741824) return (b/1073741824).toFixed(2) + " GB";
+      if (b >= 1048576) return (b/1048576).toFixed(0) + " MB";
+      return (b/1024).toFixed(0) + " KB";
+    }
+    function fmtUptime(s) {
+      const seg = Math.floor(s); const d = seg/86400; const h = (seg%86400)/3600; const m = (seg%3600)/60;
+      return `${Math.floor(d)}d ${Math.floor(h)}h ${Math.floor(m)}m`;
+    }
+
+    function login() {
+      const c = document.getElementById("clave").value.trim();
+      if (!c) { document.getElementById("msg-login").innerText = "Ingresa una clave."; return; }
+      fetchEstado(c).then(data => {
+        if (data.authorized !== true) { document.getElementById("msg-login").innerText = "Clave incorrecta."; return; }
+        document.getElementById("login-view").style.display = "none";
+        document.getElementById("main-view").style.display = "";
+        localStorage.setItem("admin_clave", c);
+        render(data);
+        cargarHistorial();
+        cargarAprendizajes();
+        setInterval(() => fetchEstado(c).then(render).catch(e=>{}), timing);
+      }).catch(() => { document.getElementById("msg-login").innerText = "No se pudo conectar con el servidor."; });
+    }
+
+    function render(d) {
+      // --- métricas ---
+      const carga = (d.sistema.carga || []).map(x=>x).join(" / ");
+      document.getElementById("m-carga").innerText = carga || "--";
+      document.getElementById("m-carga-deta").innerText = "nucleos: " + (d.sistema.cpu_nucleos || 0);
+
+      const mem = d.memoria;
+      const pctRam = mem.total ? Math.round(mem.usado/mem.total*100) : 0;
+      document.getElementById("m-ram").innerText = pctRam + "%";
+      document.getElementById("m-ram-deta").innerText = fmtBytes(mem.usado) + " / " + fmtBytes(mem.total);
+
+      const disk = d.disco;
+      document.getElementById("m-disk").innerText = fmtBytes(disk.usado);
+      document.getElementById("m-disk-deta").innerText = fmtBytes(disk.libre) + " libre";
+
+      document.getElementById("m-docs").innerText = d.documentos.total_chunks;
+      document.getElementById("m-docs-deta").innerText = d.documentos.fuentes.length + " documentos";
+
+      const pend = d.inbox.pendientes.length;
+      document.getElementById("m-inbox").innerText = pend;
+      document.getElementById("m-inbox-deta").innerText = pend ? "procesar" : "vacío";
+
+      // --- fuentes ---
+      const fuDiv = document.getElementById("fuentes");
+      const f = d.documentos.fuentes;
+      if (!f.length) { fuDiv.innerHTML = '<div class="empty">Sin documentos indexados.</div>'; }
+      else {
+        const max = Math.max(...f.map(x=>x.chunks),1);
+        fuDiv.innerHTML =
+          '<div class="barra" style="font-weight:bold"><span class="nombre">Archivo</span><div class="fill"></div><span class="n">Chunks</span></div>' +
+          f.map(x=>{
+            const w = Math.round(x.chunks/max*100);
+            return `<div class="barra"><span class="nombre">${escp(x.archivo)}</span><div class="fill"><span class="inner" style="width:${w}%"></span></div><span class="n">${x.chunks}</span></div>`;
+          }).join("");
+      }
+
+      // --- inbox ---
+      const ib = document.getElementById("inbox-list");
+      if (!pend) ib.innerHTML = '<div class="empty">Cola vacía — no hay documentos pendientes de procesar.</div>';
+      else ib.innerHTML =
+        '<table class="tabla"><tr><th>Archivo</th><th>Tamaño</th><th>Estado</th></tr>' +
+        d.inbox.pendientes.map(x=>`<tr><td class="mono">${escp(x.archivo)}</td><td>${x.kb} KB</td><td><span class="pill amarilla">pendiente</span></td></tr>`).join("") +
+        '</table>';
+
+      // --- servidor ---
+      document.getElementById("s-hostname").innerText = d.sistema.hostname;
+      document.getElementById("s-so").innerText = d.sistema.sistema;
+      document.getElementById("s-arch").innerText = d.sistema.arquitectura;
+      document.getElementById("s-freq").innerText = "CPU " + (d.sistema.cpu_nucleos||0) + " cores · uptime " + fmtUptime(Number(d.sistema.uptime)||0);
+      document.getElementById("s-ult").innerText = d.ultima_ingesta || "n/d";
+
+      document.getElementById("subinfo").innerText = d.fecha_hora;
+      document.getElementById("foot").innerText = "Actualizado: " + new Date().toLocaleTimeString();
+    }
+
+    function escp(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    // ====================== HISTORIAL DE CHATS ======================
+    function claveAdmin() { return localStorage.getItem("admin_clave") || ""; }
+
+    async function cargarHistorial() {
+      const c = claveAdmin(); if (!c) return;
+      const cont = document.getElementById("historial-chats");
+      cont.innerHTML = '<div class="empty">Cargando…</div>';
+      try {
+        const r = await fetch(`/admin_chats?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorización.</div>'; return; }
+        const ses = d.sesiones || [];
+        if (!ses.length) { cont.innerHTML = '<div class="empty">No hay conversaciones registradas.</div>'; return; }
+        cont.innerHTML = ses.map(s => {
+          const pill = s.canal === "agente"
+            ? '<span class="pill verde">agente</span>'
+            : '<span class="pill">bot</span>';
+          return `<div class="hist-sesion">
+            <div class="head">
+              <span class="id">${escp(s.session_id)}</span>
+              ${pill}
+              <span class="lbl">${s.mensajes} msgs</span>
+              <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
+            </div>
+            <div class="hist-acciones">
+              <button class="btn acc" onclick="verTranscripcion('${escp(s.session_id)}')">👁 Ver</button>
+              <button class="btn peligro" onclick="borrarHistorial('${escp(s.session_id)}')">🗑 Eliminar</button>
+            </div>
+            <div id="transc-${escp(s.session_id)}"></div>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        cont.innerHTML = '<div class="empty">Error al cargar el historial.</div>';
+      }
+    }
+
+    async function verTranscripcion(sid) {
+      const c = claveAdmin(); if (!c) return;
+      const div = document.getElementById("transc-" + sid);
+      if (div && div.dataset.abierto) { div.innerHTML = ""; delete div.dataset.abierto; return; }
+      try {
+        const r = await fetch(`/admin_chat/${encodeURIComponent(sid)}?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        if (d.authorized !== true) return;
+        const hist = d.history || [];
+        div.innerHTML = '<div class="transc">' + hist.map(m => {
+          const rol = m.role === "user" ? "Vecino" : "Agente/Bot";
+          const canal = m.canal === "agente" ? '<span class="canal">[agente]</span>' : '';
+          return `<div class="msg"><span class="rol">${rol}</span>${canal} <span class="lbl">${escp(m.fecha_hora || "")}</span><br>${escp(m.content)}</div>`;
+        }).join("") + '</div>';
+        div.dataset.abierto = "1";
+      } catch (e) { /* ignore */ }
+    }
+
+    function exportarHistorial(fmt) {
+      const c = claveAdmin(); if (!c) return;
+      const url = `/admin_chats/export/${fmt}?clave=${encodeURIComponent(c)}`;
+      window.open(url, "_blank");
+    }
+
+    async function borrarHistorial(sid) {
+      if (!confirm("¿Eliminar esta conversación?")) return;
+      const c = claveAdmin(); if (!c) return;
+      await fetch(`/admin_chat/${encodeURIComponent(sid)}?clave=${encodeURIComponent(c)}`, { method: "DELETE" });
+      cargarHistorial();
+    }
+
+    async function borrarTodo() {
+      if (!confirm("⚠️ ¿Borrar TODO el historial de chats? Esta acción no se puede deshacer.")) return;
+      const c = claveAdmin(); if (!c) return;
+      await fetch(`/admin_chats?clave=${encodeURIComponent(c)}`, { method: "DELETE" });
+      cargarHistorial();
+    }
+    // ====================== FIN HISTORIAL ======================
+
+    // ====================== APRENDIZAJE DEL BOT ======================
+    async function cargarAprendizajes() {
+      const c = claveAdmin(); if (!c) return;
+      const cont = document.getElementById("aprendizajes-list");
+      cont.innerHTML = '<div class="empty">Cargando…</div>';
+      try {
+        const r = await fetch(`/admin_aprendizajes?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorización.</div>'; return; }
+        const ap = d.aprendizajes || [];
+        window.__aprendizajes = ap; // guardar para verDetalleQA
+        if (!ap.length) { cont.innerHTML = '<div class="empty">Aún no hay conocimiento aprendido de agentes. Cuando un agente cierre una atención, el bot aprenderá de sus respuestas.</div>'; return; }
+        cont.innerHTML = ap.map(a => {
+          const q = a.pregunta && a.pregunta.length > 70 ? a.pregunta.slice(0,70) + "…" : (a.pregunta || a.qa_id);
+          return `<div class="hist-sesion">
+            <div class="head">
+              <span class="id">${escp(q)}</span>
+              <span class="pill verde">aprendido</span>
+              <span class="lbl">${escp(a.fecha || "")}</span>
+            </div>
+            <div class="hist-acciones">
+              <button class="btn acc" onclick="verDetalleQA('${escp(a.qa_id)}')">👁 Detalle</button>
+              <button class="btn peligro" onclick="desaprender('${escp(a.qa_id)}')">🗑 Desaprender</button>
+            </div>
+            <div id="qa-${escp(a.qa_id)}"></div>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        cont.innerHTML = '<div class="empty">Error al cargar aprendizajes.</div>';
+      }
+    }
+
+    function verDetalleQA(qaId) {
+      const div = document.getElementById("qa-" + qaId);
+      if (!div) return;
+      if (div.dataset.abierto) { div.innerHTML = ""; delete div.dataset.abierto; return; }
+      const ap = (window.__aprendizajes || []).find(x => x.qa_id === qaId);
+      if (ap) div.innerHTML = '<pre style="white-space:pre-wrap;background:#202837;padding:10px;border-radius:8px;font-size:12px;margin-top:8px">' + escp(ap.texto || "") + '</pre>';
+      div.dataset.abierto = "1";
+    }
+
+    async function desaprender(qaId) {
+      if (!confirm("¿Desaprender este conocimiento? El bot dejará de usarlo.")) return;
+      const c = claveAdmin(); if (!c) return;
+      await fetch(`/admin_aprendizaje/${encodeURIComponent(qaId)}?clave=${encodeURIComponent(c)}`, { method: "DELETE" });
+      cargarAprendizajes();
+    }
+    // ====================== FIN APRENDIZAJE ======================
+
+    // --- arranque: si hay clave guardada, intenta auto-login ---
+    const saved = localStorage.getItem("admin_clave");
+    if (saved) {
+      fetchEstado(saved).then(data => {
+        if (data.authorized === true) {
+          document.getElementById("login-view").style.display = "none";
+          document.getElementById("main-view").style.display = "";
+          render(data);
+          cargarHistorial();
+          cargarAprendizajes();
+          setInterval(() => fetchEstado(saved).then(render).catch(e=>{}), timing);
+        } else {
+          document.getElementById("login-view").style.display = "";
+        }
+      }).catch(() => { document.getElementById("login-view").style.display = ""; });
+    } else {
+      document.getElementById("login-view").style.display = "";
+    }
+  </script>
+</body>
+</html>
