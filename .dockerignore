@@ -1,0 +1,29 @@
+# Dependencias locales
+venv/
+__pycache__/
+*.py[cod]
+
+# Entornos y credenciales (NUNCA al contenedor)
+.env
+config/
+
+# Datos locales del bot (se montan como volúmenes)
+chroma_db/
+chat_history.db
+data/
+
+# Git y Obsidian
+.git/
+.gitignore
+.obsidian/
+.DS_Store
+
+# Backups y temporales
+*.bak
+*.tmp
+*~
+
+# Docs de costos (internos, no van a producción)
+Costos meta/
+docs/
+README_JEFES.md
