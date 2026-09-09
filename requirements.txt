@@ -14,6 +14,11 @@ pymupdf4llm
 # --- API / Servidor ---
 fastapi
 uvicorn
+# Transporte WebSocket usado por el proyecto (--ws wsproto)
+wsproto
+
+# --- Sincronización Google Drive (gdown_sync.sh) ---
+gdown
 
 # --- Configuración ---
 python-dotenv

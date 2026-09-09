@@ -31,16 +31,20 @@
 set -euo pipefail
 
 # ---------- Configuración ----------
-PROJECT_DIR="/home/aspen/Alcaldia_Practica"
+# Ruta base del proyecto. En la laptop usa el default; en Docker se overrida
+# con el entorno (PROJECT_DIR=/app).
+PROJECT_DIR="${PROJECT_DIR:-/home/aspen/Alcaldia_Practica}"
 DATA_DIR="$PROJECT_DIR/data"
 # Enlace PÚBLICO del Drive de la carpeta que compartió la muni (abajo, el
 # nombre de sección o una carpeta pública "Cualquier persona con el enlace").
 # Formato: https://drive.google.com/drive/folders/<FOLDER_ID>
-DRIVE_URL="16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD"   # ID de la carpeta pública "Chat bot Cisterna"
+DRIVE_URL="${DRIVE_URL:-16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD}"   # ID de la carpeta pública "Chat bot Cisterna"
 # Opcional: conservar copia local de los archivos (ruta absoluta). Vacío = no.
-BACKUP_DIR=""
+BACKUP_DIR="${BACKUP_DIR:-}"
 # Log (se usa para monitorear con Uptime Kuma etc.)
-LOG_FILE="/tmp/gdown_sync.log"
+LOG_FILE="${LOG_FILE:-/tmp/gdown_sync.log}"
+# Intérprete de Python. En la laptop usa el venv; en Docker, "python".
+PYTHON="${PYTHON:-$PROJECT_DIR/venv/bin/python}"
 
 # ---------- Validaciones ----------
 if [ -z "$DRIVE_URL" ]; then
@@ -50,6 +54,10 @@ if [ -z "$DRIVE_URL" ]; then
 fi
 
 GDOWN="$(command -v gdown || echo "$PROJECT_DIR/venv/bin/gdown")"
+# Si el PYTHON definido no existe (caso Docker sin venv), usar python del PATH.
+if [ ! -x "$PYTHON" ]; then
+  PYTHON="$(command -v python3 || command -v python)"
+fi
 
 # ---------- Funciones ----------
 log() {
@@ -113,7 +121,7 @@ log "Descarga completada."
 #    en ChromaDB con el origen (subcarpeta/nombre).
 if find "$DATA_DIR" -type f \( -name '*.pdf' -o -name '*.md' -o -name '*.csv' \) | grep -q .; then
   log "Indexando documentos en el chatbot..."
-  (cd "$PROJECT_DIR" && venv/bin/python -m app.ingestion) >>"$LOG_FILE" 2>&1
+  (cd "$PROJECT_DIR" && "$PYTHON" -m app.ingestion) >>"$LOG_FILE" 2>&1
   log "Ingesta finalizada."
 else
   log "No hay PDFs/MD/CSV nuevos en data/ (nada que indexar por ahora)."

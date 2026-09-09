@@ -23,6 +23,13 @@ from langchain_core.output_parsers import StrOutputParser
 from app import settings
 from app import chat_memory
 from app.database import retrieve
+from app.text_normalizer import (
+    normalizar_basico,
+    corregir_texto,
+    expandir_query,
+    normalizar_para_patrones,
+)
+from app.intent_detector import detectar_intencion
 
 # Límite de caracteres del contexto a inyectar (ahorro de tokens: ~750 tokens)
 _MAX_CONTEXT_CHARS = 3000
@@ -453,18 +460,21 @@ def query_chatbot(question: str, session_id: str = None) -> str:
     if accion["accion"] == "confirmar":
         question = accion.get("pregunta", question)
 
+    # ── Normalización para patrones de detección ──
+    # Quita tildes, minúsculas y puntuación para que los patrones de
+    # matching (identidad, sensible, despedidas, etc.) funcionen sin
+    # importar escriba el vecino con mayúsculas, tildes, etc.
+    pregunta_norm = normalizar_para_patrones(question)
+
 # 0c. Corto-circuito: Datos Sensibles
-    if _es_pregunta_sensible(question):
+    if _es_pregunta_sensible(pregunta_norm):
         respuesta_sensible = _respuesta_sensible()
         chat_memory.add_message(session_id, "user", question)
         chat_memory.add_message(session_id, "assistant", respuesta_sensible)
         return respuesta_sensible
 
     # 0b. Preguntas de identidad/presentación de Cisternin
-    # inmediato con calidez (personalidad), SIN pasar por el RAG ni derivar a
-    # transferencia. Esto garantiza que "¿cómo te llamas?" o "¿quién eres?"
-    # siempre obtengan una respuesta propia.
-    if _es_pregunta_identidad(question):
+    if _es_pregunta_identidad(pregunta_norm):
         respuesta_identidad = _respuesta_identidad()
         chat_memory.add_message(session_id, "user", mensaje_usuario)
         chat_memory.add_message(session_id, "assistant", respuesta_identidad)
@@ -472,15 +482,15 @@ def query_chatbot(question: str, session_id: str = None) -> str:
 
 
     # 0d. Corto-circuito: Easter Eggs (Humor municipal)
-    if _es_easter_egg(question):
+    if _es_easter_egg(pregunta_norm):
         respuesta_ee = _respuesta_easter_egg(question)
         chat_memory.add_message(session_id, "user", question)
         chat_memory.add_message(session_id, "assistant", respuesta_ee)
         return respuesta_ee
 
 
-    # 0e. Corto-circuito: Despedidas y Agradecimientos (Evitar transferir por un "no gracias")
-    if _es_despedida_o_gracias(question):
+    # 0e. Corto-circuito: Despedidas y Agradecimientos
+    if _es_despedida_o_gracias(pregunta_norm):
         respuesta_desp = _respuesta_despedida()
         chat_memory.add_message(session_id, "user", question)
         chat_memory.add_message(session_id, "assistant", respuesta_desp)
@@ -493,15 +503,29 @@ def query_chatbot(question: str, session_id: str = None) -> str:
         f"{m['role']}: {m['content']}" for m in history
     ) or "(sin historial previo)"
 
+    # 0g. Detección de intención (Capa 2): entender QUÉ quiere hacer el vecino
+    # para enriquecer la query de retrieval y dar contexto al LLM.
+    intencion = detectar_intencion(question, history)
+
     # 1. Recuperar contexto de documentos
-    # Expansión de consulta con memoria: las preguntas de seguimiento
-    # ("¿y qué documentos debo llevar?") no repiten el tema ("farmacia").
-    # Anexamos la última interacción del historial a la consulta de retrieval
-    # para que recupere chunks del MISMO trámite conversado. Si no hay
-    # historial, la consulta queda igual (no rompe nada).
+    # Estrategia de query combinada (Capa 1 + Capa 2):
+    #   1a. Expansión por memoria: preguntas de seguimiento heredan contexto
+    #   1b. Expansión por sinónimos (Capa 1): modismos → nombres formales
+    #   1c. Enriquecimiento por intención (Capa 2): agrega términos de la
+    #       categoría de servicio detectada
     query_retrieval = question
     if history:
         query_retrieval = f"{question} {history[-1]['content'][:200]}"
+
+    # Capa 1: expansión por sinónimos
+    query_sinonimos = expandir_query(query_retrieval)
+
+    # Capa 2: la query enriquecida ya incluye sinónimos + términos de intención
+    # Usar la query enriquecida del detector si es más larga que la de sinónimos
+    if len(intencion.query_enriquecida) > len(query_sinonimos):
+        query_retrieval = intencion.query_enriquecida
+    else:
+        query_retrieval = query_sinonimos
 
     docs = retrieve(query_retrieval, k=settings.TOP_K)
     # Defensa en profundidad: eliminar posibles None/entradas vacías que
@@ -513,10 +537,18 @@ def query_chatbot(question: str, session_id: str = None) -> str:
         context = context[:_MAX_CONTEXT_CHARS] + "..."
 
     # 3. Invocar la cadena RAG (salida estructurada)
+    # Inyectar contexto de intención al contexto del retrieval para que el
+    # LLM sepa QUÉ quiere hacer el vecino (Capa 2).
+    context_con_intencion = context
+    if intencion.contexto_extra:
+        context_con_intencion = (
+            f"[Intención detectada: {intencion.contexto_extra}]\n\n{context}"
+        )
+
     answer = _chain.invoke(
         {
             "question": question,
-            "context": context,
+            "context": context_con_intencion,
             "history": history_text,
         }
     )
