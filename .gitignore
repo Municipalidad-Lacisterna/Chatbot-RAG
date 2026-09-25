@@ -44,3 +44,4 @@ README_JEFES.md
 # Obsidian y SO
 .obsidian/
 .DS_Store
+uvicorn.log

@@ -97,8 +97,10 @@ async def ws_vecino(websocket: WebSocket, session_id: str):
             _mensajes.pop(session_id, None)
     # El vecino llega aquí con la intención de hablar con una persona:
     # lo ponemos en la cola de espera para que el panel del agente lo vea.
-    handoff.encolar(session_id)
+    info = handoff.encolar(session_id)
     _notificar_cola()
+    fuera_horario = info.get("fuera_horario", False)
+
     _registrar(session_id, websocket)
     # Enviar historial de mensajes que ya estaban en la sesión
     for m in _mensajes.get(session_id, []):
@@ -106,6 +108,14 @@ async def ws_vecino(websocket: WebSocket, session_id: str):
             await websocket.send_text(json.dumps(m, ensure_ascii=False))
         except Exception:
             break
+            
+    if fuera_horario:
+        msg = {
+            "tipo": "texto",
+            "autor": "sistema",
+            "texto": "Estás escribiendo fuera del horario de atención. Por favor, **déjanos tu correo electrónico junto con tu consulta** en un mensaje aquí abajo. Un agente municipal lo revisará a primera hora y te contactará de vuelta por correo."
+        }
+        await websocket.send_text(json.dumps(msg, ensure_ascii=False))
     try:
         while True:
             data = await websocket.receive_text()

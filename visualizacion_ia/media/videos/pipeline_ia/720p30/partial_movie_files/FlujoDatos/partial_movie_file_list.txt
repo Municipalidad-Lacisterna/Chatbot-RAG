@@ -1,0 +1,8 @@
+# This file is used internally by FFMPEG.
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3418976718_4184094558_223132457.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_398828888_3890267068.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_4235033027_2152537164.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_3000936791_3025030768.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_2099450290_1371751805.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_2645707024_1464743309.mp4'
+file 'file:/home/aspen/Alcaldia_Practica/visualizacion_ia/media/videos/pipeline_ia/720p30/partial_movie_files/FlujoDatos/3378685519_4097048361_3678279535.mp4'

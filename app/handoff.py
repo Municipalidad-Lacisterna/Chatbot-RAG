@@ -82,7 +82,8 @@ def encolar(session_id: str) -> dict:
             return _QUEUE.setdefault(
                 session_id, {"estado": "atendiendo", "session_id": session_id}
             )
-        _QUEUE[session_id] = {"estado": "esperando", "session_id": session_id}
+        fh = not agentes_disponibles_ahora()
+        _QUEUE[session_id] = {"estado": "esperando", "session_id": session_id, "fuera_horario": fh}
         return _QUEUE[session_id]
 
 

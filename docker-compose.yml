@@ -1,0 +1,110 @@
+# =============================================================================
+# docker-compose.yml — Bot RAG 'Cisternin' (Municipalidad de La Cisterna)
+#
+# DOS PERFILES:
+#   dev  (por defecto)          → solo la app, LLM vía Google Gemini (gratis).
+#                                 `docker compose up -d`
+#   prod (servidor municipal)   → app + Ollama local (soberanía total) + cron
+#                                 de mantenimiento (purga 6h + gdown 07:00).
+#                                 `docker compose --profile prod up -d`
+#
+# Config: copia .env.example → .env y edita (LLM_PROVIDER, GOOGLE_API_KEY,
+# AGENTE_PANEL_CLAVE, etc.). NUNCA subas .env al repo.
+# Requiere: Docker + Compose v2. Para GPU (prod): NVIDIA Container Toolkit.
+# =============================================================================
+
+name: cisternin
+
+services:
+
+  # ── Aplicación principal (FastAPI + RAG + ChromaDB embebida) ──────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cisternin-bot:latest
+    container_name: cisternin-app
+    env_file:
+      - .env
+    environment:
+      # Dentro de la red de compose, Ollama se llama por su nombre de servicio
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    volumes:
+      # Datos persistentes (ChromaDB, SQLite, ingesta) y caché de embeddings
+      - ./chroma_db:/app/chroma_db
+      - ./chat_history.db:/app/chat_history.db
+      - ./data:/app/data
+      - ./hf_cache:/app/.hf_cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 5
+    # En prod la app espera a que Ollama esté listo
+    depends_on:
+      ollama:
+        condition: service_started
+        required: false
+    networks:
+      - cisternin-net
+
+  # ── Ollama: LLM local (SOLO perfil prod) ──────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: cisternin-ollama
+    profiles: ["prod"]
+    volumes:
+      - ollama_models:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # GPU NVIDIA (si el servidor tiene). Quita el bloque si no hay GPU:
+    # Qwen2.5-VL-7B igual funciona por CPU, solo más lento.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - cisternin-net
+
+  # ── Cron de mantenimiento (SOLO perfil prod) ──────────────────────────────
+  # Purga el historial cada 6h (Ley 19.628) y sincroniza el Drive a las 07:00.
+  cron:
+    image: cisternin-bot:latest
+    container_name: cisternin-cron
+    profiles: ["prod"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: ["/bin/bash", "/app/scripts/docker_cron.sh"]
+    env_file:
+      - .env
+    environment:
+      PROJECT_DIR: /app
+      PYTHON: python
+      GDOWN_URL: ${DRIVE_URL:-16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD}
+    volumes:
+      - ./chat_history.db:/app/chat_history.db
+      - ./data:/app/data
+      - ./hf_cache:/app/.hf_cache
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - cisternin-net
+
+volumes:
+  ollama_models:
+    name: cisternin_ollama_models
+
+networks:
+  cisternin-net:
+    name: cisternin-net

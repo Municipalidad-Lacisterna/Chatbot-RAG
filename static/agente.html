@@ -64,6 +64,11 @@
     #responder-row input { flex: 1; padding: 11px 14px; border: 1px solid var(--borde); border-radius: 22px; font-size: 14px; outline: none; }
     #responder-row button { padding: 10px 20px; border: none; border-radius: 22px; background: var(--verde); color: #fff; font-size: 14px; cursor: pointer; }
     #acciones-row { display: flex; gap: 8px; margin-top: 8px; }
+    /* Quick Replies Agente */
+    .qr-agente { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .qr-agente button { padding: 6px 12px; border: 1px solid var(--verde-oscuro); border-radius: 14px; background: #fff; color: var(--verde-oscuro); font-size: 12px; cursor: pointer; }
+    .qr-agente button:disabled { opacity: 0.4; cursor: not-allowed; }
+    
     #btn-terminar {
       padding: 9px 16px; border: 1px solid #e74c3c; border-radius: 22px;
       background: #fff; color: #e74c3c; font-size: 13px; cursor: pointer;
@@ -195,7 +200,8 @@
       cola.forEach(s => {
         const item = document.createElement('div');
         item.className = 'item-cola';
-        item.innerHTML = `<div><strong>Vecino ${s.session_id}</strong><div class="meta">Esperando</div></div>`;
+        const label = s.fuera_horario ? '<span style="color:#e67e22; font-weight:bold;">(Fuera de horario)</span>' : 'Esperando';
+        item.innerHTML = `<div><strong>Vecino ${s.session_id}</strong><div class="meta">${label}</div></div>`;
         const btn = document.createElement('button');
         btn.textContent = 'Atender';
         btn.onclick = () => tomar(s.session_id);

@@ -165,36 +165,37 @@ _chain = build_chain()
 def _build_transfer_offer_message() -> str:
     """
     Mensaje que ofrece transferir al vecino a una persona real del Panel de
-    Atención al Vecino, con tono cálido y cercano (personalidad de Cisternin).
-    Incluye el token [[TRANSFERIR]] para que el frontend muestre los botones
-    Sí/No. Un solo mensaje (regla de ahorro).
+    Atención al Vecino. Modificado para ser más neutral y no sonar tan
+    entusiasta ante preguntas fuera de contexto (como recetas de cocina).
     """
     return (
-        f"¡Con gusto te ayudo con eso, vecino! Para darte la información "
-        f"más completa y al día, te conecto con una persona del Panel de "
-        f"Atención al Vecino, que atiende {settings.AGENTE_HORARIO_TEXTO}. "
-        f"¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+        f"No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
+        f"Sin embargo, puedo conectarte con una persona del Panel de Atención al Vecino "
+        f"para que te oriente (atienden {settings.AGENTE_HORARIO_TEXTO}). "
+        f"¿Quieres que te transfiera con un agente ahora?\n[[TRANSFERIR]]"
     )
 
 
+import re
+
 def _parse_answer(raw: str, question: str) -> tuple[str, bool]:
     """
-    Intenta parsear la salida JSON del LLM.
-
-    Devuelve (texto_respuesta, encontrado). Si el JSON no se puede parsear
-    (p. ej. el modelo devolvió texto plano), trata el resultado como texto
-    y asume encontrado=True para no romper la conversación.
+    Intenta parsear la salida JSON del LLM, incluso si está mal formateado.
     """
     raw = (raw or "").strip()
 
-    # Quitar delimitadores de código si el modelo los incluyó
-    if raw.startswith("```"):
-        raw = raw.strip("`")
-        if raw.startswith("json"):
-            raw = raw[4:].strip()
+    # Intentar extraer bloque JSON si hay texto adicional
+    match = re.search(r'\{.*\}', raw, re.DOTALL)
+    if match:
+        json_str = match.group(0)
+    else:
+        # A veces el modelo tira '""\n"encontrado": false'
+        if '"encontrado": false' in raw.lower() or '"encontrado":false' in raw.lower():
+            return "", False
+        json_str = raw
 
     try:
-        data = json.loads(raw)
+        data = json.loads(json_str)
         respuesta = str(data.get("respuesta", "")).strip()
         encontrado = bool(data.get("encontrado", True))
         if respuesta:
@@ -403,6 +404,16 @@ def query_chatbot(question: str, session_id: str = None) -> str:
     5. Persiste la interacción (user + assistant) en la memoria.
     """
     session_id = session_id or "default"
+
+    # -- SHORTCUT: TRANSFERENCIA DIRECTA --
+    # Si el vecino usó el botón de "Hablar con un agente" o lo pide expresamente,
+    # saltamos el RAG y el LLM para ahorrar tokens y forzamos el Handoff.
+    if "hablar con un agente" in question.lower() or "transferir" in question.lower() or "quiero hablar con un humano" in question.lower():
+        respuesta_texto = _build_transfer_offer_message()
+        chat_memory.add_message(session_id, "user", question)
+        chat_memory.add_message(session_id, "assistant", respuesta_texto)
+        return respuesta_texto
+
 
     from app import session_state
 
