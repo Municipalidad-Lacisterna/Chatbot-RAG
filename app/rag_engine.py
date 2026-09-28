@@ -162,21 +162,75 @@ def build_chain():
 _chain = build_chain()
 
 
-def _build_transfer_offer_message() -> str:
+def _build_transfer_offer_message(es_fallback: bool = False) -> str:
     """
-    Mensaje que ofrece transferir al vecino a una persona real del Panel de
-    Atención al Vecino. Modificado para ser más neutral y no sonar tan
-    entusiasta ante preguntas fuera de contexto (como recetas de cocina).
+    Mensaje que ofrece transferir al vecino a un humano.
+    Tiene dos tonos según el contexto:
+    - es_fallback=True: Cuando el RAG no encuentra la info (ej. receta de cocina o trámite que no existe).
+    - es_fallback=False: Cuando el vecino pide EXPLÍCITAMENTE "hablar con un agente".
     """
-    return (
-        f"No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
-        f"Sin embargo, puedo conectarte con una persona del Panel de Atención al Vecino "
-        f"para que te oriente (atienden {settings.AGENTE_HORARIO_TEXTO}). "
-        f"¿Quieres que te transfiera con un agente ahora?\n[[TRANSFERIR]]"
-    )
+    if es_fallback:
+        return (
+            f"No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
+            f"Sin embargo, puedo conectarte con una persona del Panel de Atención al Vecino "
+            f"para que te oriente (atienden {settings.AGENTE_HORARIO_TEXTO}). "
+            f"¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+        )
+    else:
+        return (
+            f"¡Por supuesto! Para darte la mejor atención, puedo conectarte con un ejecutivo del Panel de Atención al Vecino "
+            f"(atienden {settings.AGENTE_HORARIO_TEXTO}). "
+            f"¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+        )
 
 
 import re
+
+
+def _es_error_cuota(exc: Exception) -> bool:
+    """
+    Detecta si la excepción del LLM corresponde a cuota agotada / 429 del
+    proveedor. Se usa solo para Leaving en el log del servidor qué pasó.
+    """
+    texto = f"{type(exc).__name__} {exc}".lower()
+    marcadores = (
+        "resource_exhausted",
+        "429",
+        "quota",
+        "rate limit",
+        "ratelimit",
+        "too many requests",
+    )
+    return any(m in texto for m in marcadores)
+
+
+def _build_llm_error_message(exc: Exception) -> str:
+    """
+    Mensaje para el vecino cuando el motor LLM falla por una causa TÉCNICA
+    (cuota agotada, red caída, credencial inválida, timeout).
+
+    Es distinto del fallback semántico de "no encontré la información": aquí el
+    bot NO está sin datos, está sin capacidad de responder. No se le debe
+    mentir al vecino diciendo que no halló lo que preguntaba.
+
+    Siempre ofrece el traspaso a un humano: ese canal es un WebSocket que NO
+    depende del LLM, así que sigue disponible aunque el modelo esté caído. El
+    detalle técnico (tipo de excepción) queda solo en el log del servidor, para
+    no filtrar nada al vecino.
+    """
+    causa = "cuota agotada" if _es_error_cuota(exc) else "fallo técnico"
+    print(
+        f"[rag] ERROR DEL LLM ({causa}) -> degradando a humano: "
+        f"{type(exc).__name__}: {exc}"
+    )
+    return (
+        "Disculpa la molestia, en este momento no puedo darte una respuesta: "
+        "mi sistema está momentáneamente ocupado. No quiero inventarte algo que "
+        "no sé, así que lo mejor es que te atienda una persona del Panel de "
+        f"Atención al Vecino (atienden {settings.AGENTE_HORARIO_TEXTO}). "
+        "¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+    )
+
 
 def _parse_answer(raw: str, question: str) -> tuple[str, bool]:
     """
@@ -556,13 +610,21 @@ def query_chatbot(question: str, session_id: str = None) -> str:
             f"[Intención detectada: {intencion.contexto_extra}]\n\n{context}"
         )
 
-    answer = _chain.invoke(
-        {
-            "question": question,
-            "context": context_con_intencion,
-            "history": history_text,
-        }
-    )
+    try:
+        answer = _chain.invoke(
+            {
+                "question": question,
+                "context": context_con_intencion,
+                "history": history_text,
+            }
+        )
+    except Exception as exc:
+        # Catch amplio a propósito: cualquier fallo del proveedor (cuota, red,
+        # credencial, timeout) degrada a la derivación a humano de arriba.
+        respuesta_texto = _build_llm_error_message(exc)
+        chat_memory.add_message(session_id, "user", mensaje_usuario)
+        chat_memory.add_message(session_id, "assistant", respuesta_texto)
+        return respuesta_texto
 
     # 4. Parsear la respuesta estructurada
     respuesta_texto, encontrado = _parse_answer(answer, question)
@@ -584,7 +646,7 @@ def query_chatbot(question: str, session_id: str = None) -> str:
     # La disponibilidad real del agente se resuelve al conectar el WebSocket,
     # no aquí, para que el vecino nunca pierda la opción.
     if not encontrado:
-        respuesta_texto = _build_transfer_offer_message()
+        respuesta_texto = _build_transfer_offer_message(es_fallback=True)
     elif "[[TRANSFERIR]]" not in respuesta_texto and _es_respuesta_transferencia(respuesta_texto):
         # El modelo expresó que transferirá, pero sin token. Conservamos su
         # texto (es válido) y le agregamos el token al final para que el

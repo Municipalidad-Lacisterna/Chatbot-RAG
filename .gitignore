@@ -45,3 +45,7 @@ README_JEFES.md
 .obsidian/
 .DS_Store
 uvicorn.log
+
+# Respaldos de .env (contienen llaves) — nunca versionar
+.env.bak*
+.env.*.bak*
