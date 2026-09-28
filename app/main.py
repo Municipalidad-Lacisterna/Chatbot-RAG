@@ -92,8 +92,10 @@ async def chat_ui():
 
 
 @app.post("/query", response_model=QueryResponse)
-async def query(request: QueryRequest):
+def query(request: QueryRequest):
     """Responde a una pregunta del usuario, con memoria por sesión."""
+    # Sync a propósito, NO cambiar a `async def`: el motor es bloqueante y
+    # tardaría segundos. FastAPI manda los handlers `def` al threadpool.
     # Defensa en profundidad: el motor ya captura sus fallos, pero si algo se
     # escapa el vecino no debe ver un 500 pelado.
     try:
@@ -104,13 +106,13 @@ async def query(request: QueryRequest):
 
 
 @app.get("/history/{session_id}")
-async def get_history(session_id: str):
+def get_history(session_id: str):
     """Devuelve el historial de una conversación."""
     return {"session_id": session_id, "history": rag_engine.get_history(session_id)}
 
 
 @app.delete("/history/{session_id}")
-async def clear_history(session_id: str):
+def clear_history(session_id: str):
     """Limpia el historial de una conversación."""
     rag_engine.clear_history(session_id)
     return {"session_id": session_id, "cleared": True}

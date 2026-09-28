@@ -45,7 +45,7 @@ def _desregistrar(session_id: str):
         _vivos.pop(session_id, None)
 
 
-def _push(session_id: str, msg: dict):
+async def _push(session_id: str, msg: dict):
     """Guarda el mensaje en buffer y lo distribuye en vivo.
 
     Envía el mensaje al socket de la sesión (el vecino) y, si la sesión está
@@ -57,8 +57,11 @@ def _push(session_id: str, msg: dict):
     # Persistir los mensajes de texto de la transferencia (canal 'agente')
     # para que queden en el historial y sean exportables desde /admin.
     if msg.get("tipo") == "texto" and msg.get("autor") in ("vecino", "agente"):
-        chat_memory.add_agente_message(
-            session_id, msg.get("autor"), msg.get("texto", "")
+        # Hilo aparte: la escritura a SQLite bloquearía el event loop. Es
+        # seguro porque chat_memory abre su conexión por llamada.
+        await asyncio.to_thread(
+            chat_memory.add_agente_message,
+            session_id, msg.get("autor"), msg.get("texto", ""),
         )
     ws = _vivos.get(session_id)
     if ws is not None:
@@ -129,7 +132,7 @@ async def ws_vecino(websocket: WebSocket, session_id: str):
             # Mensaje del vecino -> buffer (va al agente)
             msg = {"tipo": "texto", "autor": "vecino", "session_id": session_id,
                    "texto": payload.get("texto", ""), "hora": _hora()}
-            _push(session_id, msg)
+            await _push(session_id, msg)
     except WebSocketDisconnect:
         pass
     finally:
@@ -142,7 +145,7 @@ async def ws_vecino(websocket: WebSocket, session_id: str):
             # responder (idempotente; si el agente ya finalizó antes, no duplica).
             try:
                 from app import learning
-                learning.aprender_sesion(session_id)
+                await asyncio.to_thread(learning.aprender_sesion, session_id)
             except Exception as e:
                 print(f"[ws] error aprendiendo de {session_id}: {e}")
         else:
@@ -199,8 +202,8 @@ async def ws_agente(websocket: WebSocket):
                 sid = payload.get("session_id", "")
                 if sid:
                     handoff.finalizar(sid)
-                    _push(sid, {"tipo": "estado", "estado": "cerrado",
-                                "texto": "El agente finalizó esta atención."})
+                    await _push(sid, {"tipo": "estado", "estado": "cerrado",
+                                      "texto": "El agente finalizó esta atención."})
                     # Limpiar el buffer de la sesión cerrada (el historial ya
                     # quedó en chat_memory vía _push).
                     with _lock:
@@ -209,7 +212,7 @@ async def ws_agente(websocket: WebSocket):
                     # respuestas del agente (pares QA) para futuros vecinos.
                     try:
                         from app import learning
-                        learning.aprender_sesion(sid)
+                        await asyncio.to_thread(learning.aprender_sesion, sid)
                     except Exception as e:
                         print(f"[ws] error aprendiendo de {sid}: {e}")
                 await _enviar(websocket, {"tipo": "finalizado", "session_id": sid})
@@ -220,7 +223,7 @@ async def ws_agente(websocket: WebSocket):
                 if sid and texto:
                     msg = {"tipo": "texto", "autor": "agente", "session_id": sid,
                            "texto": texto, "hora": _hora()}
-                    _push(sid, msg)  # llega al vecino
+                    await _push(sid, msg)  # llega al vecino
     except WebSocketDisconnect:
         pass
     finally:

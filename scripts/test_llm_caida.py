@@ -8,6 +8,7 @@ Uso:  venv/bin/python scripts/test_llm_caida.py
 No llama a la API real ni consume cuota.
 """
 import sys
+import uuid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -44,7 +45,7 @@ fallos = 0
 
 for nombre, excepcion in CASOS:
     rag_engine._chain = CadenaMuerta(excepcion)
-    session_id = f"test_caida_{nombre.replace(' ', '_')}"
+    session_id = f"test_caida_{nombre.replace(' ', '_')}_{uuid.uuid4().hex[:8]}"
 
     try:
         salida = rag_engine.query_chatbot(PREGUNTA, session_id)
