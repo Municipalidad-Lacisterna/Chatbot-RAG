@@ -9,18 +9,30 @@ import chromadb
 from chromadb.utils import embedding_functions
 from app import settings
 
+import logging
+
 # Inicializar cliente persistente local
 client = chromadb.PersistentClient(path=settings.PERSIST_DIRECTORY)
 
 # Embedding multilingüe (optimizado para español)
-_emb_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
-    model_name="paraphrase-multilingual-MiniLM-L12-v2"
-)
+_emb_fn = None
+
+def _get_emb_fn():
+    global _emb_fn
+    if _emb_fn is None:
+        try:
+            _emb_fn = embedding_functions.SentenceTransformerEmbeddingFunction(
+                model_name="paraphrase-multilingual-MiniLM-L12-v2"
+            )
+        except Exception as e:
+            logging.error(f"[database] Error cargando modelo de embeddings desde HF: {e}")
+            raise RuntimeError(f"Fallo crítico al cargar modelo de vectores: {e}") from e
+    return _emb_fn
 
 
 def get_collection(name: str = "municipal_docs"):
     """Obtiene (o crea) la colección de documentos."""
-    return client.get_or_create_collection(name=name, embedding_function=_emb_fn)
+    return client.get_or_create_collection(name=name, embedding_function=_get_emb_fn())
 
 
 def retrieve(question: str, k: int = None) -> list[str]:
@@ -32,8 +44,14 @@ def retrieve(question: str, k: int = None) -> list[str]:
     como RunnableLambda para integrarse en la cadena LCEL.
     """
     k = k or settings.TOP_K
-    collection = get_collection()
-    results = collection.query(query_texts=[question], n_results=k)
+    
+    try:
+        collection = get_collection()
+        results = collection.query(query_texts=[question], n_results=k)
+    except Exception as e:
+        logging.error(f"[database] Error en retrieve() al consultar ChromaDB: {e}")
+        # Propagamos el error para que _chain.invoke() degrade a humano
+        raise RuntimeError("Fallo en la base vectorial al recuperar contexto.") from e
 
     docs = results.get("documents") or []
     if not docs or not docs[0]:
