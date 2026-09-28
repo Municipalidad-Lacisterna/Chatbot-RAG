@@ -7,6 +7,7 @@ para un prototipo. El `session_id` identifica cada conversación.
 
 Cada mensaje tiene un `canal`:
   - "bot"    → conversación del vecino con el chatbot automático (POST /query).
+import logging
   - "agente" → conversación en vivo con un agente humano (transferencia WS).
 Esto permite distinguir y exportar ambos tipos en el panel de administración.
 """
@@ -110,15 +111,19 @@ def purge_old_if_needed(max_age_secs: float = None) -> int:
     return 0
 
 
+
 def add_message(session_id: str, role: str, content: str, canal: str = _CANAL_BOT):
     """Guarda un mensaje en el historial de la sesión."""
-    purge_old_if_needed()  # retención limitada (Ley 19.628)
-    with get_db() as conn:
-        conn.execute(
-            "INSERT INTO chat_history (session_id, role, content, timestamp, canal) "
-            "VALUES (?, ?, ?, ?, ?)",
-            (session_id, role, content, time.time(), canal),
-        )
+    try:
+        purge_old_if_needed()  # retención limitada (Ley 19.628)
+        with get_db() as conn:
+            conn.execute(
+                "INSERT INTO chat_history (session_id, role, content, timestamp, canal) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (session_id, role, content, time.time(), canal),
+            )
+    except Exception as e:
+        logging.error(f"[chat_memory] Error al guardar mensaje en SQLite, se omite guardado: {e}")
 
 
 def add_agente_message(session_id: str, autor: str, content: str):
