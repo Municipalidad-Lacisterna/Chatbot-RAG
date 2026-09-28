@@ -259,6 +259,28 @@
     function claveAdmin() { return localStorage.getItem("admin_clave") || ""; }
 
     
+    
+    async function revisarDrive() {
+      if (!CLAVE) return;
+      const log = document.getElementById('log-sync');
+      log.textContent = "Revisando Drive (puede demorar unos segundos)...";
+      try {
+        const r = await fetch('/admin_check_drive?clave=' + CLAVE, { method: 'POST' });
+        const d = await r.json();
+        if (d.ok) {
+          let msg = `En Drive: ${d.en_drive} archivos\nYa indexados: ${d.ya_indexados}\nNuevos por descargar: ${d.nuevos_count}\n`;
+          if (d.nuevos_count > 0) {
+            msg += "\n--- Archivos Nuevos ---\n" + d.nuevos.join("\n");
+          }
+          log.textContent = msg;
+        } else {
+          log.textContent = "Error: " + (d.error || JSON.stringify(d));
+        }
+      } catch (e) {
+        log.textContent = "Error de red al revisar Drive.";
+      }
+    }
+
     async function sincronizarDrive() {
       if (!CLAVE) return;
       document.getElementById('log-sync').textContent = "Iniciando sincronización en background...";
@@ -269,6 +291,7 @@
         document.getElementById('log-sync').textContent = "Error al iniciar sincronización.";
       }
     }
+
 
     async function verEstadoSync() {
       if (!CLAVE) return;

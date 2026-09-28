@@ -119,6 +119,12 @@ log "Descarga completada."
 # 2. Indexar en el chatbot (recorre data/ recursivamente, acepta pdf/md/csv).
 #    La ingesta borra los archivos físicos tras indexarlos; los chunks quedan
 #    en ChromaDB con el origen (subcarpeta/nombre).
+if [ "${SKIP_INGESTION:-0}" = "1" ]; then
+  log "Modo diff: archivos descargados pero NO indexados."
+  echo "=== FIN sincronización OK ==="
+  exit 0
+fi
+
 if find "$DATA_DIR" -type f \( -name '*.pdf' -o -name '*.md' -o -name '*.csv' \) | grep -q .; then
   log "Indexando documentos en el chatbot..."
   (cd "$PROJECT_DIR" && "$PYTHON" -m app.ingestion) >>"$LOG_FILE" 2>&1
