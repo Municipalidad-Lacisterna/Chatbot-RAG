@@ -17,6 +17,7 @@ Consideraciones de costo (Ver docs/consideraciones_presupuesto.md):
 - Cierre rápido ante fallo para no consumir saldo con respuestas erróneas.
 """
 import json
+import traceback
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
@@ -228,6 +229,30 @@ def _build_llm_error_message(exc: Exception) -> str:
         "mi sistema está momentáneamente ocupado. No quiero inventarte algo que "
         "no sé, así que lo mejor es que te atienda una persona del Panel de "
         f"Atención al Vecino (atienden {settings.AGENTE_HORARIO_TEXTO}). "
+        "¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+    )
+
+
+def build_internal_error_message(exc: Exception) -> str:
+    """
+    Mensaje para el vecino cuando el fallo NO viene del LLM sino de cualquier
+    otra parte del sistema (base vectorial, SQLite, bug). Lo usa el endpoint
+    /query como segunda barrera: si algo se escapa del motor, el vecino igual
+    recibe una salida usable con offered de traspaso, nunca un error 500 pelado.
+
+    El traceback completo se queda en el log del servidor; el vecino solo ve
+    un aviso honesto de que el sistema tiene un problema, sin detalles técnicos.
+    """
+    print(
+        f"[rag] ERROR INTERNO fuera del LLM -> degradando a humano: "
+        f"{type(exc).__name__}: {exc}"
+    )
+    traceback.print_exc()
+    return (
+        "Disculpa la molestia, tuve un problema técnico al atender tu consulta. "
+        "No quiero inventarte algo que no sé, así que lo mejor es que te atienda "
+        "una persona del Panel de Atención al Vecino "
+        f"(atienden {settings.AGENTE_HORARIO_TEXTO}). "
         "¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
     )
 

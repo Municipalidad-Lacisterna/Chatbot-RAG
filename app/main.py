@@ -94,7 +94,12 @@ async def chat_ui():
 @app.post("/query", response_model=QueryResponse)
 async def query(request: QueryRequest):
     """Responde a una pregunta del usuario, con memoria por sesión."""
-    answer = rag_engine.query_chatbot(request.question, request.session_id)
+    # Defensa en profundidad: el motor ya captura sus fallos, pero si algo se
+    # escapa el vecino no debe ver un 500 pelado.
+    try:
+        answer = rag_engine.query_chatbot(request.question, request.session_id)
+    except Exception as exc:
+        answer = rag_engine.build_internal_error_message(exc)
     return QueryResponse(answer=answer, session_id=request.session_id)
 
 
