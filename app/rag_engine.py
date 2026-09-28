@@ -150,6 +150,8 @@ def _make_llm():
         model=settings.LLM_MODEL,
         temperature=0,
         google_api_key=settings.GOOGLE_API_KEY or None,
+        timeout=settings.LLM_TIMEOUT,
+        max_retries=settings.LLM_MAX_RETRIES,
     )
 
 

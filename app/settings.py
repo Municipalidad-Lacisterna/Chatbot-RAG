@@ -30,6 +30,15 @@ LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.1-flash-lite")
 # la toma el SDK de google-genai desde su propio mecanismo de entorno.
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 
+# --- Tiempos y reintentos del LLM (para que el vecino no espere indefinido) ---
+# LLM_TIMEOUT corta una consulta que quedó colgada. Las consultas reales
+# resuelven en 5-10 s; 30 s deja margen sin dejar al vecino esperando de más.
+LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "30"))
+# LLM_MAX_RETRIES: LangChain reintenta 6 veces por defecto, con espera
+# creciente. Reintentar una cuota ya agotada solo demora la derivación a un
+# humano, así que se deja un reintento para fallos de red momentáneos.
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "1"))
+
 # --- Modelo LLM (Ollama local, cuando LLM_PROVIDER == "ollama") ---
 # Host del servidor Ollama (local en el servidor de producción).
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
