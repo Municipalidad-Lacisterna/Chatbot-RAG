@@ -225,6 +225,18 @@
       return div;
     }
 
+    // El WebSocket del agente humano no depende del modelo, así que este canal
+    // sigue disponible justo cuando el LLM falló: por eso el error ofrece
+    // transferir en vez de solo pedir que reintente.
+    function mostrarFalloAlVecino() {
+      bubble('Disculpa, tuve un problema para poder atenderte y no quiero ' +
+             'inventarte una respuesta. Lo mejor es que te atienda una ' +
+             'persona del equipo municipal. ¿Quieres que te transfiera ahora?',
+             'bot');
+      txtTransferir = true;
+      mostrarBotonesTransferir();
+    }
+
     // Botones de transferencia ("Sí / No")
     function mostrarBotonesTransferir() {
       const cont = document.createElement('div');
@@ -350,6 +362,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: texto, session_id: SESSION }),
         });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         const respuesta = data.answer || '';
 
@@ -360,11 +373,13 @@
           bubble(textoLimpio, 'bot');
           txtTransferir = true;
           mostrarBotonesTransferir();
-        } else {
+        } else if (respuesta) {
           bubble(respuesta, 'bot');
+        } else {
+          mostrarFalloAlVecino();
         }
       } catch (e) {
-        bubble('Ocurrió un error al conectarme. Intenta de nuevo.', 'bot');
+        mostrarFalloAlVecino();
       } finally {
         hideTyping();
         enviar.disabled = false;
