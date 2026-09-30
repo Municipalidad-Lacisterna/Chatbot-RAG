@@ -97,8 +97,8 @@ AGENTE_NO_DISPONIBLE_TEXTO = os.getenv(
 
 # --- Rutas ---
 # Ruta a la base vectorial ChromaDB
-PERSIST_DIRECTORY = os.path.join(_BASE_DIR, "chroma_db")
+PERSIST_DIRECTORY = os.getenv("PERSIST_DIRECTORY", os.path.join(_BASE_DIR, "chroma_db"))
 # Ruta a la base SQLite de memoria conversacional
-MEMORY_DB_PATH = os.path.join(_BASE_DIR, "chat_history.db")
+MEMORY_DB_PATH = os.getenv("MEMORY_DB_PATH", os.path.join(_BASE_DIR, "chat_history.db"))
 # Carpeta con los PDFs a indexar
-DATA_DIR = os.path.join(_BASE_DIR, "data")
+DATA_DIR = os.getenv("DATA_DIR", os.path.join(_BASE_DIR, "data"))

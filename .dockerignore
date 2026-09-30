@@ -3,12 +3,12 @@ venv/
 __pycache__/
 *.py[cod]
 
-# Entornos y credenciales (NUNCA al contenedor)
+# Entornos y credenciales
 .env
 config/
 
-# Datos locales del bot (se montan como volúmenes)
-chroma_db/
+# Datos persistentes de volumen, PERO NO EXCLUIMOS chroma_db/
+# porque lo necesitamos para indexar la semilla en la imagen.
 chat_history.db
 data/
 
@@ -23,7 +23,7 @@ data/
 *.tmp
 *~
 
-# Docs de costos (internos, no van a producción)
+# Directorios de documentos locales
 Costos meta/
 docs/
 README_JEFES.md
