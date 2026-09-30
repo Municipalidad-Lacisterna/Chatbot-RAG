@@ -102,3 +102,8 @@ PERSIST_DIRECTORY = os.getenv("PERSIST_DIRECTORY", os.path.join(_BASE_DIR, "chro
 MEMORY_DB_PATH = os.getenv("MEMORY_DB_PATH", os.path.join(_BASE_DIR, "chat_history.db"))
 # Carpeta con los PDFs a indexar
 DATA_DIR = os.getenv("DATA_DIR", os.path.join(_BASE_DIR, "data"))
+# --- MODO PILOTO WHATSAPP (Alternancia de Metodología) ---
+# Si es True: en horario laboral el bot se apaga y el botón deriva a WhatsApp.
+# Si es False: el bot RAG responde siempre y el botón usa el panel de agentes web (WebSocket).
+MODO_PILOTO_WHATSAPP = os.getenv("MODO_PILOTO_WHATSAPP", "False").lower() in ("true", "1", "yes")
+WHATSAPP_BUSINESS_URL = os.getenv("WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")

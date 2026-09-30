@@ -299,6 +299,12 @@
 
     // --- WebSocket con el agente (modo transferido) ---
     function conectarConAgente() {
+      // --- INTERVENCIÓN MODO PILOTO ---
+      if (configUI.modo_piloto && configUI.horario_habil) {
+          window.open(configUI.whatsapp_url, '_blank');
+          return;
+      }
+
       enModoAgente = true;
       txtTransferir = false;
       headerTitulo.textContent = 'Agente de atención';

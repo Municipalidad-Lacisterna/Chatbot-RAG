@@ -27,7 +27,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
-from app import rag_engine  # motor RAG (carga el modelo de embeddings al arrancar)
+from app import rag_engine
+from app.handoff import agentes_disponibles_ahora
+from app import settings  # motor RAG (carga el modelo de embeddings al arrancar)
 
 
 @asynccontextmanager
@@ -94,6 +96,12 @@ async def chat_ui():
 @app.post("/query", response_model=QueryResponse)
 def query(request: QueryRequest):
     """Responde a una pregunta del usuario, con memoria por sesión."""
+    # --- INTERRUPTOR MODO PILOTO ---
+    if getattr(settings, "MODO_PILOTO_WHATSAPP", False) and agentes_disponibles_ahora():
+        return QueryResponse(
+            answer=f"¡Hola! 🏢 En este momento estamos en horario de atención con nuestros ejecutivos municipales. Por favor, comunícate directamente haciendo clic aquí: <br><br>👉 <a href='{settings.WHATSAPP_BUSINESS_URL}' target='_blank'><b>Hablar por WhatsApp</b></a>",
+            session_id=request.session_id
+        )
     # Sync a propósito, NO cambiar a `async def`: el motor es bloqueante y
     # tardaría segundos. FastAPI manda los handlers `def` al threadpool.
     # Defensa en profundidad: el motor ya captura sus fallos, pero si algo se
@@ -513,3 +521,11 @@ async def admin_aprendizajes_sesion_delete(session_id: str, clave: str = ""):
         return {"error": "clave inválida", "authorized": False}
     n = learning.olvidar_aprendizajes_sesion(session_id)
     return {"authorized": True, "session_id": session_id, "olvidados": n}
+
+@app.get("/ui_config")
+def ui_config():
+    return {
+        "modo_piloto": getattr(settings, "MODO_PILOTO_WHATSAPP", False),
+        "horario_habil": agentes_disponibles_ahora(),
+        "whatsapp_url": getattr(settings, "WHATSAPP_BUSINESS_URL", "")
+    }
