@@ -15,7 +15,7 @@ Cisternin utiliza Arquitectura RAG (Generación Aumentada por Recuperación) par
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/Municipalidad-Lacisterna/Chatbot-RAG
-   cd Alcaldia_Practica
+   cd Chatbot-RAG
    ```
 
 2. **Entorno Virtual:**
