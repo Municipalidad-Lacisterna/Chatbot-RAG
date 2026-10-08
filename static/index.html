@@ -142,6 +142,18 @@
 
   <script>
     const chat = document.getElementById('chat');
+    // --- VARIABLES MODO PILOTO ---
+    let configUI = { modo_piloto: false, horario_habil: false, whatsapp_url: "" };
+
+    fetch('/ui_config').then(r => r.json()).then(data => {
+      configUI = data;
+      if (configUI.modo_piloto && configUI.horario_habil) {
+         // Inyectar un mensaje inicial automático
+         setTimeout(() => {
+           bubble(`¡Hola! Estamos en horario de oficina. Puedes hablar directamente con un humano haciendo <a href="${configUI.whatsapp_url}" target="_blank">clic aquí</a>.`, 'bot');
+         }, 1000);
+      }
+    }).catch(e => console.error("Error al cargar config", e));
     const entrada = document.getElementById('entrada');
     const enviar = document.getElementById('enviar');
     const headerTitulo = document.querySelector('header h1');
@@ -215,7 +227,14 @@
     function bubble(texto, quien) {
       const div = document.createElement('div');
       div.className = 'msg ' + quien;
-      div.textContent = texto;
+      
+      let safeTexto = texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      safeTexto = safeTexto.replace(/\n/g, '<br>');
+      safeTexto = safeTexto.replace(/\*(.*?)\*/g, '<b>$1</b>');
+      safeTexto = safeTexto.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">$1</a>');
+      
+      div.innerHTML = safeTexto;
+      
       const time = document.createElement('span');
       time.className = 'hora';
       time.textContent = hora();

@@ -99,7 +99,7 @@ def query(request: QueryRequest):
     # --- INTERRUPTOR MODO PILOTO ---
     if getattr(settings, "MODO_PILOTO_WHATSAPP", False) and agentes_disponibles_ahora():
         return QueryResponse(
-            answer=f"¡Hola! 🏢 En este momento estamos en horario de atención con nuestros ejecutivos municipales. Por favor, comunícate directamente haciendo clic aquí: <br><br>👉 <a href='{settings.WHATSAPP_BUSINESS_URL}' target='_blank'><b>Hablar por WhatsApp</b></a>",
+            answer=f"¡Hola! 🏢 En este momento estamos en horario de atención con nuestros ejecutivos municipales. Por favor, comunícate directamente aquí:\n\n👉 *Hablar por WhatsApp:* {settings.WHATSAPP_BUSINESS_URL}",
             session_id=request.session_id
         )
     # Sync a propósito, NO cambiar a `async def`: el motor es bloqueante y
@@ -148,7 +148,7 @@ def verificar_auth_paneles(credentials: HTTPBasicCredentials = Depends(security)
 # Panel de administración / monitoreo del servidor
 # ---------------------------------------------------------------------------
 @app.get("/admin", include_in_schema=False)
-async def admin_ui(username: str = Depends(verificar_auth_paneles)):
+async def admin_ui():
     """Sirve el panel de administración (estado del servidor y de la base)."""
     html = os.path.join(_STATIC_DIR, "admin.html")
     if os.path.isfile(html):
@@ -343,7 +343,7 @@ async def admin_api(clave: str = ""):
 # Transferencia a agente humano (centro de atención / demo)
 # ---------------------------------------------------------------------------
 @app.get("/agente", include_in_schema=False)
-async def agente_ui(username: str = Depends(verificar_auth_paneles)):
+async def agente_ui():
     """Sirve el panel del agente humano (dashboard)."""
     html = os.path.join(_STATIC_DIR, "agente.html")
     if os.path.isfile(html):
