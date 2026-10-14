@@ -1,59 +1,84 @@
-# 🏛️ Cisternin: Chatbot Municipal RAG
-Asistente virtual de la Municipalidad de La Cisterna, diseñado para automatizar la atención ciudadana con **Soberanía de Datos Total (100% Local)** y **Arquitectura RAG** (Generación Aumentada por Recuperación).
+# Sistema de Atencion Ciudadana y Consultas - Municipalidad de La Cisterna
 
-Cisternin lee documentos municipales (PDFs, Markdown, CSVs de Transparencia) inyectados automáticamente y responde las dudas de los vecinos de forma cálida, sin alucinar y en tiempo real.
+Servicio web y API de orientacion ciudadana para la Municipalidad de La Cisterna.
 
-## ✨ Características Principales
-* **100% Soberanía de Datos:** Toda la información y el procesamiento (base vectorial e historial) ocurren de forma local en el servidor municipal, respaldado por IA local (Ollama).
-* **Modo Piloto (Horario de Oficina):** Interceptor configurable (`MODO_PILOTO_WHATSAPP`) que redirige a los vecinos automáticamente al WhatsApp oficial con ejecutivos humanos durante el horario hábil, y libera a la IA para atender en horario inhábil.
-* **Escudo de Privacidad:** Bloqueo automático de datos sensibles (RUTs, sueldos). Si se consultan, deriva al Portal de Transparencia.
-* **Filtro de Respeto (3 Strikes):** Sistema automático que cierra la sesión ante groserías reiteradas.
-* **Handoff a Agentes (WebSocket):** Si el bot no tiene la información documentada, no inventa. Deriva el chat en vivo a un agente municipal sin cortar la sesión del vecino.
-* **Privacidad (Ley 19.628):** El historial de chat es anónimo y se purga automáticamente cada 24 horas.
-* **Ingesta desde Google Drive:** Sincronización transparente de los documentos oficiales directamente desde el Drive de la Municipalidad.
+El sistema procesa documentacion municipal oficial (tramites, ordenanzas, horarios de atencion y preguntas frecuentes) mediante indexacion vectorial, permitiendo responder consultas de vecinos de forma contextualizada y derivar solicitudes complejas a funcionarios municipales en tiempo real.
 
-## 🚀 Despliegue y Arquitectura
+## Caracteristicas funcionales
 
-El sistema está diseñado para exponerse de forma segura sin abrir puertos en el servidor, utilizando **Cloudflare Tunnels**. 
+- **Procesamiento y almacenamiento local:** El motor de indexacion vectorial (ChromaDB), la base de datos de historial (SQLite) y el motor de inferencia (Ollama) operan de forma local en el servidor, sin dependencias obligatorias de servicios externos.
+- **Canal de atencion en vivo (WebSocket):** Cuando una consulta requiere atencion personalizada o no cuenta con informacion en los registros, el sistema permite transferir la sesion en tiempo real a funcionarios en el panel de atencion.
+- **Proteccion de datos sensibles:** Filtros preventivos ante consultas sobre remuneraciones o datos protegidos, derivando directamente a los canales formales del Portal de Transparencia municipal.
+- **Control de sesiones:** Moderacion automatica ante lenguaje inadecuado y limpieza programada de historiales conversacionales cada 24 horas en cumplimiento con la normativa de proteccion de datos (Ley 19.628).
+- **Sincronizacion documental:** Modulo de actualizacion periodica para incorporar nuevos documentos tecnicos y decretos desde carpetas compartidas de Google Drive.
 
-### Requisitos Previos
+## Requisitos del sistema
+
 - Python 3.11+
-- Base de datos vectorial: ChromaDB (integrada)
-- LLM Provider: **Ollama** (ej. `santi-gemma` o `qwen2.5:7b`) o **Google Gemini** como fallback/alternativa.
+- Base de datos vectorial: ChromaDB (embebida)
+- Base de datos de sesiones: SQLite
+- Motor LLM: Ollama local (`qwen2.5:7b`) o proveedor compatible mediante variable de entorno
 
-### Instalación Rápida
-1. **Clonar el repositorio:**
-   ```bash
-   git clone https://github.com/Municipalidad-Lacisterna/Chatbot-RAG
-   cd Chatbot-RAG
-   ```
+## Instalacion y ejecucion
 
-2. **Entorno Virtual:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/Municipalidad-Lacisterna/Chatbot-RAG.git
+cd Chatbot-RAG
+```
 
-3. **Configuración (.env):**
-   Copia la plantilla y configura tus variables (modelo, proveedor, base de datos, URL de WhatsApp):
-   ```bash
-   cp .env.example .env
-   ```
-   *Nota: Configura `MODO_PILOTO_WHATSAPP=true` para activar la restricción de horario de oficina.*
+### 2. Crear entorno virtual
+```bash
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-4. **Arrancar el Servidor Principal:**
-   ```bash
-   setsid nohup venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --ws wsproto > logs/uvicorn.log 2>&1 < /dev/null & disown
-   ```
-   *El panel del vecino estará disponible internamente en `http://127.0.0.1:8000/chat` y públicamente mediante el túnel configurado (ej. `https://bot.tu-dominio.com`).*
+### 3. Configuracion de entorno
+Copiar la plantilla de configuracion y ajustar parametros de conexion:
+```bash
+cp .env.example .env
+```
 
-## 📁 Estructura General
-* `/app`: Core del chatbot (RAG, Interceptor Piloto, WebSockets, Memoria SQLite, Seguridad).
-* `/data`: Carpeta de almacenamiento temporal para documentos previo a su indexación.
-* `/static`: Interfaces de usuario responsivas y limpias (Vecino, Panel Agente, Panel Admin) con formateo inteligente de enlaces.
-* `/docs`: Documentación interna y manuales para el municipio.
-* `/docker`: Scripts de orquestación y despliegue rápido para producción (Dockerfile, docker-compose).
+Variables principales:
+- `LLM_PROVIDER`: Proveedor de inferencia (`ollama` o `google`).
+- `OLLAMA_HOST` / `OLLAMA_MODEL`: Host y modelo local (por defecto `http://127.0.0.1:11434` y `qwen2.5:7b`).
+- `DRIVE_URL`: Identificador de la carpeta publica de Google Drive para sincronizacion de documentos.
+- `AGENTE_PANEL_CLAVE`: Clave de acceso al panel de agentes de atencion.
 
----
-*Desarrollado con ❤️ para agilizar y modernizar el contacto con los vecinos.*
+### 4. Indexar documentacion inicial
+```bash
+python -m app.ingestion
+```
+
+### 5. Iniciar servicio
+```bash
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --ws wsproto
+```
+
+Para ejecucion en segundo plano en servidor:
+```bash
+setsid nohup venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --ws wsproto > logs/uvicorn.log 2>&1 < /dev/null & disown
+```
+
+Endpoints disponibles:
+- **Chat ciudadano:** `http://127.0.0.1:8000/chat`
+- **Panel de funcionarios:** `http://127.0.0.1:8000/agente`
+- **Panel de administracion:** `http://127.0.0.1:8000/admin`
+- **Documentacion OpenAPI:** `http://127.0.0.1:8000/docs`
+
+## Estructura del repositorio
+
+```
+.
+├── app/               # Modulos del backend (API, logica de recuperacion, WebSockets, memoria)
+│   ├── main.py        # Endpoints FastAPI y gestion de rutas
+│   ├── rag_engine.py  # Pipeline de consulta, recuperacion y respuesta
+│   ├── ingestion.py   # Procesamiento de documentos (PDF, Markdown, CSV)
+│   ├── ws_routes.py   # Conexiones WebSocket para vecinos y funcionarios
+│   └── settings.py    # Carga de configuracion desde variables de entorno
+├── data/              # Directorio de documentos base para indexacion
+├── static/            # Archivos estaticos para interfaz de usuario y paneles
+├── scripts/           # Utilidades de sincronizacion y pruebas automatizadas
+└── docker/            # Configuraciones para empaquetado y despliegue contenerizado
+```

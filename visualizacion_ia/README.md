@@ -1,7 +1,7 @@
-# Visualización IA — Chatbot Cisternin
+# Visualizacion de Pipeline y Flujos de Datos
 
-Animaciones con **Manim** que muestran cómo funciona la IA del bot.
-Perfectas para presentaciones a jefes, demos o material de difusión.
+Animaciones generadas con **Manim** para documentar el flujo de procesamiento de consultas y recuperacion documental.
+Util para revision tecnica de la arquitectura del sistema.
 
 ## Escenas disponibles
 

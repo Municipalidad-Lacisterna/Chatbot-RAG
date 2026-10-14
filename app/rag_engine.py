@@ -489,8 +489,23 @@ def query_chatbot(question: str, session_id: str = None) -> str:
 
     # -- SHORTCUT: TRANSFERENCIA DIRECTA --
     # Si el vecino usó el botón de "Hablar con un agente" o lo pide expresamente,
-    # saltamos el RAG y el LLM para ahorrar tokens y forzamos el Handoff.
-    if "hablar con un agente" in question.lower() or "transferir" in question.lower() or "quiero hablar con un humano" in question.lower():
+    # saltamos el RAG y el LLM para responder de inmediato y ofrecer el Handoff.
+    q_low = question.lower()
+    gatillos_transferencia = (
+        "hablar con un agente",
+        "transferir",
+        "transferencia",
+        "quiero hablar con un humano",
+        "atencion humana",
+        "persona real",
+        "operador",
+        "ejecutivo",
+        "agente de atencion",
+        "agente humano",
+        "pasar con un agente",
+        "comunicarme con un agente",
+    )
+    if any(g in q_low for g in gatillos_transferencia):
         respuesta_texto = _build_transfer_offer_message()
         chat_memory.add_message(session_id, "user", question)
         chat_memory.add_message(session_id, "assistant", respuesta_texto)

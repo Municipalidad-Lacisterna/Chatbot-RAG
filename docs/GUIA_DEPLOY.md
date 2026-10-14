@@ -1,46 +1,41 @@
-# Guía Rápida de Despliegue - Cisternin (Docker)
+# Guia de Despliegue en Servidor (Docker)
 
-Esta guía explica cómo desplegar el chatbot municipal en un servidor limpio (Ubuntu/Debian) usando solo Docker.
+Procedimiento para instalar y poner en marcha el servicio en un servidor Linux (Ubuntu/Debian) mediante Docker Compose.
 
-## Prerrequisitos
+## Requisitos previos
 
-1. **Docker y Docker Compose v2** instalados.
-2. (Opcional) **Controladores NVIDIA y NVIDIA Container Toolkit** instalados (si el servidor tiene GPU).
+1. **Docker Engine y Docker Compose v2** instalados y operativos.
+2. (Opcional) **Controladores NVIDIA y NVIDIA Container Toolkit** instalados si el servidor dispone de aceleracion por GPU.
 
-## Instrucciones Paso a Paso
+## Pasos de instalacion
 
-1. **Clonar/Copiar el repositorio** en el servidor municipal.
+1. **Clonar el repositorio:**
    ```bash
-   git clone <URL> Alcaldia_Practica
-   cd Alcaldia_Practica
+   git clone https://github.com/Municipalidad-Lacisterna/Chatbot-RAG.git
+   cd Chatbot-RAG
    ```
 
-2. **Primer intento de despliegue (Generación de .env)**
-   Ejecuta el script de despliegue por primera vez:
+2. **Generacion inicial del archivo de entorno:**
+   Ejecutar el script de despliegue:
    ```bash
    ./deploy.sh
    ```
-   *El script se detendrá y te avisará que ha creado un archivo `.env` base.*
+   El script creara un archivo `.env` inicial si no existe y solicitara su configuracion.
 
-3. **Configurar Variables**
-   Edita el archivo `.env` generado:
+3. **Configuracion de variables:**
+   Editar el archivo `.env`:
    ```bash
    nano .env
    ```
-   **Datos críticos a cambiar:**
-   - `DOMAIN_NAME`: Pon el dominio real (ej. `chatbot.lacisterna.cl`). Si dejas `localhost`, no se instalará el certificado HTTPS.
-   - `AGENTE_PANEL_CLAVE`: Pon una clave segura para el panel administrativo.
-   - `DRIVE_URL`: Asegura que sea la carpeta correcta si ha cambiado.
+   Parametros principales:
+   - `DOMAIN_NAME`: Dominio publico para emision de certificados TLS (ej. `consultas.lacisterna.cl`).
+   - `AGENTE_PANEL_CLAVE`: Clave de acceso administrativa para el panel de agentes.
+   - `DRIVE_URL`: ID de la carpeta de Google Drive donde residen los documentos municipales.
 
-4. **Desplegar de verdad**
-   Vuelve a ejecutar el script. Este detectará automáticamente si hay GPU y levantará los servicios que correspondan:
+4. **Ejecucion del despliegue:**
+   Ejecutar nuevamente el script:
    ```bash
    ./deploy.sh
    ```
 
-## ¿Qué sucede durante el primer arranque?
-
-- Si el servidor tiene NVIDIA, habilitará la aceleración 3D en el compose de Ollama.
-- El servicio `ollama-init` descargará el modelo de lenguaje automáticamente (puede tardar unos minutos).
-- La app copiará el "Cerebro" base (base vectorial pre-entrenada) si el volumen local está vacío.
-- Si configuraste un dominio real, Caddy pedirá el certificado SSL/TLS automáticamente a Let's Encrypt.
+El script detectara la disponibilidad de GPU, compilara los contenedores necesarios, verificara la disponibilidad del modelo en Ollama y levantara el stack en segundo plano.

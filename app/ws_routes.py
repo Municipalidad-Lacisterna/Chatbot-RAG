@@ -119,6 +119,13 @@ async def ws_vecino(websocket: WebSocket, session_id: str):
             "texto": "Estás escribiendo fuera del horario de atención. Por favor, **déjanos tu correo electrónico junto con tu consulta** en un mensaje aquí abajo. Un agente municipal lo revisará a primera hora y te contactará de vuelta por correo."
         }
         await websocket.send_text(json.dumps(msg, ensure_ascii=False))
+    elif AGENTE_KEY not in _vivos:
+        msg = {
+            "tipo": "texto",
+            "autor": "sistema",
+            "texto": "Tu solicitud ha ingresado a la fila de atención. En este momento los funcionarios pueden encontrarse en otra atención o en terreno. Por favor, escribe tu consulta junto con tu correo o teléfono de contacto para darte seguimiento."
+        }
+        await websocket.send_text(json.dumps(msg, ensure_ascii=False))
     try:
         while True:
             data = await websocket.receive_text()

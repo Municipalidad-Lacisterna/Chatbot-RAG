@@ -150,7 +150,7 @@
       if (configUI.modo_piloto && configUI.horario_habil) {
          // Inyectar un mensaje inicial automático
          setTimeout(() => {
-           bubble(`¡Hola! Estamos en horario de oficina. Puedes hablar directamente con un humano haciendo <a href="${configUI.whatsapp_url}" target="_blank">clic aquí</a>.`, 'bot');
+           bubble(`¡Hola! Estamos en horario de oficina. Puedes hablar directamente con un humano en: ${configUI.whatsapp_url}`, 'bot');
          }, 1000);
       }
     }).catch(e => console.error("Error al cargar config", e));

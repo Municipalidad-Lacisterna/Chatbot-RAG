@@ -91,6 +91,20 @@ services:
     networks:
       - cisternin-net
 
+  # Tunel Cloudflare (opcional, sin abrir puertos)
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cisternin-cloudflared
+    profiles: ["cloudflared"]
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+    depends_on:
+      - app
+    networks:
+      - cisternin-net
+
 volumes:
   cisternin_chroma:
   cisternin_data_persist:
@@ -102,3 +116,4 @@ volumes:
 
 networks:
   cisternin-net:
+
