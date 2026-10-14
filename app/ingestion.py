@@ -133,6 +133,22 @@ def ingest_pdf(pdf_filename: str):
     return _indexar_texto(md_text, pdf_filename)
 
 
+def ingest_excel(excel_filename: str):
+    """
+    Indexa un archivo Excel (`.xlsx` o `.xls`) del directorio `data/`.
+    Convierte sus hojas en registros Markdown estructurados atómicos.
+    """
+    excel_path = os.path.join(settings.DATA_DIR, excel_filename)
+    if not os.path.exists(excel_path):
+        print(f"[ingesta] Archivo no encontrado: {excel_path}")
+        return 0
+
+    print(f"[ingesta] Procesando {excel_filename}...")
+    from app.excel_parser import excel_to_markdown
+    md_text = excel_to_markdown(excel_path)
+    return _indexar_chunks_atomicos(md_text, excel_filename)
+
+
 def ingest_markdown(md_filename: str):
     """
     Indexa un archivo Markdown (`.md`) del directorio `data/`.
@@ -276,7 +292,7 @@ def ingest_all():
         subdirs[:] = [s for s in subdirs if s.lower() not in _EXCL]
         for f in sorted(archivos):
             ext = f.lower().rsplit(".", 1)[-1]
-            if ext not in ("pdf", "md", "csv"):
+            if ext not in ("pdf", "md", "csv", "xlsx", "xls"):
                 # No es documento: dejar pasar (no indexar)
                 continue
             ruta = os.path.join(raiz, f)
@@ -304,6 +320,8 @@ def ingest_all():
                     n = _indexar_archivo(ruta, fuente, "pdf")
                 elif ext == "md":
                     n = _indexar_archivo(ruta, fuente, "md")
+                elif ext in ("xlsx", "xls"):
+                    n = _indexar_archivo(ruta, fuente, "excel")
                 else:
                     n = _indexar_archivo(ruta, fuente, "csv")
                 total += n
@@ -324,9 +342,16 @@ def ingest_all():
 def _indexar_archivo(ruta_absoluta: str, fuente: str, tipo: str) -> int:
     """
     Extrae/transforma el contenido y lo indexa con la fuente dada.
-    tipo ∈ {'pdf','md','csv'}.
+    tipo ∈ {'pdf','md','csv','excel'}.
     """
-    if tipo == "csv":
+    if tipo == "excel":
+        from app.excel_parser import excel_to_markdown
+        texto = excel_to_markdown(ruta_absoluta)
+        if not texto or not texto.strip():
+            print(f"[ingesta] No se extrajo texto de {fuente}")
+            return 0
+        return _indexar_chunks_atomicos(texto, fuente)
+    elif tipo == "csv":
         texto = _csv_a_texto(ruta_absoluta)
         if not texto or not texto.strip():
             print(f"[ingesta] No se extrajo texto de {fuente}")

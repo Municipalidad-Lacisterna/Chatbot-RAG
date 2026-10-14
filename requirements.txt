@@ -23,6 +23,7 @@ gdown
 # --- Configuración ---
 python-dotenv
 
-# --- Dataframe/NumPy (usado por análisis auxiliares/embeddings) ---
+# --- Dataframe/NumPy/Excel (usado por análisis auxiliares e ingesta de planillas) ---
 pandas
 numpy
+openpyxl
