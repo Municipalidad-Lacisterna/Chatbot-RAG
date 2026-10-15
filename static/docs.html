@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portal de Documentación y Reportes — Cisternin</title>
+  <style>
+    :root {
+      --bg: #0f1117; --card: #1a1f2b; --borde: #2a3340;
+      --texto: #e6e6ea; --sub: #9aa3b2;
+      --verde: #25D366; --verde-oscuro: #128C7E;
+      --amarillo: #e6b64c; --rojo: #e5534b; --azul: #4a9eff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--texto);
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 24px 32px;
+    }
+    header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      border-bottom: 1px solid var(--borde); padding-bottom: 16px; margin-bottom: 24px;
+      gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand img { height: 55px; width: auto; object-fit: contain; }
+    .brand h1 { font-size: 20px; font-weight: 600; }
+    .brand p { color: var(--sub); font-size: 13px; margin-top: 2px; }
+    .nav-links { display: flex; gap: 10px; }
+    .nav-links a {
+      color: var(--texto); text-decoration: none; font-size: 13px; padding: 6px 14px;
+      border: 1px solid var(--borde); border-radius: 8px; background: var(--card);
+      transition: all .2s;
+    }
+    .nav-links a:hover { border-color: var(--azul); }
+
+    .grid { display: grid; gap: 20px; }
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .metrica { background: var(--card); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; }
+    .metrica .label { color: var(--sub); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .metrica .valor { font-size: 26px; font-weight: 700; margin-top: 6px; }
+    .metrica .detalle { color: var(--sub); font-size: 12px; margin-top: 4px; }
+
+    .card { background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+    .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+    .card h2 { font-size: 16px; font-weight: 600; color: #fff; }
+
+    .tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tabla th { color: var(--sub); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borde); text-transform: uppercase; font-size: 11px; letter-spacing: .4px; }
+    .tabla td { padding: 10px 14px; border-bottom: 1px solid #232a38; }
+    .tabla tr:last-child td { border-bottom: none; }
+    .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+    .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
+    .pill.azul { background: rgba(74,158,255,.15); color: #8bc3ff; }
+
+    .btn {
+      background: var(--azul); color: #fff; border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.verde { background: #128C7E; }
+    .btn.verde:hover { background: #25D366; }
+
+    .barra { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .barra .nombre { width: 220px; font-size: 13px; font-weight: 500; }
+    .barra .fill { flex: 1; height: 12px; background: #232a38; border-radius: 6px; overflow: hidden; }
+    .barra .fill .inner { display: block; height: 100%; background: var(--verde); border-radius: 6px; transition: width .4s; }
+    .barra .n { width: 60px; text-align: right; color: var(--sub); font-size: 12px; }
+
+    .ejemplos-box { margin-top: 6px; padding-left: 232px; font-size: 12px; color: var(--sub); font-style: italic; }
+
+    .login { max-width: 380px; margin: 90px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 14px; padding: 28px; }
+    .login h2 { font-size: 20px; margin-bottom: 8px; }
+    .login p { color: var(--sub); font-size: 13px; margin-bottom: 18px; }
+    .login input, .login button { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 14px; }
+    .login button { background: #128C7E; border: none; font-weight: 600; cursor: pointer; }
+    .login button:hover { background: #25D366; }
+    .login .err { color: var(--rojo); font-size: 13px; margin-bottom: 10px; }
+
+    .form-pwd { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 14px; }
+    .form-pwd input { padding: 9px 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 13px; width: 100%; }
+    .form-pwd button { padding: 9px 14px; background: #128C7E; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+    .form-pwd button:hover { background: #25D366; }
+  </style>
+</head>
+<body>
+
+  <!-- Vista Login -->
+  <div id="login-view">
+    <div class="login">
+      <h2>📚 Documentación y Reportes</h2>
+      <p>Ingresa la contraseña de documentación o de administración para acceder.</p>
+      <input type="password" id="clave" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter')login()">
+      <div id="msg-login" class="err"></div>
+      <button onclick="login()">Ingresar</button>
+    </div>
+  </div>
+
+  <!-- Vista Principal -->
+  <div id="main-view" style="display:none;">
+    <header>
+      <div class="brand">
+        <img src="/static/cisternin.png" alt="Cisternin">
+        <div>
+          <h1>Portal de Documentación y Reportes — Cisternin</h1>
+          <p>Base de conocimiento RAG, estadísticas de vecinos y reportes oficiales</p>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="/chat" target="_blank">💬 Ver Chatbot</a>
+        <a href="/admin">⚙️ Panel Admin Servidor</a>
+        <button class="btn" style="background:#2a3340; padding:6px 12px;" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <!-- Métricas Generales -->
+    <div class="metricas">
+      <div class="metrica">
+        <div class="label">Documentos Indexados</div>
+        <div class="valor" id="m-docs">0</div>
+        <div class="detalle" id="m-docs-deta">--</div>
+      </div>
+      <div class="metrica">
+        <div class="label">Fragmentos Vectoriales (Chunks)</div>
+        <div class="valor" id="m-chunks">0</div>
+        <div class="detalle">Almacenados en ChromaDB</div>
+      </div>
+      <div class="metrica">
+        <div class="label">Consultas Registradas</div>
+        <div class="valor" id="m-consultas">0</div>
+        <div class="detalle">Preguntas de vecinos</div>
+      </div>
+      <div class="metrica">
+        <div class="label">Tema Más Consultado</div>
+        <div class="valor" id="m-top-tema" style="font-size:18px; line-height:32px;">--</div>
+        <div class="detalle" id="m-top-deta">--</div>
+      </div>
+    </div>
+
+    <!-- Sección 1: Documentos Cargados -->
+    <div class="card">
+      <div class="card-head">
+        <h2>📄 Documentos Cargados en la Base Vectorial (RAG)</h2>
+        <button class="btn" style="background:#2a3340;" onclick="cargarDatos()">🔄 Refrescar</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Nombre del Archivo / Fuente</th>
+              <th>Categoría / Origen</th>
+              <th>Chunks Indexados</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-documentos">
+            <tr><td colspan="4" style="text-align:center; color:var(--sub);">Cargando documentos…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sección 2: Reporte de Preguntas Comunes -->
+    <div class="card">
+      <div class="card-head">
+        <h2>📊 Reporte de Temas y Preguntas Comunes de los Vecinos</h2>
+        <div style="display:flex; gap:8px;">
+          <a class="btn verde" id="btn-export-csv" href="#" download>📥 Descargar Reporte (CSV)</a>
+          <a class="btn" id="btn-export-json" href="#" download>📥 Descargar (JSON)</a>
+        </div>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:18px;">
+        Ranking generado a partir del historial real de consultas ciudadanas recibidas por Cisternin.
+      </p>
+      <div id="ranking-temas">
+        <div style="text-align:center; color:var(--sub);">Cargando reporte de preguntas…</div>
+      </div>
+    </div>
+
+    <!-- Sección 3: Historial Reciente de Consultas -->
+    <div class="card">
+      <div class="card-head">
+        <h2>💬 Últimas Consultas Recibidas</h2>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Fecha y Hora</th>
+              <th>Pregunta del Vecino</th>
+              <th>Categoría Asignada</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-ultimas">
+            <tr><td colspan="3" style="text-align:center; color:var(--sub);">Cargando consultas…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sección 4: Configuración de Contraseñas -->
+    <div class="card">
+      <div class="card-head">
+        <h2>🔐 Configuración de Contraseñas (Seguridad)</h2>
+      </div>
+      <p style="color:var(--sub); font-size:13px;">
+        Permite actualizar de forma segura y permanente las contraseñas del panel de administración y del portal de documentación.
+      </p>
+
+      <div style="margin-top:16px;">
+        <h3 style="font-size:14px; color:#fff; margin-bottom:8px;">Cambiar Contraseña de Docs o Administración</h3>
+        <div class="form-pwd">
+          <input type="password" id="pwd-actual" placeholder="Contraseña actual de Admin">
+          <select id="pwd-tipo" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff;">
+            <option value="docs">Contraseña de Docs (/docs)</option>
+            <option value="admin">Contraseña de Admin (/admin)</option>
+          </select>
+          <input type="password" id="pwd-nueva" placeholder="Nueva contraseña (mínimo 4 caracteres)">
+          <button onclick="cambiarClave()">Actualizar Contraseña</button>
+        </div>
+        <div id="pwd-msg" style="margin-top:10px; font-size:13px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let claveActual = localStorage.getItem("docs_clave") || "";
+
+    function login() {
+      const c = document.getElementById("clave").value.trim();
+      if (!c) { document.getElementById("msg-login").innerText = "Ingresa la contraseña."; return; }
+      
+      fetch("/docs_api?clave=" + encodeURIComponent(c))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.authorized) {
+            document.getElementById("msg-login").innerText = "Contraseña incorrecta.";
+            return;
+          }
+          claveActual = c;
+          localStorage.setItem("docs_clave", c);
+          document.getElementById("login-view").style.display = "none";
+          document.getElementById("main-view").style.display = "block";
+          renderDatos(data);
+        })
+        .catch(() => {
+          document.getElementById("msg-login").innerText = "Error al conectar con el servidor.";
+        });
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("docs_clave");
+      location.reload();
+    }
+
+    function cargarDatos() {
+      if (!claveActual) return;
+      fetch("/docs_api?clave=" + encodeURIComponent(claveActual))
+        .then(r => r.json())
+        .then(data => {
+          if (data.authorized) renderDatos(data);
+        });
+    }
+
+    function renderDatos(d) {
+      // Configurar enlaces de descarga
+      document.getElementById("btn-export-csv").href = "/docs_report/export/csv?clave=" + encodeURIComponent(claveActual);
+      document.getElementById("btn-export-json").href = "/docs_report/export/json?clave=" + encodeURIComponent(claveActual);
+
+      // Métricas
+      const docs = d.documentos || {};
+      const rep = d.reporte_preguntas || {};
+
+      document.getElementById("m-docs").innerText = docs.total_documentos || 0;
+      document.getElementById("m-docs-deta").innerText = `${docs.fuentes ? docs.fuentes.length : 0} fuentes registradas`;
+      document.getElementById("m-chunks").innerText = docs.total_chunks || 0;
+      document.getElementById("m-consultas").innerText = rep.total_consultas || 0;
+
+      if (rep.temas && rep.temas.length > 0) {
+        document.getElementById("m-top-tema").innerText = rep.temas[0].tema;
+        document.getElementById("m-top-deta").innerText = `${rep.temas[0].conteo} consultas (${rep.temas[0].porcentaje}%)`;
+      } else {
+        document.getElementById("m-top-tema").innerText = "Sin datos aún";
+        document.getElementById("m-top-deta").innerText = "--";
+      }
+
+      // Tabla Documentos
+      const tDocs = document.getElementById("tabla-documentos");
+      if (!docs.fuentes || docs.fuentes.length === 0) {
+        tDocs.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--sub);">Sin documentos indexados en ChromaDB.</td></tr>';
+      } else {
+        tDocs.innerHTML = docs.fuentes.map(f => `
+          <tr>
+            <td class="mono"><b>${f.archivo}</b></td>
+            <td><span class="pill azul">${f.categoria}</span></td>
+            <td><b>${f.chunks}</b> chunks</td>
+            <td><span class="pill verde">${f.estado}</span></td>
+          </tr>
+        `).join("");
+      }
+
+      // Ranking Temas
+      const rDiv = document.getElementById("ranking-temas");
+      if (!rep.temas || rep.temas.length === 0) {
+        rDiv.innerHTML = '<div style="text-align:center; color:var(--sub); padding:16px;">Aún no hay suficientes preguntas registradas para armar el reporte.</div>';
+      } else {
+        const max = Math.max(...rep.temas.map(t => t.conteo), 1);
+        rDiv.innerHTML = rep.temas.map(t => {
+          const w = Math.round((t.conteo / max) * 100);
+          const ej = t.ejemplos && t.ejemplos.length ? `Ejemplos: "${t.ejemplos.join('", "')}"` : '';
+          return `
+            <div style="margin-bottom:14px;">
+              <div class="barra">
+                <span class="nombre">${t.tema}</span>
+                <div class="fill"><span class="inner" style="width:${w}%"></span></div>
+                <span class="n"><b>${t.conteo}</b> (${t.porcentaje}%)</span>
+              </div>
+              ${ej ? `<div class="ejemplos-box">${ej}</div>` : ''}
+            </div>
+          `;
+        }).join("");
+      }
+
+      // Tabla Últimas Consultas
+      const tUlt = document.getElementById("tabla-ultimas");
+      if (!rep.ultimas_preguntas || rep.ultimas_preguntas.length === 0) {
+        tUlt.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--sub);">Sin consultas recientes registradas.</td></tr>';
+      } else {
+        tUlt.innerHTML = rep.ultimas_preguntas.map(q => `
+          <tr>
+            <td style="color:var(--sub); font-size:12px; white-space:nowrap;">${q.fecha}</td>
+            <td>${q.pregunta}</td>
+            <td><span class="pill azul">${q.tema}</span></td>
+          </tr>
+        `).join("");
+      }
+    }
+
+    function cambiarClave() {
+      const act = document.getElementById("pwd-actual").value.trim();
+      const tipo = document.getElementById("pwd-tipo").value;
+      const nva = document.getElementById("pwd-nueva").value.trim();
+      const msg = document.getElementById("pwd-msg");
+
+      if (!act || !nva) {
+        msg.innerHTML = '<span style="color:var(--rojo)">Por favor completa todos los campos.</span>';
+        return;
+      }
+
+      fetch("/admin_cambiar_clave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: tipo, nueva_clave: nva, clave_actual: act })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msg.innerHTML = '<span style="color:var(--verde)">' + res.mensaje + '</span>';
+          document.getElementById("pwd-actual").value = "";
+          document.getElementById("pwd-nueva").value = "";
+          if (tipo === "docs") {
+            claveActual = nva;
+            localStorage.setItem("docs_clave", nva);
+          }
+        } else {
+          msg.innerHTML = '<span style="color:var(--rojo)">' + res.mensaje + '</span>';
+        }
+      })
+      .catch(() => {
+        msg.innerHTML = '<span style="color:var(--rojo)">Error al procesar la solicitud.</span>';
+      });
+    }
+
+    // Auto-login si ya había clave guardada
+    if (claveActual) {
+      document.getElementById("clave").value = claveActual;
+      login();
+    }
+  </script>
+</body>
+</html>

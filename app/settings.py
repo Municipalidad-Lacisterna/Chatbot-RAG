@@ -81,9 +81,10 @@ AGENTE_HORARIO_TEXTO = os.getenv(
 AGENTE_HORA_INICIO = os.getenv("AGENTE_HORA_INICIO", "09:00")  # 24h local
 AGENTE_HORA_FIN = os.getenv("AGENTE_HORA_FIN", "17:00")  # 24h local
 
-# Clave de acceso al panel del agente humano (dashboard /agente).
-# En el prototipo se usa una clave compartida; cambiar en .env.
-AGENTE_PANEL_CLAVE = os.getenv("AGENTE_PANEL_CLAVE", "cisterna2026")
+# Claves de acceso a los paneles
+ADMIN_PANEL_CLAVE = os.getenv("ADMIN_PANEL_CLAVE", os.getenv("AGENTE_PANEL_CLAVE", "cisterna2026"))
+AGENTE_PANEL_CLAVE = ADMIN_PANEL_CLAVE
+DOCS_PASSWORD = os.getenv("DOCS_PASSWORD", "docs2026")
 
 # Texto que se muestra cuando NO hay agente disponible en este momento
 # (fuera de horario o agente ocupado). Se ofrece contacto tradicional.

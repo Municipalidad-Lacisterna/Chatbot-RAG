@@ -20,11 +20,12 @@ los WebSockets se acepten correctamente:
 """
 import os
 import json
+import time
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, Response, HTMLResponse
 from pydantic import BaseModel
 
 from app import rag_engine
@@ -48,8 +49,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Alcaldía Chatbot API",
-    description="Chatbot RAG de atención municipal (La Cisterna). Prototipo.",
-    version="0.1.0",
+    description="Chatbot RAG de atención municipal (La Cisterna).",
+    version="1.0.0",
+    docs_url="/api/docs",
+    redoc_url=None,
     lifespan=lifespan,
 )
 
@@ -74,12 +77,19 @@ class AuthRequest(BaseModel):
     clave: str
 
 
+class CambiarClaveRequest(BaseModel):
+    tipo: str
+    nueva_clave: str
+    clave_actual: str
+
+
 @app.get("/")
 async def root():
     return {
         "message": "Chatbot API operativo",
         "health": "ok",
         "docs": "/docs",
+        "api_docs": "/api/docs",
         "chat": "/chat",
     }
 
@@ -91,6 +101,15 @@ async def chat_ui():
     if os.path.isfile(html):
         return FileResponse(html)
     return {"error": "No se encontró static/index.html"}
+
+
+@app.get("/docs", include_in_schema=False)
+async def docs_ui():
+    """Sirve el portal de documentación y reportes ciudadanos."""
+    html = os.path.join(_STATIC_DIR, "docs.html")
+    if os.path.isfile(html):
+        return FileResponse(html)
+    return {"error": "No se encontró static/docs.html"}
 
 
 @app.post("/query", response_model=QueryResponse)
@@ -340,26 +359,47 @@ async def admin_api(clave: str = ""):
 
 
 # ---------------------------------------------------------------------------
-# Transferencia a agente humano (centro de atención / demo)
+# Transferencia a agente humano (Derivado a WhatsApp oficial)
 # ---------------------------------------------------------------------------
 @app.get("/agente", include_in_schema=False)
 async def agente_ui():
-    """Sirve el panel del agente humano (dashboard)."""
-    html = os.path.join(_STATIC_DIR, "agente.html")
-    if os.path.isfile(html):
-        return FileResponse(html)
-    return {"error": "No se encontró static/agente.html"}
+    """Informa que el panel de agentes web fue reemplazado por la derivación a WhatsApp."""
+    wa_url = getattr(settings, "WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")
+    return HTMLResponse(content=f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atención al Vecino — Municipalidad de La Cisterna</title>
+  <style>
+    body {{ background: #0f1117; color: #fff; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }}
+    .card {{ background: #1a1f2b; padding: 36px; border-radius: 14px; border: 1px solid #2a3340; text-align: center; max-width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }}
+    h2 {{ color: #25D366; margin-bottom: 12px; font-size: 22px; }}
+    p {{ color: #aaa; line-height: 1.5; font-size: 14px; }}
+    .btn-wa {{ display: inline-block; margin-top: 20px; background: #128C7E; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 24px; font-weight: bold; font-size: 14px; transition: background .2s; }}
+    .btn-wa:hover {{ background: #25D366; }}
+    .btn-sec {{ display: block; margin-top: 14px; color: #6c757d; font-size: 13px; text-decoration: underline; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Atención Municipal por WhatsApp</h2>
+    <p>El panel web interno de agentes ha sido deshabilitado. Las solicitudes de derivación ciudadana con ejecutivos humanos se canalizan directamente a través del WhatsApp oficial de la Municipalidad.</p>
+    <a class="btn-wa" href="{wa_url}" target="_blank">Abrir WhatsApp de Atención</a>
+    <a class="btn-sec" href="/admin">Ir al Panel de Administración</a>
+  </div>
+</body>
+</html>""")
 
 
 @app.post("/agente_auth")
 async def agente_auth(request: AuthRequest):
     """Valida la clave del panel del agente (prototipo: clave compartida)."""
-    from app import settings
-    return {"ok": request.clave == settings.AGENTE_PANEL_CLAVE}
+    return {"ok": _admin_valida(request.clave)}
 
 
 # ---------------------------------------------------------------------------
-# WebSockets en vivo (vecino ↔ agente). Reutilizan la lógica de ws_routes.
+# WebSockets en vivo (vecino ↔ agente).
 # ---------------------------------------------------------------------------
 from app import ws_routes
 
@@ -372,17 +412,35 @@ async def ws_vecino(session_id: str, websocket: WebSocket):
 
 @app.websocket("/ws/agente")
 async def ws_agente(websocket: WebSocket):
-    """Panel del agente: cola de espera + respuesta en vivo."""
-    await ws_routes.ws_agente(websocket)
+    """Panel del agente deshabilitado en favor de WhatsApp."""
+    await websocket.accept()
+    await websocket.send_text(json.dumps({
+        "tipo": "sistema",
+        "texto": "Aviso: La atención humana opera ahora exclusivamente vía WhatsApp oficial."
+    }, ensure_ascii=False))
+    await websocket.close()
 
 
 # ---------------------------------------------------------------------------
-# Registro histórico de chats (panel /admin)
+# Registro histórico de chats y validación de claves
 # ---------------------------------------------------------------------------
 def _admin_valida(clave: str) -> bool:
-    """Valida la clave del panel admin (compartida con el agente)."""
+    """Valida la clave del panel admin."""
     from app import settings
-    return clave == settings.AGENTE_PANEL_CLAVE
+    return clave in (
+        getattr(settings, "ADMIN_PANEL_CLAVE", "SuperSecretoCisterna2026"),
+        getattr(settings, "AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026")
+    )
+
+
+def _docs_valida(clave: str) -> bool:
+    """Valida la clave del portal de documentación (acepta clave docs o admin)."""
+    from app import settings
+    return clave in (
+        getattr(settings, "DOCS_PASSWORD", "docs2026"),
+        getattr(settings, "ADMIN_PANEL_CLAVE", "SuperSecretoCisterna2026"),
+        getattr(settings, "AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026")
+    )
 
 
 @app.get("/admin_chats")
@@ -529,3 +587,62 @@ def ui_config():
         "horario_habil": agentes_disponibles_ahora(),
         "whatsapp_url": getattr(settings, "WHATSAPP_BUSINESS_URL", "")
     }
+
+
+# ---------------------------------------------------------------------------
+# Portal de Documentación, Reportes y Cambio de Contraseñas
+# ---------------------------------------------------------------------------
+@app.get("/docs_api")
+async def docs_api(clave: str = ""):
+    """Devuelve inventario de documentos indexados y reporte de preguntas frecuentes."""
+    from app import reports
+    if not _docs_valida(clave):
+        return {"error": "Clave incorrecta", "authorized": False}
+
+    docs_info = reports.obtener_documentos_indexados()
+    reporte_info = reports.obtener_reporte_preguntas()
+    return {
+        "authorized": True,
+        "documentos": docs_info,
+        "reporte_preguntas": reporte_info,
+        "whatsapp_oficial": getattr(settings, "WHATSAPP_BUSINESS_URL", "")
+    }
+
+
+@app.get("/docs_report/export/{fmt}")
+async def docs_report_export(fmt: str, clave: str = ""):
+    """Exporta el reporte de preguntas frecuentes y documentos en CSV o JSON."""
+    from app import reports
+    if not _docs_valida(clave):
+        return Response(content="Acceso no autorizado", status_code=403)
+
+    fmt = fmt.lower().strip()
+    if fmt == "csv":
+        csv_data = reports.generar_csv_reporte()
+        # Agregar BOM UTF-8 (\ufeff) para que Excel en Windows lo abra con caracteres correctos
+        content = "\ufeff" + csv_data
+        return Response(
+            content=content,
+            media_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": 'attachment; filename="reporte_preguntas_cisternin.csv"'}
+        )
+    elif fmt == "json":
+        data = {
+            "documentos": reports.obtener_documentos_indexados(),
+            "reporte_preguntas": reports.obtener_reporte_preguntas(),
+            "exportado": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        return Response(
+            content=json.dumps(data, ensure_ascii=False, indent=2),
+            media_type="application/json; charset=utf-8",
+            headers={"Content-Disposition": 'attachment; filename="reporte_preguntas_cisternin.json"'}
+        )
+    return Response(content="Formato no soportado (use 'csv' o 'json')", status_code=400)
+
+
+@app.post("/admin_cambiar_clave")
+async def admin_cambiar_clave_endpoint(req: CambiarClaveRequest):
+    """Permite cambiar la contraseña del panel de administración o de documentación."""
+    from app import reports
+    ok, msg = reports.cambiar_clave(req.tipo, req.nueva_clave, req.clave_actual)
+    return {"ok": ok, "mensaje": msg}
