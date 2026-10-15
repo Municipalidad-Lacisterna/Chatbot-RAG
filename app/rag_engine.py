@@ -173,18 +173,19 @@ def _build_transfer_offer_message(es_fallback: bool = False) -> str:
     - es_fallback=True: Cuando el RAG no encuentra la info (ej. receta de cocina o trámite que no existe).
     - es_fallback=False: Cuando el vecino pide EXPLÍCITAMENTE "hablar con un agente".
     """
+    url_wa = getattr(settings, "WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")
     if es_fallback:
         return (
             f"No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
-            f"Sin embargo, puedo conectarte con una persona del Panel de Atención al Vecino "
-            f"para que te oriente (atienden {settings.AGENTE_HORARIO_TEXTO}). "
-            f"¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+            f"Sin embargo, puedes comunicarte directamente con nuestros funcionarios a través de nuestro WhatsApp oficial:\n\n"
+            f"👉 {url_wa}\n\n"
+            f"¿Quieres que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
         )
     else:
         return (
-            f"¡Por supuesto! Para darte la mejor atención, puedo conectarte con un ejecutivo del Panel de Atención al Vecino "
-            f"(atienden {settings.AGENTE_HORARIO_TEXTO}). "
-            f"¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+            f"¡Por supuesto! Para darte la mejor atención y comunicarte directamente con nuestros ejecutivos municipales, puedes escribirnos a nuestro WhatsApp oficial:\n\n"
+            f"👉 {url_wa}\n\n"
+            f"¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
         )
 
 
@@ -227,12 +228,13 @@ def _build_llm_error_message(exc: Exception) -> str:
         f"[rag] ERROR DEL LLM ({causa}) -> degradando a humano: "
         f"{type(exc).__name__}: {exc}"
     )
+    url_wa = getattr(settings, "WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")
     return (
         "Disculpa la molestia, en este momento no puedo darte una respuesta: "
         "mi sistema está momentáneamente ocupado. No quiero inventarte algo que "
-        "no sé, así que lo mejor es que te atienda una persona del Panel de "
-        f"Atención al Vecino (atienden {settings.AGENTE_HORARIO_TEXTO}). "
-        "¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+        "no sé, así que lo mejor es que te atienda un funcionario a través de "
+        f"nuestro WhatsApp oficial:\n\n👉 {url_wa}\n\n"
+        "¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
     )
 
 
@@ -251,12 +253,12 @@ def build_internal_error_message(exc: Exception) -> str:
         f"{type(exc).__name__}: {exc}"
     )
     traceback.print_exc()
+    url_wa = getattr(settings, "WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")
     return (
         "Disculpa la molestia, tuve un problema técnico al atender tu consulta. "
         "No quiero inventarte algo que no sé, así que lo mejor es que te atienda "
-        "una persona del Panel de Atención al Vecino "
-        f"(atienden {settings.AGENTE_HORARIO_TEXTO}). "
-        "¿Quieres que te transfiera ahora?\n[[TRANSFERIR]]"
+        f"un funcionario a través de nuestro WhatsApp oficial:\n\n👉 {url_wa}\n\n"
+        "¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
     )
 
 

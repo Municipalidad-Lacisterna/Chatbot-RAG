@@ -191,8 +191,19 @@
       if (qrCont && qrCont.parentNode) qrCont.parentNode.removeChild(qrCont);
     }
 
+    function derivarAWhatsApp() {
+      const url = configUI.whatsapp_url || "https://wa.me/56912345678";
+      window.open(url, '_blank');
+      bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:<br><br>👉 <a href="${url}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">${url}</a><br><br>¡Haz clic en el enlace si no se abrió automáticamente!`, 'bot');
+    }
+
     function sendQuickReply(texto) {
       removeQuickReplies();
+      if (texto.includes('agente')) {
+        bubble(texto, 'user');
+        derivarAWhatsApp();
+        return;
+      }
       entrada.value = texto;
       enviarMensaje();
     }
@@ -248,9 +259,10 @@
     // sigue disponible justo cuando el LLM falló: por eso el error ofrece
     // transferir en vez de solo pedir que reintente.
     function mostrarFalloAlVecino() {
+      const url = configUI.whatsapp_url || "https://wa.me/56912345678";
       bubble('Disculpa, tuve un problema para poder atenderte y no quiero ' +
-             'inventarte una respuesta. Lo mejor es que te atienda una ' +
-             'persona del equipo municipal. ¿Quieres que te transfiera ahora?',
+             'inventarte una respuesta. Lo mejor es que te atienda un ' +
+             `funcionario a través de nuestro WhatsApp oficial: ${url}`,
              'bot');
       txtTransferir = true;
       mostrarBotonesTransferir();
@@ -263,7 +275,7 @@
       cont.style.maxWidth = '100%';
 
       const info = document.createElement('div');
-      info.textContent = '¿Desea ser transferido con un agente?';
+      info.textContent = '¿Deseas comunicarte por WhatsApp con un funcionario?';
       info.style.marginBottom = '8px';
       info.style.fontWeight = '600';
       cont.appendChild(info);
@@ -273,7 +285,7 @@
       fila.style.gap = '8px';
 
       const btnSi = document.createElement('button');
-      btnSi.textContent = 'Sí, transfíerame';
+      btnSi.textContent = 'Sí, ir a WhatsApp';
       btnSi.style.flex = '1';
       btnSi.style.padding = '10px';
       btnSi.style.border = 'none';
@@ -316,12 +328,12 @@
       renderQuickReplies();
     }
 
-    // --- WebSocket con el agente (modo transferido) ---
+    // --- Derivación a agente humano (WhatsApp / WebSocket) ---
     function conectarConAgente() {
-      // --- INTERVENCIÓN MODO PILOTO ---
-      if (configUI.modo_piloto && configUI.horario_habil) {
-          window.open(configUI.whatsapp_url, '_blank');
-          return;
+      // Si está configurada la URL de WhatsApp (modo prioritario municipal)
+      if (configUI.whatsapp_url) {
+        derivarAWhatsApp();
+        return;
       }
 
       enModoAgente = true;
