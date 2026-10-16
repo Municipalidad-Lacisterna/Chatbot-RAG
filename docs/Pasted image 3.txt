@@ -1,0 +1,5 @@
+Modelo de facturación aplicado exitosamente.
+   Mensajes_RAG  Costo_USD  Prediccion_Costo
+0         20630        412            412.60
+1         41260        825            825.20
+2         61894       1237           1237.88

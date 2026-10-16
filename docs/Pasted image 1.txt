@@ -1,0 +1,11 @@
+<class 'pandas.DataFrame'>
+RangeIndex: 3 entries, 0 to 2
+Data columns (total 4 columns):
+ #   Column        Non-Null Count  Dtype  
+---  ------        --------------  -----  
+ 0   Adopcion_Pct  3 non-null      float64
+ 1   Vecinos       3 non-null      int64  
+ 2   Mensajes_RAG  3 non-null      int64  
+ 3   Costo_USD     3 non-null      int64  
+dtypes: float64(1), int64(3)
+memory usage: 228.0 bytes
