@@ -188,13 +188,17 @@
     function derivarAWhatsApp() {
       const url = configUI.whatsapp_url || "https://wa.me/56912345678";
       window.open(url, '_blank');
-      bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:<br><br>👉 <a href="${url}" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">${url}</a><br><br>¡Haz clic en el enlace si no se abrió automáticamente!`, 'bot');
+      bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:\n\n👉 ${url}\n\n¡Haz clic en el enlace si no se abrió automáticamente!`, 'bot');
     }
 
     function sendQuickReply(texto) {
       removeQuickReplies();
       if (texto.includes('agente')) {
         bubble(texto, 'user');
+        if (configUI.habilitar_agente === false) {
+          bubble("La atención directa con agentes municipales se encuentra desactivada temporalmente.", "bot");
+          return;
+        }
         derivarAWhatsApp();
         return;
       }
@@ -209,9 +213,12 @@
       
       const options = [
         "💊 Farmacia Comunal",
-        "📋 Ficha Protección Social",
-        "🗣️ Hablar con un agente"
+        "📋 Ficha Protección Social"
       ];
+
+      if (configUI.habilitar_agente !== false) {
+        options.push("🗣️ Hablar con un agente");
+      }
 
       options.forEach(opt => {
         const btn = document.createElement('button');

@@ -141,6 +141,20 @@
       </div>
     </div>
 
+    <!-- Control de Atención Humana / Derivación -->
+    <div class="card" style="margin-top:22px">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2>Atención Humana / Derivación a WhatsApp</h2>
+          <div class="subt">Controla si el bot ofrece el botón "Hablar con un agente" y deriva a WhatsApp a los vecinos.</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <span id="badge-agente" class="badge-online">● Habilitado</span>
+          <button id="btn-toggle-agente" class="btn peligro" onclick="toggleAgente()">Desactivar Atención Humana</button>
+        </div>
+      </div>
+    </div>
+
     <div class="card" style="margin-top:22px">
       <h2>Historial de chats</h2>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
@@ -189,6 +203,37 @@
       return `${Math.floor(d)}d ${Math.floor(h)}h ${Math.floor(m)}m`;
     }
 
+    let agenteHabilitado = true;
+    function actualizarUI_Agente(habilitado) {
+      agenteHabilitado = habilitado;
+      const badge = document.getElementById("badge-agente");
+      const btn = document.getElementById("btn-toggle-agente");
+      if (!badge || !btn) return;
+      if (habilitado) {
+        badge.className = "badge-online";
+        badge.innerText = "● Habilitado";
+        btn.className = "btn peligro";
+        btn.innerText = "Desactivar Atención Humana";
+      } else {
+        badge.className = "badge-offline";
+        badge.innerText = "○ Deshabilitado";
+        btn.className = "btn";
+        btn.innerText = "Activar Atención Humana";
+      }
+    }
+
+    function toggleAgente() {
+      const c = localStorage.getItem("admin_clave") || "";
+      const nuevo = !agenteHabilitado;
+      fetch("/admin_toggle_agente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clave: c, habilitar: nuevo })
+      }).then(r => r.json()).then(res => {
+        if (res.ok) actualizarUI_Agente(res.habilitar_agente);
+      });
+    }
+
     function login() {
       const c = document.getElementById("clave").value.trim();
       if (!c) { document.getElementById("msg-login").innerText = "Ingresa una clave."; return; }
@@ -200,6 +245,11 @@
         render(data);
         cargarHistorial();
         cargarAprendizajes();
+        fetch("/ui_config").then(r => r.json()).then(u => {
+          if (u && typeof u.habilitar_agente !== "undefined") {
+            actualizarUI_Agente(u.habilitar_agente);
+          }
+        });
         setInterval(() => fetchEstado(c).then(render).catch(e=>{}), timing);
       }).catch(() => { document.getElementById("msg-login").innerText = "No se pudo conectar con el servidor."; });
     }

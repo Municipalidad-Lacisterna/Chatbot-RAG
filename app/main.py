@@ -83,6 +83,11 @@ class CambiarClaveRequest(BaseModel):
     clave_actual: str
 
 
+class ToggleAgenteRequest(BaseModel):
+    clave: str
+    habilitar: bool
+
+
 @app.get("/")
 async def root():
     return {
@@ -585,8 +590,24 @@ def ui_config():
     return {
         "modo_piloto": getattr(settings, "MODO_PILOTO_WHATSAPP", False),
         "horario_habil": agentes_disponibles_ahora(),
-        "whatsapp_url": getattr(settings, "WHATSAPP_BUSINESS_URL", "")
+        "whatsapp_url": getattr(settings, "WHATSAPP_BUSINESS_URL", ""),
+        "habilitar_agente": getattr(settings, "HABILITAR_DERIVACION_AGENTE", True),
     }
+
+
+@app.post("/admin_toggle_agente")
+async def admin_toggle_agente_endpoint(req: ToggleAgenteRequest):
+    """Activa o desactiva la función de hablar con un agente / derivar a WhatsApp."""
+    if not _admin_valida(req.clave):
+        return {"ok": False, "error": "Clave incorrecta"}
+    from app import reports
+    settings.HABILITAR_DERIVACION_AGENTE = req.habilitar
+    reports._persistir_en_env(
+        os.path.join(_BASE_DIR, ".env"),
+        "HABILITAR_DERIVACION_AGENTE",
+        "true" if req.habilitar else "false"
+    )
+    return {"ok": True, "habilitar_agente": req.habilitar}
 
 
 # ---------------------------------------------------------------------------

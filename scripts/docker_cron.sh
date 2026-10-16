@@ -41,9 +41,9 @@ while true; do
     date +%s > "$ULTIMA_PURGA"
   fi
 
-  # ── Sincronización Drive a las 07:00 ─────────────────────────────────────
-  if [ "$AHORA" = "07:00" ]; then
-    log "Hora de sincronización del Drive (07:00): ejecutando gdown_sync..."
+  # ── Sincronización Drive a las 03:00 AM ──────────────────────────────────
+  if [ "$AHORA" = "03:00" ]; then
+    log "Hora de sincronización del Drive (03:00): ejecutando gdown_sync..."
     bash "$PROJECT_DIR/scripts/gdown_sync.sh" || \
       log "⚠️ Sincronización falló (ver $LOG_SYNC)"
   fi

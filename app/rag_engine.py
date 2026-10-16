@@ -173,6 +173,17 @@ def _build_transfer_offer_message(es_fallback: bool = False) -> str:
     - es_fallback=True: Cuando el RAG no encuentra la info (ej. receta de cocina o trámite que no existe).
     - es_fallback=False: Cuando el vecino pide EXPLÍCITAMENTE "hablar con un agente".
     """
+    if not getattr(settings, "HABILITAR_DERIVACION_AGENTE", True):
+        if es_fallback:
+            return (
+                "No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
+                "Por favor, revisa directamente en el portal municipal www.cisterna.cl o acércate a los mesones de atención."
+            )
+        return (
+            "La atención directa con agentes municipales se encuentra desactivada temporalmente. "
+            "Por favor escribe tu consulta directamente aquí y te ayudaré con la información disponible."
+        )
+
     url_wa = getattr(settings, "WHATSAPP_BUSINESS_URL", "https://wa.me/56912345678")
     if es_fallback:
         return (
