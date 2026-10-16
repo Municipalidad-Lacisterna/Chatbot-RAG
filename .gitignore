@@ -29,7 +29,9 @@ config/
 
 # Bases de datos y memoria local
 chat_history.db
-chroma_db/
+# chroma_db/ se conserva como base vectorial inicial para despliegue
+chroma_db/*.tmp
+chroma_db/*.bak
 data/
 
 # Archivos de respaldo o temporales
@@ -39,7 +41,6 @@ data/
 
 # Directorios de documentos y costos
 Costos meta/
-docs/
 README_JEFES.md
 
 # Obsidian y SO

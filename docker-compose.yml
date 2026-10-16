@@ -10,6 +10,8 @@ services:
     env_file: .env
     environment:
       OLLAMA_HOST: ${OLLAMA_HOST:-http://ollama:11434}
+    ports:
+      - "${APP_PORT:-8000}:8000"
     volumes:
       - cisternin_chroma:/app/chroma_db
       - cisternin_data_persist:/app/data_persist
