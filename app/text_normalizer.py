@@ -352,6 +352,13 @@ _TRAMITES_SINONIMOS = {
         "propaganda", "publicidad en via publica",
         "cartel en la calle", "letrero publicitario",
     ],
+    # --- Tarjeta Vecino ---
+    "tarjeta vecino": [
+        "tarjeta vecino", "la tarjeta vecino", "tarjeta comunal",
+        "tarjeta de vecino", "sacar tarjeta vecino", "tarjeta vecinal",
+        "beneficios tarjeta vecino", "descuentos tarjeta vecino",
+        "obtener tarjeta vecino", "tarjeta de descuento", "beneficios comunales",
+    ],
     # --- Certificados ---
     "certificado de residencia": [
         "certificado", "certificado de domicilio",

@@ -137,6 +137,9 @@ _ENTIDADES_POR_PALABRAS = {
         "ficha", "ficha social", "ficha proteccion", "registro social",
         "rsh", "registro de hogares",
     ],
+    "tarjeta_vecino": [
+        "tarjeta vecino", "tarjeta comunal", "tarjeta vecinal", "beneficios tarjeta",
+    ],
     # Vehículos
     "vehiculo": [
         "auto", "vehiculo", "carro", "camioneta", "moto",
@@ -281,6 +284,7 @@ def _construir_query_enriquecida(
         "podologia": ["centro podologico", "atencion podologica"],
         "subsidio": ["subsidio", "beneficio social"],
         "ficha_social": ["ficha de proteccion social", "registro social"],
+        "tarjeta_vecino": ["tarjeta vecino", "beneficios comunales", "descuentos", "inscripcion"],
         "vehiculo": ["permiso de circulacion", "vehiculo"],
         "licencia_conducir": ["licencia de conducir", "examen"],
         "edificacion": ["permiso de edificacion", "construccion"],

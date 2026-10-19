@@ -241,9 +241,9 @@
       div.className = 'msg ' + quien;
       
       let safeTexto = texto.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      safeTexto = safeTexto.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">$1</a>');
       safeTexto = safeTexto.replace(/\n/g, '<br>');
       safeTexto = safeTexto.replace(/\*(.*?)\*/g, '<b>$1</b>');
-      safeTexto = safeTexto.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" style="color: #007bff; text-decoration: underline; font-weight: bold;">$1</a>');
       
       div.innerHTML = safeTexto;
       
