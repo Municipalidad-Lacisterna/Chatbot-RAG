@@ -8,11 +8,11 @@ de configuración evita dispersarlos por el resto de los módulos.
 import os
 from dotenv import load_dotenv
 
-# Cargar variables de entorno desde el archivo .env (si existe)
-load_dotenv()
-
 # Directorio raíz del proyecto (una subida desde app/)
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Cargar variables de entorno desde el archivo .env (si existe)
+load_dotenv(os.path.join(_BASE_DIR, ".env"))
 
 # --- Proveedor del modelo LLM ---
 # "google" (Gemini, por defecto en desarrollo, costo $0 free tier)
