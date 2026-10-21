@@ -307,16 +307,13 @@ def _parse_answer(raw: str, question: str) -> tuple[str, bool]:
 
     try:
         data = json.loads(json_str)
-        respuesta = str(data.get("respuesta", "")).strip()
-        encontrado = bool(data.get("encontrado", True))
-        if respuesta:
+        if isinstance(data, dict):
+            respuesta = str(data.get("respuesta", "")).strip()
+            encontrado = bool(data.get("encontrado", True))
+            if respuesta:
+                return respuesta, encontrado
             return respuesta, encontrado
-        # Respuesta JSON válida pero con texto vacío: respetar el campo
-        # "encontrado". Si es false (el modelo indica que no halló info),
-        # devolver texto vacío + no encontrado para que el bot derive.
-        # NO caer al fallback, que devolvería el JSON crudo como texto.
-        return respuesta, encontrado
-    except (json.JSONDecodeError, TypeError):
+    except (json.JSONDecodeError, TypeError, AttributeError):
         pass
 
     # Fallback: si el modelo devolvió texto sin JSON válido, limpiar residuos de formato
