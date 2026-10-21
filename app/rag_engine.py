@@ -319,8 +319,20 @@ def _parse_answer(raw: str, question: str) -> tuple[str, bool]:
     except (json.JSONDecodeError, TypeError):
         pass
 
-    # Fallback: si el modelo devolvió texto sin JSON, usarlo tal cual
-    return raw, True
+    # Fallback: si el modelo devolvió texto sin JSON válido, limpiar residuos de formato
+    m_resp = re.search(r'"respuesta"\s*:\s*"(.*?)"', raw, re.DOTALL)
+    if m_resp:
+        limpio = m_resp.group(1)
+    else:
+        limpio = re.sub(r'["\']?encontrado["\']?\s*:\s*(true|false)', '', raw, flags=re.IGNORECASE)
+        limpio = re.sub(r'["\']?respuesta["\']?\s*:\s*', '', limpio, flags=re.IGNORECASE)
+        limpio = limpio.strip(" \t\n\r{},\"")
+
+    enc = True
+    if '"encontrado": false' in raw.lower() or '"encontrado":false' in raw.lower():
+        enc = False
+
+    return limpio.strip(), enc
 
 
 # Frases clave que indican que el modelo NO encontró el dato puntual pedido
