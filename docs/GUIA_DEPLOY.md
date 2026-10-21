@@ -22,15 +22,28 @@ Procedimiento para instalar y poner en marcha el servicio en un servidor Linux (
    ```
    El script creara un archivo `.env` inicial si no existe y solicitara su configuracion.
 
-3. **Configuracion de variables:**
-   Editar el archivo `.env`:
+3. **Configuracion de variables (Cambiar API_KEY con nano):**
+   Para configurar o cambiar la clave de Inteligencia Artificial (API Key) y los parametros del sistema, abrir el archivo de configuracion con el editor `nano`:
    ```bash
    nano .env
    ```
-   Parametros principales:
-   - `DOMAIN_NAME`: Dominio publico para emision de certificados TLS (ej. `consultas.lacisterna.cl`).
-   - `AGENTE_PANEL_CLAVE`: Clave de acceso administrativa para el panel de agentes.
-   - `DRIVE_URL`: ID de la carpeta de Google Drive donde residen los documentos municipales.
+   Dentro del editor:
+   - Navegar con las flechas del teclado hasta la linea `API_KEY=`.
+   - Pegar la clave del proveedor de IA (puedes pegar con clic derecho o con `Ctrl + Shift + V`).
+   - Ejemplo: `API_KEY=AIzaSyD-tu_clave_aqui`
+   - Para guardar los cambios: presionar `Ctrl + O` y luego `Enter`.
+   - Para salir de nano: presionar `Ctrl + X`.
+
+   Parametros principales a revisar en `.env`:
+   - `API_KEY`: Clave del proveedor de IA en la nube (ej. Google Gemini u otro).
+   - `DOMAIN_NAME`: Dominio publico para emision de certificados TLS (ej. `chatbot.lacisterna.cl`).
+   - `ADMIN_PANEL_CLAVE`: Clave de acceso administrativa para el panel web (`/admin`).
+   - `DOCS_PASSWORD`: Clave de acceso al portal de documentacion y reportes (`/docs`).
+
+   Si el servicio ya estaba corriendo, reiniciar el contenedor para aplicar los cambios:
+   ```bash
+   docker compose restart app
+   ```
 
 4. **Ejecucion del despliegue:**
    Ejecutar nuevamente el script:

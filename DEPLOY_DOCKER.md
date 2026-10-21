@@ -7,18 +7,32 @@ Instrucciones para compilar y ejecutar el servicio en servidores de produccion u
 - Docker Engine 24+ y Docker Compose v2.
 - (Opcional) Tarjeta grafica NVIDIA con `nvidia-container-toolkit` configurado para aceleracion de inferencia local.
 
-## 2. Configuracion de variables de entorno
+## 2. Configuracion de variables de entorno y API Key
 
-Copiar la plantilla base y configurar parametros del host:
+Copiar la plantilla base y editar los parametros del sistema:
 
 ```bash
 cp .env.example .env
+nano .env
 ```
 
+**Como cambiar la clave de Inteligencia Artificial (API Key) con `nano`:**
+1. Al abrir `nano .env`, buscar con las flechas la linea `API_KEY=`.
+2. Pegar la clave del proveedor contratado (con clic derecho o `Ctrl + Shift + V`).
+3. Guardar el archivo: presionar `Ctrl + O` y luego `Enter`.
+4. Salir de nano: presionar `Ctrl + X`.
+
 Parametros principales a revisar:
-- `DOMAIN_NAME`: Dominio publico asignado para la emision automatica de certificados HTTPS mediante Caddy (ej. `consultas.lacisterna.cl`). Si se define `localhost`, el proxy operara en HTTP estandar.
-- `LLM_PROVIDER`: Proveedor de inferencia configurado (`ollama` para ejecucion local en el host, o `google` para APIs compatibles).
-- `OLLAMA_MODEL`: Modelo utilizado para el procesamiento de texto (por defecto `qwen2.5:7b`).
+- `API_KEY`: Clave del proveedor de IA (ej. Google Gemini, OpenAI u otro).
+- `DOMAIN_NAME`: Dominio publico asignado para la emision automatica de certificados HTTPS mediante Caddy (ej. `chatbot.lacisterna.cl`). Si se define `localhost`, el proxy operara en HTTP estandar.
+- `LLM_PROVIDER`: Proveedor de inferencia configurado (`google` para APIs en la nube, o `ollama` para ejecucion 100% local en el servidor propio).
+- `ADMIN_PANEL_CLAVE`: Contraseña de administracion del sistema (`/admin`).
+- `DOCS_PASSWORD`: Contraseña de acceso a reportes y documentacion (`/docs`).
+
+Si el sistema ya esta en ejecucion y se actualizo la clave, reiniciar el servicio:
+```bash
+docker compose restart app
+```
 
 ## 3. Despliegue automatizado con deploy.sh
 
