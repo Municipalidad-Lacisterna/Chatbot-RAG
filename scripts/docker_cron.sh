@@ -41,11 +41,15 @@ while true; do
     date +%s > "$ULTIMA_PURGA"
   fi
 
-  # ── Sincronización Drive a las 03:00 AM ──────────────────────────────────
+  # ── Sincronización Drive e Ingesta Programada a las 03:00 AM ─────────────
   if [ "$AHORA" = "03:00" ]; then
-    log "Hora de sincronización del Drive (03:00): ejecutando gdown_sync..."
+    log "Hora de mantenimiento (03:00): ejecutando gdown_sync..."
     bash "$PROJECT_DIR/scripts/gdown_sync.sh" || \
       log "⚠️ Sincronización falló (ver $LOG_SYNC)"
+
+    log "Procesando documentos programados en inbox..."
+    (cd "$PROJECT_DIR" && "$PYTHON" scripts/ingest_programado.py) || \
+      log "⚠️ Ingesta programada de inbox falló"
   fi
 
   # Duerme 57 min (margen para no desfasar la hora de 07:00)

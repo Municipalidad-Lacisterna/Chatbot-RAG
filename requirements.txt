@@ -16,6 +16,7 @@ fastapi
 uvicorn
 # Transporte WebSocket usado por el proyecto (--ws wsproto)
 wsproto
+python-multipart
 
 # --- Sincronización Google Drive (gdown_sync.sh) ---
 gdown

@@ -158,6 +158,68 @@
       </div>
     </div>
 
+    <!-- Sección de Carga y Análisis de Documentos -->
+    <div class="card" style="border-left: 4px solid var(--verde);">
+      <div class="card-head">
+        <h2>📤 Carga y Análisis de Nuevos Documentos</h2>
+        <span class="pill verde">Ingesta Programada (03:00 AM) o Inmediata</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:16px;">
+        Sube instructivos, planillas Excel, resoluciones o PDFs. El sistema analizará la estructura, estimará los fragmentos vectoriales y lo programará para la sincronización nocturna (o lo indexará de inmediato).
+      </p>
+
+      <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:end;">
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Seleccionar Archivo (PDF, Excel, CSV, MD):</label>
+          <input type="file" id="up-file" required accept=".pdf,.xlsx,.xls,.csv,.md" style="padding:8px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Categoría / Dirección:</label>
+          <input type="text" id="up-cat" placeholder="Ej: Tránsito, DIDECO, DIMAO" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+          <select id="up-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
+            <option value="false">⚡ Indexar de inmediato (Urgente)</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn verde" id="btn-up" style="width:100%; justify-content:center; padding:10px;">Analizar y Guardar</button>
+        </div>
+      </form>
+
+      <div id="up-result" style="margin-top:14px; display:none; padding:12px 16px; border-radius:8px; background:#1c2533; border:1px solid var(--borde); font-size:13px;"></div>
+    </div>
+
+    <!-- Sección de Documentos en Cola Programada -->
+    <div class="card" id="card-cola">
+      <div class="card-head">
+        <h2>⏳ Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" style="background:#2a3340;" onclick="cargarCola()">🔄 Refrescar Cola</button>
+          <button class="btn" style="background:#e6b64c; color:#111;" onclick="procesarColaAhora()">⚡ Procesar Cola Ahora</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Tamaño</th>
+              <th>Categoría</th>
+              <th>Chunks Est.</th>
+              <th>Hora Programada</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-cola">
+            <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- Sección 1: Documentos Cargados -->
     <div class="card">
       <div class="card-head">
@@ -284,7 +346,107 @@
         });
     }
 
+    function cargarCola() {
+      if (!claveActual) return;
+      fetch("/docs_cola?clave=" + encodeURIComponent(claveActual))
+        .then(r => r.json())
+        .then(data => {
+          const tCola = document.getElementById("tabla-cola");
+          if (!data.cola || data.cola.length === 0) {
+            tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--sub);">No hay documentos pendientes en la cola nocturna.</td></tr>';
+          } else {
+            tCola.innerHTML = data.cola.map(item => `
+              <tr>
+                <td class="mono"><b>${item.archivo}</b></td>
+                <td>${item.tamano}</td>
+                <td><span class="pill azul">${item.categoria}</span></td>
+                <td><b>${item.chunks_estimados}</b></td>
+                <td><span class="pill verde">${item.hora_programada}</span></td>
+                <td><span class="pill amarilla">Encolado</span></td>
+              </tr>
+            `).join("");
+          }
+        });
+    }
+
+    function subirDocumento(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById("up-file");
+      if (!fileInput.files.length) return;
+
+      const file = fileInput.files[0];
+      const prog = document.getElementById("up-prog").value === "true";
+      const cat = document.getElementById("up-cat").value.trim() || "General";
+      const resBox = document.getElementById("up-result");
+      const btn = document.getElementById("btn-up");
+
+      btn.disabled = true;
+      btn.innerText = "Analizando documento...";
+      resBox.style.display = "block";
+      resBox.innerHTML = '<span style="color:var(--sub);">⏳ Extrayendo texto y analizando estructura del documento...</span>';
+
+      const formData = new FormData();
+      formData.append("archivo", file);
+      formData.append("programar", prog);
+      formData.append("categoria", cat);
+      formData.append("clave", claveActual);
+
+      fetch("/docs_upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerText = "Analizar y Guardar";
+
+        if (res.ok) {
+          const a = res.analisis;
+          resBox.innerHTML = `
+            <div style="color:var(--verde); font-weight:600; margin-bottom:6px;">✓ ${res.mensaje}</div>
+            <div style="color:var(--texto); font-size:12px;">
+              <b>Detalles del análisis:</b> ${a.resumen}<br>
+              <b>Tamaño:</b> ${a.tamano_kb} KB · <b>Páginas/Filas:</b> ${a.paginas_o_filas} · <b>Chunks proyectados:</b> ${a.chunks_estimados}
+            </div>
+            ${a.preview ? `<div style="margin-top:8px; padding:6px 10px; background:#111622; border-radius:6px; color:#8ba3c7; font-family:monospace; font-size:11px; max-height:80px; overflow:hidden;">${a.preview.replace(/</g, "&lt;").replace(/>/g, "&gt;")}...</div>` : ''}
+          `;
+          fileInput.value = "";
+          cargarCola();
+          if (!prog) {
+            cargarDatos();
+          }
+        } else {
+          resBox.innerHTML = `<span style="color:var(--rojo);">⚠️ Error: ${res.mensaje || "No se pudo procesar el archivo"}</span>`;
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "Analizar y Guardar";
+        resBox.innerHTML = `<span style="color:var(--rojo);">Error de conexión al subir documento: ${err}</span>`;
+      });
+    }
+
+    function procesarColaAhora() {
+      if (!confirm("¿Deseas procesar e indexar inmediatamente todos los documentos encolados en vez de esperar a las 03:00 AM?")) return;
+      
+      const tCola = document.getElementById("tabla-cola");
+      tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--amarillo);">⚡ Procesando e indexando documentos en ChromaDB...</td></tr>';
+
+      fetch("/docs_procesar_cola?clave=" + encodeURIComponent(claveActual), { method: "POST" })
+        .then(r => r.json())
+        .then(res => {
+          alert(res.mensaje);
+          cargarCola();
+          cargarDatos();
+        })
+        .catch(() => {
+          alert("Error al procesar la cola.");
+          cargarCola();
+        });
+    }
+
     function renderDatos(d) {
+      cargarCola();
       // Configurar enlaces de descarga
       document.getElementById("btn-export-csv").href = "/docs_report/export/csv?clave=" + encodeURIComponent(claveActual);
       document.getElementById("btn-export-json").href = "/docs_report/export/json?clave=" + encodeURIComponent(claveActual);

@@ -23,7 +23,7 @@ import json
 import time
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, BackgroundTasks
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, BackgroundTasks, UploadFile, File, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, Response, HTMLResponse
 from pydantic import BaseModel
@@ -667,3 +667,49 @@ async def admin_cambiar_clave_endpoint(req: CambiarClaveRequest):
     from app import reports
     ok, msg = reports.cambiar_clave(req.tipo, req.nueva_clave, req.clave_actual)
     return {"ok": ok, "mensaje": msg}
+
+
+# ---------------------------------------------------------------------------
+# Carga, Análisis y Gestión Programada de Documentos (/docs)
+# ---------------------------------------------------------------------------
+@app.post("/docs_upload")
+async def docs_upload_endpoint(
+    archivo: UploadFile = File(...),
+    programar: bool = Form(True),
+    categoria: str = Form("General"),
+    clave: str = Form("")
+):
+    """Carga y analiza un documento, encolándolo para las 03:00 AM o indexándolo de inmediato."""
+    if not _docs_valida(clave):
+        return {"ok": False, "mensaje": "Clave de acceso no autorizada"}
+
+    from app import document_analyzer
+    content = await archivo.read()
+    if not content:
+        return {"ok": False, "mensaje": "El archivo subido está vacío."}
+
+    resultado = document_analyzer.guardar_y_procesar(
+        file_bytes=content,
+        filename=archivo.filename,
+        programar=programar,
+        categoria=categoria
+    )
+    return resultado
+
+
+@app.get("/docs_cola")
+async def docs_cola_endpoint(clave: str = ""):
+    """Devuelve la lista de documentos programados en la cola de inbox."""
+    if not _docs_valida(clave):
+        return {"error": "No autorizado", "cola": []}
+    from app import document_analyzer
+    return {"ok": True, "cola": document_analyzer.obtener_cola_programada()}
+
+
+@app.post("/docs_procesar_cola")
+async def docs_procesar_cola_endpoint(clave: str = ""):
+    """Procesa inmediatamente todos los documentos pendientes en la cola."""
+    if not _docs_valida(clave):
+        return {"ok": False, "mensaje": "No autorizado"}
+    from app import document_analyzer
+    return document_analyzer.procesar_cola_inbox()

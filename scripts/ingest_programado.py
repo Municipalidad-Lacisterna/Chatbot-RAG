@@ -24,21 +24,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
 
 from app import settings
-from app.ingestion import ingest_pdf, delete_original_file
-
-
-def _es_doc(nombre: str) -> bool:
-    return nombre.lower().endswith((".pdf", ".md"))
+from app.document_analyzer import procesar_cola_inbox
 
 
 def main():
     dry_run = "--dry-run" in sys.argv
     inbox = os.path.join(settings.DATA_DIR, "inbox")
-    data = settings.DATA_DIR
     os.makedirs(inbox, exist_ok=True)
 
     # Recolectar documentos del inbox
-    nuevos = [f for f in os.listdir(inbox) if _es_doc(f) and os.path.isfile(os.path.join(inbox, f))]
+    nuevos = [f for f in os.listdir(inbox) if not f.startswith(".") and os.path.isfile(os.path.join(inbox, f))]
     if not nuevos:
         print(f"[ingesta] No hay documentos nuevos en {inbox}")
         return 0
@@ -51,37 +46,9 @@ def main():
         print("\n[ingesta] (dry-run) no se procesó nada.")
         return 0
 
-    procesados = 0
-    fallidos = []
-    for f in sorted(nuevos):
-        origen = os.path.join(inbox, f)
-        destino = os.path.join(data, f)
-        t0 = time.time()
-        try:
-            # Mover al directorio de datos (donde ingest_pdf lo busca)
-            if os.path.abspath(origen) != os.path.abspath(destino):
-                shutil.move(origen, destino)
-            n = ingest_pdf(f)
-            if n == 0:
-                raise RuntimeError("no se extrajo texto (¿PDF vacío o corrupto?)")
-            # Digitalizar: eliminar el original, conservar chunks
-            delete_original_file(f)
-            dt = time.time() - t0
-            print(f"  [✓] {f}: {n} chunks ({dt:.0f}s) — original eliminado")
-            procesados += 1
-        except Exception as e:
-            # Si falló, devolver el archivo al inbox para reintentar después
-            if os.path.exists(destino) and not os.path.exists(origen):
-                shutil.move(destino, origen)
-            fallidos.append((f, str(e)))
-            print(f"  [x] {f}: ERROR {e}")
-            print(f"      (devuelto a inbox para reintentar)")
-
-    print(f"\n[ingesta] Resumen: {procesados} procesados, {len(fallidos)} fallidos.")
-    if fallidos:
-        for f, e in fallidos:
-            print(f"   - {f}: {e}")
-    return 0 if not fallidos else 1
+    res = procesar_cola_inbox()
+    print(f"\n[ingesta] Resumen: {res['mensaje']}")
+    return 0
 
 
 if __name__ == "__main__":
