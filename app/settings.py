@@ -28,7 +28,21 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "google")
 LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
 # La API key de Google se lee por nombre estándar; si no está definida,
 # la toma el SDK de google-genai desde su propio mecanismo de entorno.
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
+def _read_secret(name: str, default: str = "") -> str:
+    """Lee un secreto desde variable de entorno o desde archivo Docker Secret (/run/secrets/)."""
+    val = os.getenv(name)
+    if val:
+        return val.strip()
+    for path in (f"/run/secrets/{name}", f"/run/secrets/{name.lower()}"):
+        if os.path.isfile(path):
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    return f.read().strip()
+            except Exception:
+                pass
+    return default
+
+GOOGLE_API_KEY = _read_secret("GOOGLE_API_KEY", "")
 
 # --- Tiempos y reintentos del LLM (para que el vecino no espere indefinido) ---
 # LLM_TIMEOUT corta una consulta que quedó colgada. Las consultas reales
@@ -82,9 +96,9 @@ AGENTE_HORA_INICIO = os.getenv("AGENTE_HORA_INICIO", "09:00")  # 24h local
 AGENTE_HORA_FIN = os.getenv("AGENTE_HORA_FIN", "17:00")  # 24h local
 
 # Claves de acceso a los paneles
-ADMIN_PANEL_CLAVE = os.getenv("ADMIN_PANEL_CLAVE", os.getenv("AGENTE_PANEL_CLAVE", "cisterna2026"))
+ADMIN_PANEL_CLAVE = _read_secret("ADMIN_PANEL_CLAVE", _read_secret("AGENTE_PANEL_CLAVE", "cisterna2026"))
 AGENTE_PANEL_CLAVE = ADMIN_PANEL_CLAVE
-DOCS_PASSWORD = os.getenv("DOCS_PASSWORD", "docs2026")
+DOCS_PASSWORD = _read_secret("DOCS_PASSWORD", "docs2026")
 
 # Texto que se muestra cuando NO hay agente disponible en este momento
 # (fuera de horario o agente ocupado). Se ofrece contacto tradicional.
