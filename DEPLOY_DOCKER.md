@@ -67,3 +67,15 @@ Para detener los servicios conservando volumenes de datos:
 ```bash
 docker compose down
 ```
+
+## 6. Configuracion automatica de Red (Tailscale + Cloudflare Tunnel)
+
+Para conectar el servidor municipal a la red segura y publicar el chatbot sin abrir puertos entrantes en el firewall institucional:
+
+```bash
+bash scripts/setup_red_cisternin.sh
+```
+
+El script se encarga de:
+- Instalar e inicializar **Tailscale**, mostrando la IP privada (100.x.y.z) para administracion segura de `/admin` y `/docs`.
+- Instalar y configurar el servicio de **Cloudflare Tunnel (`cloudflared`)** vinculado al subdominio municipal (`https://chatbot.lacisterna.cl`).

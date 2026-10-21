@@ -52,3 +52,12 @@ Procedimiento para instalar y poner en marcha el servicio en un servidor Linux (
    ```
 
 El script detectara la disponibilidad de GPU, compilara los contenedores necesarios, verificara la disponibilidad del modelo en Ollama y levantara el stack en segundo plano.
+
+5. **Configuracion automatica de Red (Tailscale + Cloudflare Tunnel):**
+   Para configurar el acceso seguro y la publicacion web sin abrir puertos en el firewall municipal:
+   ```bash
+   bash scripts/setup_red_cisternin.sh
+   ```
+   Este script automatiza:
+   - **Tailscale Mesh VPN:** Provee la IP privada (100.x.y.z) para acceder de forma segura a los paneles `/admin` y `/docs` desde cualquier dispositivo autorizado sin exponerlos a internet abierto.
+   - **Cloudflare Tunnel:** Instala y levanta el servicio de túnel cifrado conectando el puerto 8000 con el subdominio municipal (`https://chatbot.lacisterna.cl`).
