@@ -42,7 +42,17 @@ def _read_secret(name: str, default: str = "") -> str:
                 pass
     return default
 
-GOOGLE_API_KEY = _read_secret("GOOGLE_API_KEY", "")
+# =============================================================================
+# CLAVE DE API (API KEY) DEL PROVEEDOR DE IA
+# =============================================================================
+# Aquí se guarda la clave del proveedor que contrate o use la municipalidad
+# (Google Gemini, OpenAI, o cualquier servicio compatible en la nube).
+# Si en el futuro la muni usa un servidor propio con IA local (Ollama),
+# esta clave puede quedar vacía.
+API_KEY = _read_secret("API_KEY", _read_secret("GOOGLE_API_KEY", ""))
+
+# Mantenemos GOOGLE_API_KEY por compatibilidad con configuraciones previas
+GOOGLE_API_KEY = API_KEY
 
 # --- Tiempos y reintentos del LLM (para que el vecino no espere indefinido) ---
 # LLM_TIMEOUT corta una consulta que quedó colgada. Las consultas reales

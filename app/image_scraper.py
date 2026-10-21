@@ -148,9 +148,9 @@ def analizar_imagen_con_vision_ia(img_path: str, meta_contexto: dict) -> str:
     Envía la imagen a Gemini Vision (vía API oficial de Google) o IA local para
     extraer toda la información en Markdown atómico.
     """
-    api_key = settings.GOOGLE_API_KEY
+    api_key = getattr(settings, "API_KEY", "") or getattr(settings, "GOOGLE_API_KEY", "")
     if not api_key:
-        print("[scraper-img] AVISO: No hay GOOGLE_API_KEY configurada para visión.")
+        print("[scraper-img] AVISO: No hay API_KEY configurada para análisis visual.")
         return ""
 
     with open(img_path, "rb") as f:

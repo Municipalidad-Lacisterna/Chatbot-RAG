@@ -123,29 +123,34 @@ def _build_prompt_template() -> ChatPromptTemplate:
 
 
 def _make_llm():
-    """Crea el modelo LLM según LLM_PROVIDER (google | ollama).
+    """Crea y configura el modelo de Inteligencia Artificial.
 
-    Soporta fallback automático: si Ollama no responde o la laptop gamer
-    está suspendida, conmuta de inmediato a Google Gemini sin interrumpir
-    la atención ciudadana.
+    Funcionamiento sencillo:
+    1. Si hay una API_KEY configurada, prepara el motor de IA en la nube.
+    2. Si el sistema está configurado en modo local ('ollama'), usa el modelo
+       del servidor propio; y si la máquina local se apaga, salta
+       automáticamente a la API en la nube para no interrumpir el chat.
+    3. Si la clave no está definida, opera en modo de prueba por defecto.
     """
     provider = (settings.LLM_PROVIDER or "google").lower().strip()
+    api_key = getattr(settings, "API_KEY", "") or getattr(settings, "GOOGLE_API_KEY", "")
 
-    # Preparar cliente Google Gemini si hay API key
-    gemini_llm = None
-    if settings.GOOGLE_API_KEY:
+    # 1. Configurar conexión con el proveedor en la nube si tenemos una API Key
+    cloud_llm = None
+    if api_key:
         from langchain_google_genai import ChatGoogleGenerativeAI
-        modelo_google = getattr(settings, "LLM_MODEL", "gemini-3.5-flash-lite")
-        if "santi" in modelo_google or "qwen" in modelo_google:
-            modelo_google = "gemini-3.5-flash-lite"
-        gemini_llm = ChatGoogleGenerativeAI(
-            model=modelo_google,
+        modelo = getattr(settings, "LLM_MODEL", "gemini-3.5-flash-lite")
+        if "santi" in modelo or "qwen" in modelo:
+            modelo = "gemini-3.5-flash-lite"
+        cloud_llm = ChatGoogleGenerativeAI(
+            model=modelo,
             temperature=0,
-            google_api_key=settings.GOOGLE_API_KEY,
+            google_api_key=api_key,
             timeout=settings.LLM_TIMEOUT,
             max_retries=settings.LLM_MAX_RETRIES,
         )
 
+    # 2. Si se eligió IA local (Ollama en el servidor propio)
     if provider == "ollama":
         from langchain_ollama import ChatOllama
         ollama_llm = ChatOllama(
@@ -154,19 +159,21 @@ def _make_llm():
             temperature=0,
             timeout=5,
         )
-        if gemini_llm is not None:
-            return ollama_llm.with_fallbacks([gemini_llm])
+        # Respaldo automático: si la IA local no contesta en 5s, usa la API en la nube
+        if cloud_llm is not None:
+            return ollama_llm.with_fallbacks([cloud_llm])
         return ollama_llm
 
-    if gemini_llm is not None:
-        return gemini_llm
+    # 3. Si se eligió la nube directamente, devolvemos el motor conectado
+    if cloud_llm is not None:
+        return cloud_llm
 
-    # Fallback si no hay API key ni Ollama
+    # 4. Modo por defecto en caso de no tener llaves configuradas
     from langchain_google_genai import ChatGoogleGenerativeAI
     return ChatGoogleGenerativeAI(
         model="gemini-3.5-flash-lite",
         temperature=0,
-        google_api_key=settings.GOOGLE_API_KEY or None,
+        google_api_key=api_key or None,
         timeout=settings.LLM_TIMEOUT,
         max_retries=settings.LLM_MAX_RETRIES,
     )
