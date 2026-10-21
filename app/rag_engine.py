@@ -125,30 +125,46 @@ def _build_prompt_template() -> ChatPromptTemplate:
 def _make_llm():
     """Crea el modelo LLM según LLM_PROVIDER (google | ollama).
 
-    - "google": Gemini. Usa `LLM_MODEL` y `GOOGLE_API_KEY` (free tier, costo
-      $0). Es el valor por defecto para desarrollo, sin hardware extra.
-    - "ollama": LLM local (Qwen2.5-VL) vía Ollama, para el servidor de
-      producción con GPU. MongoDB no sale del servidor (soberanía total).
-
-    Los imports de cada proveedor se hacen aquí (perezosos) para que un
-    proyecto no necesite las dependencias del otro.
+    Soporta fallback automático: si Ollama no responde o la laptop gamer
+    está suspendida, conmuta de inmediato a Google Gemini sin interrumpir
+    la atención ciudadana.
     """
     provider = (settings.LLM_PROVIDER or "google").lower().strip()
 
+    # Preparar cliente Google Gemini si hay API key
+    gemini_llm = None
+    if settings.GOOGLE_API_KEY:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+        modelo_google = getattr(settings, "LLM_MODEL", "gemini-3.5-flash-lite")
+        if "santi" in modelo_google or "qwen" in modelo_google:
+            modelo_google = "gemini-3.5-flash-lite"
+        gemini_llm = ChatGoogleGenerativeAI(
+            model=modelo_google,
+            temperature=0,
+            google_api_key=settings.GOOGLE_API_KEY,
+            timeout=settings.LLM_TIMEOUT,
+            max_retries=settings.LLM_MAX_RETRIES,
+        )
+
     if provider == "ollama":
         from langchain_ollama import ChatOllama
-
-        return ChatOllama(
+        ollama_llm = ChatOllama(
             model=settings.OLLAMA_MODEL,
             base_url=settings.OLLAMA_HOST,
             temperature=0,
+            timeout=5,
         )
+        if gemini_llm is not None:
+            return ollama_llm.with_fallbacks([gemini_llm])
+        return ollama_llm
 
-    # Por defecto: Google Gemini (prototipo / desarrollo)
+    if gemini_llm is not None:
+        return gemini_llm
+
+    # Fallback si no hay API key ni Ollama
     from langchain_google_genai import ChatGoogleGenerativeAI
-
     return ChatGoogleGenerativeAI(
-        model=settings.LLM_MODEL,
+        model="gemini-3.5-flash-lite",
         temperature=0,
         google_api_key=settings.GOOGLE_API_KEY or None,
         timeout=settings.LLM_TIMEOUT,

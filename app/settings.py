@@ -25,7 +25,7 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "google")
 # Nota (histórico de desarrollo): gemini-3.5-flash agota cuota diaria en free
 # tier (429 RESOURCE_EXHAUSTED); gemini-3.1-flash-lite es el más estable y
 # barato para el prototipo. En producción se usa IA local vía Ollama, no Gemini.
-LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.1-flash-lite")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.5-flash-lite")
 # La API key de Google se lee por nombre estándar; si no está definida,
 # la toma el SDK de google-genai desde su propio mecanismo de entorno.
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
@@ -37,7 +37,7 @@ LLM_TIMEOUT = int(os.getenv("LLM_TIMEOUT", "30"))
 # LLM_MAX_RETRIES: LangChain reintenta 6 veces por defecto, con espera
 # creciente. Reintentar una cuota ya agotada solo demora la derivación a un
 # humano, así que se deja un reintento para fallos de red momentáneos.
-LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "1"))
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "2"))
 
 # --- Modelo LLM (Ollama local, cuando LLM_PROVIDER == "ollama") ---
 # Host del servidor Ollama (local en el servidor de producción).
@@ -45,8 +45,8 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 # Modelo multimodal local elegido para producción (Qwen2.5-VL ve texto e imágenes).
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5-vl:7b")
 
-# --- Retrieval (top-k bajo para ahorrar tokens) ---
-TOP_K = int(os.getenv("TOP_K", "2"))
+# --- Retrieval (top-k balanceado para máxima precisión RAG) ---
+TOP_K = int(os.getenv("TOP_K", "4"))
 
 # --- Chunking (tamaño en caracteres; ~4 chars ≈ 1 token appx.) ---
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "2400"))  # ~600 tokens

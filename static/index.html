@@ -191,10 +191,13 @@
       bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:\n\n👉 ${url}\n\n¡Haz clic en el enlace si no se abrió automáticamente!`, 'bot');
     }
 
-    function sendQuickReply(texto) {
+    function sendQuickReply(item) {
       removeQuickReplies();
-      if (texto.includes('agente')) {
-        bubble(texto, 'user');
+      const label = typeof item === 'object' ? item.label : item;
+      const query = typeof item === 'object' ? item.query : item;
+
+      if (label.includes('agente')) {
+        bubble(label, 'user');
         if (configUI.habilitar_agente === false) {
           bubble("La atención directa con agentes municipales se encuentra desactivada temporalmente.", "bot");
           return;
@@ -202,7 +205,7 @@
         derivarAWhatsApp();
         return;
       }
-      entrada.value = texto;
+      entrada.value = query;
       enviarMensaje();
     }
 
@@ -212,18 +215,24 @@
       cont.className = 'quick-replies';
       
       const options = [
-        "💊 Farmacia Comunal",
-        "📋 Ficha Protección Social"
+        { label: "🚗 Licencia de Conducir", query: "¿Cómo sacar o renovar la licencia de conducir?" },
+        { label: "🚙 Permiso de Circulación", query: "¿Cómo pagar o consultar el permiso de circulación?" },
+        { label: "💊 Farmacia Comunal", query: "¿Dónde está la farmacia comunal y cómo me inscribo?" },
+        { label: "📋 Registro Social de Hogares", query: "¿Cómo sacar o actualizar mi Registro Social de Hogares?" },
+        { label: "💳 Tarjeta Vecino", query: "¿Cómo tramitar la Tarjeta Vecino y qué beneficios tiene?" },
+        { label: "🐾 Veterinaria Municipal", query: "¿Qué servicios tiene la veterinaria municipal y cómo esterilizar?" },
+        { label: "🗑️ Retiro de Escombros", query: "¿Cómo solicitar el retiro de escombros domiciliarios?" },
+        { label: "💼 Cursos y Empleos OMIL", query: "¿Qué ofertas de trabajo o cursos de capacitación tiene la OMIL?" }
       ];
 
       if (configUI.habilitar_agente !== false) {
-        options.push("🗣️ Hablar con un agente");
+        options.push({ label: "🗣️ Hablar con un agente", query: "🗣️ Hablar con un agente" });
       }
 
       options.forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'quick-reply-btn';
-        btn.textContent = opt;
+        btn.textContent = opt.label;
         btn.onclick = () => sendQuickReply(opt);
         cont.appendChild(btn);
       });
