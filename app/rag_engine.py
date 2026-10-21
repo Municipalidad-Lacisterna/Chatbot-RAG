@@ -726,7 +726,7 @@ def query_chatbot(question: str, session_id: str = None) -> str:
     # transferir a un agente humano (token [[TRANSFERIR]] que muestra Sí/No).
     # La disponibilidad real del agente se resuelve al conectar el WebSocket,
     # no aquí, para que el vecino nunca pierda la opción.
-    if not encontrado:
+    if not encontrado or not respuesta_texto.strip():
         respuesta_texto = _build_transfer_offer_message(es_fallback=True)
     elif "[[TRANSFERIR]]" not in respuesta_texto and _es_respuesta_transferencia(respuesta_texto):
         # El modelo expresó que transferirá, pero sin token. Conservamos su
