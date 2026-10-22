@@ -889,6 +889,10 @@
         return;
       }
 
+      if (!confirm("ADVERTENCIA DE SEGURIDAD:\nEstás a punto de modificar credenciales críticas de la API (API Key / URL) en el servidor de producción. ¿Estás totalmente seguro de aplicar este cambio?")) {
+        return;
+      }
+
       msgDiv.innerHTML = '<span style="color:var(--amarillo)">Guardando configuración en el servidor...</span>';
 
       fetch("/admin_actualizar_api", {
