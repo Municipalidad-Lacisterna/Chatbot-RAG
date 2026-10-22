@@ -192,7 +192,7 @@ def _indexar_texto(md_text: str, fuente: str) -> int:
     ]
     collection.add(documents=chunks, metadatas=metadatas, ids=ids)
 
-    print(f"[ingesta] ✓ {fuente}: {len(chunks)} chunks indexados")
+    print(f"[ingesta] [OK] {fuente}: {len(chunks)} chunks indexados")
     return len(chunks)
 
 
@@ -215,7 +215,7 @@ def delete_original_file(pdf_filename: str):
     if os.path.exists(path):
         os.remove(path)
         print(
-            f"[ingesta] ✓ archivo original eliminado (chunks conservados): "
+            f"[ingesta] [OK] archivo original eliminado (chunks conservados): "
             f"{pdf_filename}"
         )
     else:
@@ -250,7 +250,7 @@ def delete_pdf(pdf_filename: str):
     if existing and existing.get("ids"):
         collection.delete(ids=existing["ids"])
         print(
-            f"[ingesta] ✓ eliminados {len(existing['ids'])} chunks de "
+            f"[ingesta] [OK] eliminados {len(existing['ids'])} chunks de "
             f"'{pdf_filename}' de la base vectorial."
         )
     else:
@@ -259,7 +259,7 @@ def delete_pdf(pdf_filename: str):
     # 3. Borrar el archivo físico
     if os.path.exists(pdf_path):
         os.remove(pdf_path)
-        print(f"[ingesta] ✓ archivo eliminado: {pdf_path}")
+        print(f"[ingesta] [OK] archivo eliminado: {pdf_path}")
 
     # Nota: la memoria conversacional (chat_history.db) se conserva intacta.
 
@@ -331,9 +331,9 @@ def ingest_all():
                 # El chunk ya quedó etiquetado con su source, no se pierde nada.
                 if os.path.exists(ruta) and os.path.isfile(ruta):
                     os.remove(ruta)
-                    print(f"[ingesta] ✓ archivo indexado y eliminado: {fuente}")
+                    print(f"[ingesta] [OK] archivo indexado y eliminado: {fuente}")
             except Exception as e:
-                print(f"[ingesta] ✗ ERROR en {fuente}: {e}")
+                print(f"[ingesta] [ERROR] ERROR en {fuente}: {e}")
 
     print(f"[ingesta] Listo. {total} chunks totales indexados.")
     return total
@@ -403,7 +403,7 @@ def _indexar_chunks_atomicos(texto: str, fuente: str) -> int:
     metadatas = [{"source": fuente, "chunk_index": i} for i in range(len(bloques))]
     collection.add(documents=bloques, metadatas=metadatas, ids=ids)
 
-    print(f"[ingesta] ✓ {fuente}: {len(bloques)} trámites (chunks atómicos) indexados")
+    print(f"[ingesta] [OK] {fuente}: {len(bloques)} trámites (chunks atómicos) indexados")
     return len(bloques)
 
 

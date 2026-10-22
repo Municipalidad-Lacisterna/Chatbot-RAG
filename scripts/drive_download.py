@@ -84,7 +84,7 @@ def _buscar_carpeta(service, nombre: str):
     )
     files = response.get("files", [])
     if not files:
-        print(f"[drive] ✗ No encontré la carpeta '{nombre}' compartida con la service account.")
+        print(f"[drive] [ERROR] No encontré la carpeta '{nombre}' compartida con la service account.")
         sys.exit(1)
     if len(files) > 1:
         print(f"[drive] Ojo: hay {len(files)} carpetas con ese nombre. Uso la primera.")
@@ -132,12 +132,12 @@ def _descargar_exportar(service, file_id: str, nombre: str, mime_type: str, out_
             print(f"[drive]   ... {int(status.progress() * 100)}%")
 
     if fh.getbuffer().nbytes == 0:
-        print(f"[drive]   ⚠ {nombre}: archivo vacío, no se guarda.")
+        print(f"[drive]   [AVISO] {nombre}: archivo vacío, no se guarda.")
         return None
 
     destino.write_bytes(fh.getvalue())
     kb = fh.getbuffer().nbytes / 1024
-    print(f"[drive]   ✓ {destino.name} ({kb:.1f} KB)")
+    print(f"[drive]   [OK] {destino.name} ({kb:.1f} KB)")
     return destino
 
 
@@ -154,14 +154,14 @@ def main():
 
     if not creds_path.exists():
         print(
-            f"[drive] ✗ No encuentro las credenciales en {creds_path}.\n"
+            f"[drive] [ERROR] No encuentro las credenciales en {creds_path}.\n"
             "         Pon ahí el credentials.json de la service account "
             "(ver docstring del script para el paso de Google Cloud Console)."
         )
         sys.exit(1)
 
     service = _autenticar(creds_path)
-    print(f"[drive] ✓ Autenticado como service account")
+    print(f"[drive] [OK] Autenticado como service account")
 
     folder_id = _buscar_carpeta(service, args.folder)
     print(f"[drive] Carpeta '{args.folder}' → id {folder_id}")
@@ -178,7 +178,7 @@ def main():
         if ruta:
             descargados += 1
 
-    print(f"\n[drive] ✓ Listo. {descargados} archivo(s) en {out_dir}")
+    print(f"\n[drive] [OK] Listo. {descargados} archivo(s) en {out_dir}")
     print("[drive] Ahora puedes indexarlos con: venv/bin/python -m app.ingestion")
 
 

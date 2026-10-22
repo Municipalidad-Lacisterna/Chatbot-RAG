@@ -54,7 +54,7 @@ También puedes consultar tu cartola y actualizar datos en línea con Clave Úni
         }],
         ids=["rsh-oficial-dideco-1"]
     )
-    print("[RSH] ✓ Información oficial de Registro Social de Hogares indexada exitosamente en ChromaDB.")
+    print("[RSH] [OK] Información oficial de Registro Social de Hogares indexada exitosamente en ChromaDB.")
 
 if __name__ == "__main__":
     actualizar_rsh()

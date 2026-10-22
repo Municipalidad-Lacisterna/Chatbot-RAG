@@ -190,14 +190,24 @@ def generar_csv_reporte() -> str:
 
 
 def cambiar_clave(tipo: str, nueva_clave: str, clave_actual: str) -> tuple[bool, str]:
-    """Actualiza la clave en memoria y persiste el cambio en el archivo .env."""
+    """Actualiza la clave en memoria y persiste el cambio en el archivo .env.
+    
+    Reglas de seguridad:
+    - Para cambiar la clave de Super Admin ('admin'): Se exige OBLIGATORIAMENTE la clave actual de Super Admin.
+    - Para cambiar claves de Administrador ('administrador') o Docs ('docs'): Se acepta la clave de Administrador o Super Admin.
+    """
     if not nueva_clave or len(nueva_clave) < 4:
         return False, "La nueva contraseña debe tener al menos 4 caracteres."
 
     c_limpia = (clave_actual or "").strip()
     from app.main import _admin_valida, _superadmin_valida
-    if not (_superadmin_valida(c_limpia) or _admin_valida(c_limpia)):
-        return False, "La clave actual de autorización es incorrecta."
+
+    if tipo == "admin":
+        if not _superadmin_valida(c_limpia):
+            return False, "Acceso denegado: Solo el Super Administrador Supremo puede modificar la contraseña de Super Admin."
+    else:
+        if not (_superadmin_valida(c_limpia) or _admin_valida(c_limpia)):
+            return False, "La clave actual de autorización es incorrecta."
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     env_path = os.path.join(base_dir, ".env")

@@ -29,7 +29,7 @@ tengas que autorizar manualmente cada vez.
 3. Nómbralo: `chatbot-lacisterna` (o similar). Pulsa **Crear**.
 4. Asegúrate de tener seleccionado ese proyecto (selector arriba a la izquierda).
 
-> ⚠️ Google Cloud requiere una **forma de pago** (tarjeta) en el proyecto para habilitar APIs, aunque la Drive API es **gratuita** (cuota de 12.000 lecturas/día). La facturación será $0 mientras solo uses Drive API.
+> ️ Google Cloud requiere una **forma de pago** (tarjeta) en el proyecto para habilitar APIs, aunque la Drive API es **gratuita** (cuota de 12.000 lecturas/día). La facturación será $0 mientras solo uses Drive API.
 
 ---
 
@@ -60,7 +60,7 @@ tengas que autorizar manualmente cada vez.
    ```
 6. Anota el **email de la service account** (lo necesitas para el Paso 4).
 
-> ⚠️ `config/` está en `.gitignore` → la credencial NUNCA se subirá a Git.
+> ️ `config/` está en `.gitignore` → la credencial NUNCA se subirá a Git.
 
 ---
 
@@ -73,11 +73,11 @@ Aquí es donde **la municipalidad participa**. Ellos solo necesitan hacer UNA co
 3. En "Añadir personas" pegan el **email de la service account** que anotaste en el Paso 3.
 4. Rol: **Lector** (solo lectura). Pulsa **Listo**.
 
-> 💡 **Para pedirle esto a la municipalidad**, envíales este mensaje:
+>  **Para pedirle esto a la municipalidad**, envíales este mensaje:
 >
 > *"Necesito que compartan la carpeta 'Documentos Municipal' de Google Drive con esta dirección de correo: [pegar email de service account]. Solo es dar acceso de lectura (Lector). Esto es para que el chatbot pueda leer los documentos y responder consultas de los vecinos."*
 
-> 🔑 Este es el paso clave: sin compartir la carpeta, la service account NO la ve.
+>  Este es el paso clave: sin compartir la carpeta, la service account NO la ve.
 
 ---
 

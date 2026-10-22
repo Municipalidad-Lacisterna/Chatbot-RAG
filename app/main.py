@@ -130,7 +130,7 @@ def query(request: QueryRequest):
     # --- INTERRUPTOR MODO PILOTO ---
     if getattr(settings, "MODO_PILOTO_WHATSAPP", False) and agentes_disponibles_ahora():
         return QueryResponse(
-            answer=f"¡Hola! 🏢 En este momento estamos en horario de atención con nuestros ejecutivos municipales. Por favor, comunícate directamente aquí:\n\n👉 *Hablar por WhatsApp:* {settings.WHATSAPP_BUSINESS_URL}",
+            answer=f"¡Hola! En este momento estamos en horario de atención con nuestros ejecutivos municipales. Por favor, comunícate directamente aquí:\n\n*Hablar por WhatsApp:* {settings.WHATSAPP_BUSINESS_URL}",
             session_id=request.session_id
         )
     # Sync a propósito, NO cambiar a `async def`: el motor es bloqueante y
@@ -614,8 +614,8 @@ async def admin_toggle_agente_endpoint(req: ToggleAgenteRequest):
 
 
 @app.post("/admin_git_pull")
-async def admin_git_pull(clave: str = ""):
-    """Descarga la última versión de código desde GitHub mediante git pull (Exclusivo Super Admin /admin)."""
+async def admin_git_pull(background_tasks: BackgroundTasks, clave: str = ""):
+    """Descarga la última versión de código desde GitHub mediante git pull y recarga el servicio."""
     if not _superadmin_valida(clave):
         return {"ok": False, "error": "Acceso restringido: Se requiere clave del Super Administrador Supremo (/admin)"}
 
@@ -629,9 +629,14 @@ async def admin_git_pull(clave: str = ""):
         )
         salida = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
         if proc.returncode == 0:
+            def _recargar():
+                time.sleep(1.5)
+                subprocess.run(["systemctl", "--user", "restart", "cisternin"], check=False)
+            background_tasks.add_task(_recargar)
+
             return {
                 "ok": True,
-                "mensaje": "Código actualizado exitosamente desde GitHub.",
+                "mensaje": "Código actualizado exitosamente desde GitHub. El servicio se recargará automáticamente en 2 segundos.",
                 "detalle": salida.strip()
             }
         else:
@@ -646,6 +651,20 @@ async def admin_git_pull(clave: str = ""):
             "error": f"Fallo al ejecutar git: {e}",
             "detalle": ""
         }
+
+
+@app.post("/admin_reiniciar_servicio")
+async def admin_reiniciar_servicio(background_tasks: BackgroundTasks, clave: str = ""):
+    """Reinicia el servicio de Cisternin de forma limpia en segundo plano."""
+    if not _superadmin_valida(clave):
+        return {"ok": False, "error": "Acceso restringido: Se requiere clave del Super Administrador Supremo (/admin)"}
+
+    def _recargar():
+        time.sleep(1.0)
+        subprocess.run(["systemctl", "--user", "restart", "cisternin"], check=False)
+    background_tasks.add_task(_recargar)
+
+    return {"ok": True, "mensaje": "Servicio reiniciándose en segundo plano. Estará listo en 2 segundos."}
 
 
 # ---------------------------------------------------------------------------

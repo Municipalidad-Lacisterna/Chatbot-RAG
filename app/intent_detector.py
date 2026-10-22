@@ -341,7 +341,7 @@ def _construir_contexto_extra(
         partes.append(f"Servicios relacionados: {', '.join(entidades)}.")
 
     if es_urgente:
-        partes.append("⚠️ El vecino expresa urgencia.")
+        partes.append("[Urgente] El vecino expresa urgencia.")
 
     return " ".join(partes)
 

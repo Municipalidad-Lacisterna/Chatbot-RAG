@@ -259,7 +259,7 @@ def ejecutar_scraper_imagenes():
             fichas_generadas.append((f"afiches/{nombre_archivo}.md", md_resultado))
             cache[h] = {"estado": "indexado", "archivo": nombre_archivo}
             nuevos_analizados += 1
-            print(f"[scraper-img] ✓ Ficha generada con éxito para {nombre_archivo}")
+            print(f"[scraper-img] [OK] Ficha generada con éxito para {nombre_archivo}")
         else:
             cache[h] = {"estado": "sin_texto_relevante"}
             # Si no fue relevante, borrar la imagen para no ocupar disco
@@ -284,7 +284,7 @@ def ejecutar_scraper_imagenes():
                     metadatas=[{"source": fuente, "categoria": "Afiches y Avisos Web"}],
                     ids=[str(uuid.uuid4())]
                 )
-            print("[scraper-img] ✓ Indexación completada en ChromaDB.")
+            print("[scraper-img] [OK] Indexación completada en ChromaDB.")
         except Exception as e:
             print(f"[scraper-img] Error al indexar en ChromaDB: {e}")
 

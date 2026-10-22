@@ -64,10 +64,10 @@ técnico. (Ver [[requerimientos]] §7.)
 
 ## Estatus
 
-- ✅ rclone instalado (`v1.75.0`), timer de systemd activo (corre 07:00).
-- ⏳ **Pendiente (paso interactivo de Aspen):** `rclone config` → login con
+-  rclone instalado (`v1.75.0`), timer de systemd activo (corre 07:00).
+-  **Pendiente (paso interactivo de Aspen):** `rclone config` → login con
   `chatbot@cisterna.cl` en el navegador. Sin esto rclone no tiene cuenta/carpeta.
-- ⏳ Pendiente: que la muni comparta la carpeta con rol Lector.
+-  Pendiente: que la muni comparta la carpeta con rol Lector.
 
 ## Archivos descartados / en desuso
 

@@ -1,714 +1,654 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Portal de Documentación y Reportes — Cisternin</title>
-  <style>
-    :root {
-      --bg: #0f1117; --card: #1a1f2b; --borde: #2a3340;
-      --texto: #e6e6ea; --sub: #9aa3b2;
-      --verde: #25D366; --verde-oscuro: #128C7E;
-      --amarillo: #e6b64c; --rojo: #e5534b; --azul: #4a9eff;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg); color: var(--texto);
-      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-      padding: 24px 32px;
-    }
-    header {
-      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
-      border-bottom: 1px solid var(--borde); padding-bottom: 16px; margin-bottom: 24px;
-      gap: 16px;
-    }
-    .brand { display: flex; align-items: center; gap: 14px; }
-    .brand img { height: 55px; width: auto; object-fit: contain; }
-    .brand h1 { font-size: 20px; font-weight: 600; }
-    .brand p { color: var(--sub); font-size: 13px; margin-top: 2px; }
-    .nav-links { display: flex; gap: 10px; }
-    .nav-links a {
-      color: var(--texto); text-decoration: none; font-size: 13px; padding: 6px 14px;
-      border: 1px solid var(--borde); border-radius: 8px; background: var(--card);
-      transition: all .2s;
-    }
-    .nav-links a:hover { border-color: var(--azul); }
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <title>Portal de Documentación y Reportes — Cisternin</title>
+ <style>
+ :root {
+ --bg: #0f1117; --card: #1a1f2b; --borde: #2a3340;
+ --texto: #e6e6ea; --sub: #9aa3b2;
+ --verde: #25D366; --verde-oscuro: #128C7E;
+ --amarillo: #e6b64c; --rojo: #e5534b; --azul: #4a9eff;
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body {
+ background: var(--bg); color: var(--texto);
+ font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+ padding: 24px 32px;
+ }
+ header {
+ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+ border-bottom: 1px solid var(--borde); padding-bottom: 16px; margin-bottom: 24px;
+ gap: 16px;
+ }
+ .brand { display: flex; align-items: center; gap: 14px; }
+ .brand img { height: 55px; width: auto; object-fit: contain; }
+ .brand h1 { font-size: 20px; font-weight: 600; }
+ .brand p { color: var(--sub); font-size: 13px; margin-top: 2px; }
+ .nav-links { display: flex; gap: 10px; }
+ .nav-links a {
+ color: var(--texto); text-decoration: none; font-size: 13px; padding: 6px 14px;
+ border: 1px solid var(--borde); border-radius: 8px; background: var(--card);
+ transition: all .2s;
+ }
+ .nav-links a:hover { border-color: var(--azul); }
 
-    .grid { display: grid; gap: 20px; }
-    .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
-    .metrica { background: var(--card); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; }
-    .metrica .label { color: var(--sub); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
-    .metrica .valor { font-size: 26px; font-weight: 700; margin-top: 6px; }
-    .metrica .detalle { color: var(--sub); font-size: 12px; margin-top: 4px; }
+ .grid { display: grid; gap: 20px; }
+ .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+ .metrica { background: var(--card); border: 1px solid var(--borde); border-radius: 10px; padding: 16px; }
+ .metrica .label { color: var(--sub); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+ .metrica .valor { font-size: 26px; font-weight: 700; margin-top: 6px; }
+ .metrica .detalle { color: var(--sub); font-size: 12px; margin-top: 4px; }
 
-    .card { background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 22px; margin-bottom: 22px; }
-    .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-    .card h2 { font-size: 16px; font-weight: 600; color: #fff; }
+ .card { background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+ .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+ .card h2 { font-size: 16px; font-weight: 600; color: #fff; }
 
-    .tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .tabla th { color: var(--sub); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borde); text-transform: uppercase; font-size: 11px; letter-spacing: .4px; }
-    .tabla td { padding: 10px 14px; border-bottom: 1px solid #232a38; }
-    .tabla tr:last-child td { border-bottom: none; }
-    .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+ .tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+ .tabla th { color: var(--sub); text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--borde); text-transform: uppercase; font-size: 11px; letter-spacing: .4px; }
+ .tabla td { padding: 10px 14px; border-bottom: 1px solid #232a38; }
+ .tabla tr:last-child td { border-bottom: none; }
+ .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
 
-    .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
-    .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
-    .pill.azul { background: rgba(74,158,255,.15); color: #8bc3ff; }
+ .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+ .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
+ .pill.azul { background: rgba(74,158,255,.15); color: #8bc3ff; }
 
-    .btn {
-      background: var(--azul); color: #fff; border: none; border-radius: 8px;
-      padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
-    }
-    .btn:hover { filter: brightness(1.1); }
-    .btn.verde { background: #128C7E; }
-    .btn.verde:hover { background: #25D366; }
+ .btn {
+ background: var(--azul); color: #fff; border: none; border-radius: 8px;
+ padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+ display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+ }
+ .btn:hover { filter: brightness(1.1); }
+ .btn.verde { background: #128C7E; }
+ .btn.verde:hover { background: #25D366; }
 
-    .barra { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .barra .nombre { width: 220px; font-size: 13px; font-weight: 500; }
-    .barra .fill { flex: 1; height: 12px; background: #232a38; border-radius: 6px; overflow: hidden; }
-    .barra .fill .inner { display: block; height: 100%; background: var(--verde); border-radius: 6px; transition: width .4s; }
-    .barra .n { width: 60px; text-align: right; color: var(--sub); font-size: 12px; }
+ .barra { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+ .barra .nombre { width: 220px; font-size: 13px; font-weight: 500; }
+ .barra .fill { flex: 1; height: 12px; background: #232a38; border-radius: 6px; overflow: hidden; }
+ .barra .fill .inner { display: block; height: 100%; background: var(--verde); border-radius: 6px; transition: width .4s; }
+ .barra .n { width: 60px; text-align: right; color: var(--sub); font-size: 12px; }
 
-    .ejemplos-box { margin-top: 6px; padding-left: 232px; font-size: 12px; color: var(--sub); font-style: italic; }
+ .ejemplos-box { margin-top: 6px; padding-left: 232px; font-size: 12px; color: var(--sub); font-style: italic; }
 
-    .login { max-width: 380px; margin: 90px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 14px; padding: 28px; }
-    .login h2 { font-size: 20px; margin-bottom: 8px; }
-    .login p { color: var(--sub); font-size: 13px; margin-bottom: 18px; }
-    .login input, .login button { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 14px; }
-    .login button { background: #128C7E; border: none; font-weight: 600; cursor: pointer; }
-    .login button:hover { background: #25D366; }
-    .login .err { color: var(--rojo); font-size: 13px; margin-bottom: 10px; }
+ .login { max-width: 380px; margin: 90px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 14px; padding: 28px; }
+ .login h2 { font-size: 20px; margin-bottom: 8px; }
+ .login p { color: var(--sub); font-size: 13px; margin-bottom: 18px; }
+ .login input, .login button { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 14px; }
+ .login button { background: #128C7E; border: none; font-weight: 600; cursor: pointer; }
+ .login button:hover { background: #25D366; }
+ .login .err { color: var(--rojo); font-size: 13px; margin-bottom: 10px; }
 
-    .form-pwd { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 14px; }
-    .form-pwd input { padding: 9px 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 13px; width: 100%; }
-    .form-pwd button { padding: 9px 14px; background: #128C7E; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
-    .form-pwd button:hover { background: #25D366; }
-  </style>
+ .form-pwd { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 14px; }
+ .form-pwd input { padding: 9px 12px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: #fff; font-size: 13px; width: 100%; }
+ .form-pwd button { padding: 9px 14px; background: #128C7E; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; }
+ .form-pwd button:hover { background: #25D366; }
+ </style>
 </head>
 <body>
 
-  <!-- Vista Login -->
-  <div id="login-view">
-    <div class="login">
-      <h2>📚 Documentación y Reportes</h2>
-      <p>Ingresa la contraseña de documentación o de administración para acceder.</p>
-      <input type="password" id="clave" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter')login()">
-      <div id="msg-login" class="err"></div>
-      <button onclick="login()">Ingresar</button>
-    </div>
-  </div>
+ <!-- Vista Login -->
+ <div id="login-view">
+ <div class="login">
+ <h2> Documentación y Reportes</h2>
+ <p>Ingresa la contraseña de documentación o de administración para acceder.</p>
+ <input type="password" id="clave" placeholder="Contraseña de acceso" onkeydown="if(event.key==='Enter')login()">
+ <div id="msg-login" class="err"></div>
+ <button onclick="login()">Ingresar</button>
+ </div>
+ </div>
 
-  <!-- Vista Principal -->
-  <div id="main-view" style="display:none;">
-    <header>
-      <div class="brand">
-        <img src="/static/cisternin.png" alt="Cisternin">
-        <div>
-          <h1>Portal de Documentación y Reportes — Cisternin</h1>
-          <p>Base de conocimiento RAG, estadísticas de vecinos y reportes oficiales</p>
-        </div>
-      </div>
-      <div class="nav-links">
-        <a href="/chat" target="_blank">💬 Ver Chatbot</a>
-        <a href="/administrador">🏛️ Administrador Municipal</a>
-        <a href="/admin">⚡ Super Admin</a>
-        <button class="btn" style="background:#2a3340; padding:6px 12px;" onclick="cerrarSesion()">Cerrar sesión</button>
-      </div>
-    </header>
+ <!-- Vista Principal -->
+ <div id="main-view" style="display:none;">
+ <header>
+ <div class="brand">
+ <img src="/static/cisternin.png" alt="Cisternin">
+ <div>
+ <h1>Portal de Documentación y Reportes — Cisternin</h1>
+ <p>Base de conocimiento RAG, estadísticas de vecinos y reportes oficiales</p>
+ </div>
+ </div>
+ <div class="nav-links">
+ <a href="/chat" target="_blank"> Ver Chatbot</a>
+ <a href="/administrador">️ Administrador Municipal</a>
+ <a href="/admin"> Super Admin</a>
+ <button class="btn" style="background:#2a3340; padding:6px 12px;" onclick="cerrarSesion()">Cerrar sesión</button>
+ </div>
+ </header>
 
-    <!-- Documentos Oficiales en PDF -->
-    <div class="card" style="margin-bottom:24px; border-left:4px solid var(--verde);">
-      <div class="card-head">
-        <h2>📑 Informes Oficiales para Jefatura y Equipo Web (PDF)</h2>
-      </div>
-      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">Descarga directa de las guías de integración web y el informe financiero para la municipalidad.</p>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a class="btn" style="background:#059669;" href="/static/docs/Informe_Tecnico_Integracion_Empresa_Web.pdf" download="Informe_Tecnico_Integracion_Empresa_Web.pdf" target="_blank">🏢 Guía para Empresa Web (PDF)</a>
-        <a class="btn" style="background:#047857;" href="/static/docs/Informe_Tecnico_Integracion_Empresa_Web.docx" download="Informe_Tecnico_Integracion_Empresa_Web.docx" target="_blank">📑 Guía Empresa Web (.DOCX)</a>
-        <a class="btn" style="background:#0284c7;" href="/static/docs/Guia_Tecnica_Red_y_Despliegue_Cisternin.pdf" download="Guia_Tecnica_Red_y_Despliegue_Cisternin.pdf" target="_blank">🌐 Guía Técnica de Red y Despliegue (PDF)</a>
-        <a class="btn" style="background:#334155;" href="/static/docs/Guia_Tecnica_Red_y_Despliegue_Cisternin.docx" download="Guia_Tecnica_Red_y_Despliegue_Cisternin.docx" target="_blank">📄 Guía de Red en Word (.DOCX)</a>
-        <a class="btn verde" href="/static/docs/Requerimiento_Adquisicion_IA_Cisternin.pdf" download="Requerimiento_Adquisicion_IA_Cisternin.pdf" target="_blank">📋 Requerimiento de Compra IA (PDF)</a>
-        <a class="btn" style="background:#1e3a8a;" href="/static/docs/Requerimiento_Adquisicion_IA_Cisternin.docx" download="Requerimiento_Adquisicion_IA_Cisternin.docx" target="_blank">📝 Requerimiento en Word (.DOCX)</a>
-        <a class="btn" style="background:#0d9488;" href="/static/docs/Informe_Costos_y_Procedimiento_Cisternin.pdf" download="Informe_Costos_y_Procedimiento_Cisternin.pdf" target="_blank">📊 Informe Costos y Procedimiento (PDF)</a>
-        <a class="btn" style="background:#2a3340;" href="/static/docs/Guia_Despliegue_Servidor_y_Tunel_Municipal.pdf" download="Guia_Despliegue_Servidor_y_Tunel_Municipal.pdf" target="_blank">🛡️ Guía Despliegue Servidor y Túnel (PDF)</a>
-      </div>
-    </div>
+ <!-- Documentos Oficiales en PDF -->
+ <div class="card" style="margin-bottom:24px; border-left:4px solid var(--verde);">
+ <div class="card-head">
+ <h2> Informes Oficiales para Jefatura y Equipo Web (PDF)</h2>
+ </div>
+ <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">Descarga directa de las guías de integración web y el informe financiero para la municipalidad.</p>
+ <div style="display:flex; gap:12px; flex-wrap:wrap;">
+ <a class="btn" style="background:#059669;" href="/static/docs/Informe_Tecnico_Integracion_Empresa_Web.pdf" download="Informe_Tecnico_Integracion_Empresa_Web.pdf" target="_blank"> Guía para Empresa Web (PDF)</a>
+ <a class="btn" style="background:#047857;" href="/static/docs/Informe_Tecnico_Integracion_Empresa_Web.docx" download="Informe_Tecnico_Integracion_Empresa_Web.docx" target="_blank"> Guía Empresa Web (.DOCX)</a>
+ <a class="btn" style="background:#0284c7;" href="/static/docs/Guia_Tecnica_Red_y_Despliegue_Cisternin.pdf" download="Guia_Tecnica_Red_y_Despliegue_Cisternin.pdf" target="_blank"> Guía Técnica de Red y Despliegue (PDF)</a>
+ <a class="btn" style="background:#334155;" href="/static/docs/Guia_Tecnica_Red_y_Despliegue_Cisternin.docx" download="Guia_Tecnica_Red_y_Despliegue_Cisternin.docx" target="_blank"> Guía de Red en Word (.DOCX)</a>
+ <a class="btn verde" href="/static/docs/Requerimiento_Adquisicion_IA_Cisternin.pdf" download="Requerimiento_Adquisicion_IA_Cisternin.pdf" target="_blank"> Requerimiento de Compra IA (PDF)</a>
+ <a class="btn" style="background:#1e3a8a;" href="/static/docs/Requerimiento_Adquisicion_IA_Cisternin.docx" download="Requerimiento_Adquisicion_IA_Cisternin.docx" target="_blank"> Requerimiento en Word (.DOCX)</a>
+ <a class="btn" style="background:#0d9488;" href="/static/docs/Informe_Costos_y_Procedimiento_Cisternin.pdf" download="Informe_Costos_y_Procedimiento_Cisternin.pdf" target="_blank"> Informe Costos y Procedimiento (PDF)</a>
+ <a class="btn" style="background:#2a3340;" href="/static/docs/Guia_Despliegue_Servidor_y_Tunel_Municipal.pdf" download="Guia_Despliegue_Servidor_y_Tunel_Municipal.pdf" target="_blank">️ Guía Despliegue Servidor y Túnel (PDF)</a>
+ </div>
+ </div>
 
-    <!-- Métricas Generales -->
-    <div class="metricas">
-      <div class="metrica">
-        <div class="label">Documentos Indexados</div>
-        <div class="valor" id="m-docs">0</div>
-        <div class="detalle" id="m-docs-deta">--</div>
-      </div>
-      <div class="metrica">
-        <div class="label">Fragmentos Vectoriales (Chunks)</div>
-        <div class="valor" id="m-chunks">0</div>
-        <div class="detalle">Almacenados en ChromaDB</div>
-      </div>
-      <div class="metrica">
-        <div class="label">Consultas Registradas</div>
-        <div class="valor" id="m-consultas">0</div>
-        <div class="detalle">Preguntas de vecinos</div>
-      </div>
-      <div class="metrica">
-        <div class="label">Tema Más Consultado</div>
-        <div class="valor" id="m-top-tema" style="font-size:18px; line-height:32px;">--</div>
-        <div class="detalle" id="m-top-deta">--</div>
-      </div>
-    </div>
+ <!-- Métricas Generales -->
+ <div class="metricas">
+ <div class="metrica">
+ <div class="label">Documentos Indexados</div>
+ <div class="valor" id="m-docs">0</div>
+ <div class="detalle" id="m-docs-deta">--</div>
+ </div>
+ <div class="metrica">
+ <div class="label">Fragmentos Vectoriales (Chunks)</div>
+ <div class="valor" id="m-chunks">0</div>
+ <div class="detalle">Almacenados en ChromaDB</div>
+ </div>
+ <div class="metrica">
+ <div class="label">Consultas Registradas</div>
+ <div class="valor" id="m-consultas">0</div>
+ <div class="detalle">Preguntas de vecinos</div>
+ </div>
+ <div class="metrica">
+ <div class="label">Tema Más Consultado</div>
+ <div class="valor" id="m-top-tema" style="font-size:18px; line-height:32px;">--</div>
+ <div class="detalle" id="m-top-deta">--</div>
+ </div>
+ </div>
 
-    <!-- 1. Sección de Google Drive Municipal -->
-    <div class="card" style="border-left: 4px solid var(--azul);">
-      <div class="card-head">
-        <h2>📁 1. Google Drive Municipal (Sincronización Cloud)</h2>
-        <span class="pill azul">Carpeta Oficial Compartida</span>
-      </div>
-      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
-        Los funcionarios municipales pueden arrastrar y depositar archivos directamente en la carpeta de Google Drive como siempre. A las 03:00 AM se indexan automáticamente, o puedes sincronizar en tiempo real con el botón de abajo.
-      </p>
-      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <a class="btn" style="background:#1a73e8;" href="https://drive.google.com/drive/folders/16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD" target="_blank">📁 Abrir Carpeta en Google Drive</a>
-        <button class="btn verde" onclick="sincronizarDriveAhora()" id="btn-sync-drive">🔄 Sincronizar desde Drive Ahora</button>
-        <span id="sync-drive-status" style="font-size:12px; color:var(--sub);"></span>
-      </div>
-    </div>
+ <!-- 1. Sección de Google Drive Municipal -->
+ <div class="card" style="border-left: 4px solid var(--azul);">
+ <div class="card-head">
+ <h2> 1. Google Drive Municipal (Sincronización Cloud)</h2>
+ <span class="pill azul">Carpeta Oficial Compartida</span>
+ </div>
+ <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
+ Los funcionarios municipales pueden arrastrar y depositar archivos directamente en la carpeta de Google Drive como siempre. A las 03:00 AM se indexan automáticamente, o puedes sincronizar en tiempo real con el botón de abajo.
+ </p>
+ <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+ <a class="btn" style="background:#1a73e8;" href="https://drive.google.com/drive/folders/16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD" target="_blank"> Abrir Carpeta en Google Drive</a>
+ <button class="btn verde" onclick="sincronizarDriveAhora()" id="btn-sync-drive"> Sincronizar desde Drive Ahora</button>
+ <span id="sync-drive-status" style="font-size:12px; color:var(--sub);"></span>
+ </div>
+ </div>
 
-    <!-- 2. Sección de Carga y Análisis de Documentos -->
-    <div class="card" style="border-left: 4px solid var(--verde);">
-      <div class="card-head">
-        <h2>📤 2. Carga y Análisis de Nuevos Documentos</h2>
-        <span class="pill verde">Ingesta Programada (03:00 AM) o Inmediata</span>
-      </div>
-      <p style="color:var(--sub); font-size:13px; margin-bottom:16px;">
-        Sube instructivos, planillas Excel, resoluciones o PDFs. El sistema analizará la estructura, estimará los fragmentos vectoriales y lo programará para la sincronización nocturna (o lo indexará de inmediato).
-      </p>
+ <!-- 2. Sección de Carga y Análisis de Documentos -->
+ <div class="card" style="border-left: 4px solid var(--verde);">
+ <div class="card-head">
+ <h2> 2. Carga y Análisis de Nuevos Documentos</h2>
+ <span class="pill verde">Ingesta Programada (03:00 AM) o Inmediata</span>
+ </div>
+ <p style="color:var(--sub); font-size:13px; margin-bottom:16px;">
+ Sube instructivos, planillas Excel, resoluciones o PDFs. El sistema analizará la estructura, estimará los fragmentos vectoriales y lo programará para la sincronización nocturna (o lo indexará de inmediato).
+ </p>
 
-      <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
-        <div style="grid-column: span 2;">
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Seleccionar Archivo (PDF, Excel, CSV, MD):</label>
-          <input type="file" id="up-file" required accept=".pdf,.xlsx,.xls,.csv,.md" style="padding:8px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-        </div>
-        <div>
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
-          <select id="up-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
-            <option value="false">⚡ Indexar de inmediato (Urgente)</option>
-          </select>
-        </div>
-        <div>
-          <button type="submit" class="btn verde" id="btn-up" style="width:100%; justify-content:center; padding:10px;">Analizar y Guardar</button>
-        </div>
-      </form>
+ <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+ <div style="grid-column: span 2;">
+ <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Seleccionar Archivo (PDF, Excel, CSV, MD):</label>
+ <input type="file" id="up-file" required accept=".pdf,.xlsx,.xls,.csv,.md" style="padding:8px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+ </div>
+ <div>
+ <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+ <select id="up-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+ <option value="true"> Programar para la noche (03:00 AM)</option>
+ <option value="false"> Indexar de inmediato (Urgente)</option>
+ </select>
+ </div>
+ <div>
+ <button type="submit" class="btn verde" id="btn-up" style="width:100%; justify-content:center; padding:10px;">Analizar y Guardar</button>
+ </div>
+ </form>
 
-      <div id="up-result" style="margin-top:14px; display:none; padding:12px 16px; border-radius:8px; background:#1c2533; border:1px solid var(--borde); font-size:13px;"></div>
-    </div>
+ <div id="up-result" style="margin-top:14px; display:none; padding:12px 16px; border-radius:8px; background:#1c2533; border:1px solid var(--borde); font-size:13px;"></div>
+ </div>
 
-    <!-- 3. Sección de Escaneo de Páginas Web (Experimental) -->
-    <div class="card" style="border-left: 4px solid var(--amarillo);">
-      <div class="card-head">
-        <h2>🌐 3. Escanear Página Web (Web Scraper RAG)</h2>
-        <span class="pill amarilla">⚠️ Función Experimental</span>
-      </div>
+ <!-- 3. Sección de Escaneo de Páginas Web (Experimental) -->
+ <div class="card" style="border-left: 4px solid var(--amarillo);">
+ <div class="card-head">
+ <h2> 3. Escanear Página Web (Web Scraper RAG)</h2>
+ <span class="pill amarilla">️ Función Experimental</span>
+ </div>
 
-      <!-- Aviso Destacado de Precaución -->
-      <div style="background: rgba(230, 182, 76, 0.12); border: 1px solid rgba(230, 182, 76, 0.35); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px;">
-        <span style="font-size: 18px; line-height: 1;">⚠️</span>
-        <div style="font-size: 13px; color: #f3cf7a; line-height: 1.4;">
-          <strong>Aviso:</strong> (experimental, puede fallar. Se recomienda cargar los documentos manualmente).<br>
-          <span style="font-size: 12px; color: #d6b46b;">Esta herramienta extrae el contenido público de una URL municipal limpiando menús y pies de página. Dependiendo de cómo esté construido el sitio (ej. JavaScript dinámico o formularios), podría omitir datos. Para máxima precisión, sube los archivos en PDF o Excel.</span>
-        </div>
-      </div>
+ <!-- Aviso Destacado de Precaución -->
+ <div style="background: rgba(230, 182, 76, 0.12); border: 1px solid rgba(230, 182, 76, 0.35); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px;">
+ <span style="font-size: 18px; line-height: 1;">️</span>
+ <div style="font-size: 13px; color: #f3cf7a; line-height: 1.4;">
+ <strong>Aviso:</strong> (experimental, puede fallar. Se recomienda cargar los documentos manualmente).<br>
+ <span style="font-size: 12px; color: #d6b46b;">Esta herramienta extrae el contenido público de una URL municipal limpiando menús y pies de página. Dependiendo de cómo esté construido el sitio (ej. JavaScript dinámico o formularios), podría omitir datos. Para máxima precisión, sube los archivos en PDF o Excel.</span>
+ </div>
+ </div>
 
-      <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
-        <div style="grid-column: span 2;">
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL Pública a Escanear:</label>
-          <input type="url" id="scan-url" required placeholder="https://www.cisterna.cl/pages/body/departamento-de-..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-        </div>
-        <div>
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
-          <select id="scan-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
-            <option value="false">⚡ Indexar de inmediato (Urgente)</option>
-          </select>
-        </div>
-        <div>
-          <button type="submit" class="btn" style="background:#e6b64c; color:#1a1f2b; font-weight:700; width:100%; justify-content:center; padding:10px;" id="btn-scan">🔍 Escanear Web</button>
-        </div>
-      </form>
+ <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+ <div style="grid-column: span 2;">
+ <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL Pública a Escanear:</label>
+ <input type="url" id="scan-url" required placeholder="https://www.cisterna.cl/pages/body/departamento-de-..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+ </div>
+ <div>
+ <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+ <select id="scan-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+ <option value="true"> Programar para la noche (03:00 AM)</option>
+ <option value="false"> Indexar de inmediato (Urgente)</option>
+ </select>
+ </div>
+ <div>
+ <button type="submit" class="btn" style="background:#e6b64c; color:#1a1f2b; font-weight:700; width:100%; justify-content:center; padding:10px;" id="btn-scan"> Escanear Web</button>
+ </div>
+ </form>
 
-      <!-- Panel de Diagnóstico del Escaneo -->
-      <div id="scan-feedback" style="display:none; margin-top:16px; background:#12161f; border:1px solid var(--borde); border-radius:8px; padding:14px;">
-        <div id="scan-msg" style="font-size:13px; font-weight:600; margin-bottom:8px;"></div>
-        <div id="scan-detalle" style="font-size:12px; color:var(--sub); line-height:1.5;"></div>
-        <pre id="scan-preview" style="margin-top:10px; background:#0a0c10; border:1px solid #1a2230; border-radius:6px; padding:10px; font-size:11px; color:#a1abb9; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none;"></pre>
-      </div>
-    </div>
+ <!-- Panel de Diagnóstico del Escaneo -->
+ <div id="scan-feedback" style="display:none; margin-top:16px; background:#12161f; border:1px solid var(--borde); border-radius:8px; padding:14px;">
+ <div id="scan-msg" style="font-size:13px; font-weight:600; margin-bottom:8px;"></div>
+ <div id="scan-detalle" style="font-size:12px; color:var(--sub); line-height:1.5;"></div>
+ <pre id="scan-preview" style="margin-top:10px; background:#0a0c10; border:1px solid #1a2230; border-radius:6px; padding:10px; font-size:11px; color:#a1abb9; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none;"></pre>
+ </div>
+ </div>
 
-    <!-- 4. Sección de Documentos en Cola Programada -->
-    <div class="card" id="card-cola">
-      <div class="card-head">
-        <h2>⏳ 4. Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
-        <div style="display:flex; gap:8px;">
-          <button class="btn" style="background:#2a3340;" onclick="cargarCola()">🔄 Refrescar Cola</button>
-          <button class="btn" style="background:#e6b64c; color:#111;" onclick="procesarColaAhora()">⚡ Procesar Cola Ahora</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th>Documento</th>
-              <th>Tamaño</th>
-              <th>Categoría</th>
-              <th>Chunks Est.</th>
-              <th>Hora Programada</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-cola">
-            <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+ <!-- 4. Sección de Documentos en Cola Programada -->
+ <div class="card" id="card-cola">
+ <div class="card-head">
+ <h2> 4. Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
+ <div style="display:flex; gap:8px;">
+ <button class="btn" style="background:#2a3340;" onclick="cargarCola()"> Refrescar Cola</button>
+ <button class="btn" style="background:#e6b64c; color:#111;" onclick="procesarColaAhora()"> Procesar Cola Ahora</button>
+ </div>
+ </div>
+ <div style="overflow-x:auto;">
+ <table class="tabla">
+ <thead>
+ <tr>
+ <th>Documento</th>
+ <th>Tamaño</th>
+ <th>Categoría</th>
+ <th>Chunks Est.</th>
+ <th>Hora Programada</th>
+ <th>Estado</th>
+ </tr>
+ </thead>
+ <tbody id="tabla-cola">
+ <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-    <!-- Sección 1: Documentos Cargados -->
-    <div class="card">
-      <div class="card-head">
-        <h2>📄 Documentos Cargados en la Base Vectorial (RAG)</h2>
-        <button class="btn" style="background:#2a3340;" onclick="cargarDatos()">🔄 Refrescar</button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th>Nombre del Archivo / Fuente</th>
-              <th>Categoría / Origen</th>
-              <th>Chunks Indexados</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-documentos">
-            <tr><td colspan="4" style="text-align:center; color:var(--sub);">Cargando documentos…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+ <!-- Sección 1: Documentos Cargados -->
+ <div class="card">
+ <div class="card-head">
+ <h2> Documentos Cargados en la Base Vectorial (RAG)</h2>
+ <button class="btn" style="background:#2a3340;" onclick="cargarDatos()"> Refrescar</button>
+ </div>
+ <div style="overflow-x:auto;">
+ <table class="tabla">
+ <thead>
+ <tr>
+ <th>Nombre del Archivo / Fuente</th>
+ <th>Categoría / Origen</th>
+ <th>Chunks Indexados</th>
+ <th>Estado</th>
+ </tr>
+ </thead>
+ <tbody id="tabla-documentos">
+ <tr><td colspan="4" style="text-align:center; color:var(--sub);">Cargando documentos…</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-    <!-- Sección 2: Reporte de Preguntas Comunes -->
-    <div class="card">
-      <div class="card-head">
-        <h2>📊 Reporte de Temas y Preguntas Comunes de los Vecinos</h2>
-        <div style="display:flex; gap:8px;">
-          <a class="btn verde" id="btn-export-csv" href="#" download>📥 Descargar Reporte (CSV)</a>
-          <a class="btn" id="btn-export-json" href="#" download>📥 Descargar (JSON)</a>
-        </div>
-      </div>
-      <p style="color:var(--sub); font-size:13px; margin-bottom:18px;">
-        Ranking generado a partir del historial real de consultas ciudadanas recibidas por Cisternin.
-      </p>
-      <div id="ranking-temas">
-        <div style="text-align:center; color:var(--sub);">Cargando reporte de preguntas…</div>
-      </div>
-    </div>
+ <!-- Sección 2: Reporte de Preguntas Comunes -->
+ <div class="card">
+ <div class="card-head">
+ <h2> Reporte de Temas y Preguntas Comunes de los Vecinos</h2>
+ <div style="display:flex; gap:8px;">
+ <a class="btn verde" id="btn-export-csv" href="#" download> Descargar Reporte (CSV)</a>
+ <a class="btn" id="btn-export-json" href="#" download> Descargar (JSON)</a>
+ </div>
+ </div>
+ <p style="color:var(--sub); font-size:13px; margin-bottom:18px;">
+ Ranking generado a partir del historial real de consultas ciudadanas recibidas por Cisternin.
+ </p>
+ <div id="ranking-temas">
+ <div style="text-align:center; color:var(--sub);">Cargando reporte de preguntas…</div>
+ </div>
+ </div>
 
-    <!-- Sección 3: Historial Reciente de Consultas -->
-    <div class="card">
-      <div class="card-head">
-        <h2>💬 Últimas Consultas Recibidas</h2>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th>Fecha y Hora</th>
-              <th>Pregunta del Vecino</th>
-              <th>Categoría Asignada</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-ultimas">
-            <tr><td colspan="3" style="text-align:center; color:var(--sub);">Cargando consultas…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+ <!-- Sección 3: Historial Reciente de Consultas -->
+ <div class="card">
+ <div class="card-head">
+ <h2> Últimas Consultas Recibidas</h2>
+ </div>
+ <div style="overflow-x:auto;">
+ <table class="tabla">
+ <thead>
+ <tr>
+ <th>Fecha y Hora</th>
+ <th>Pregunta del Vecino</th>
+ <th>Categoría Asignada</th>
+ </tr>
+ </thead>
+ <tbody id="tabla-ultimas">
+ <tr><td colspan="3" style="text-align:center; color:var(--sub);">Cargando consultas…</td></tr>
+ </tbody>
+ </table>
+ </div>
+ </div>
 
-    <!-- Sección 4: Configuración de Contraseñas -->
-    <div class="card">
-      <div class="card-head">
-        <h2>🔐 Configuración de Contraseñas (Seguridad)</h2>
-      </div>
-      <p style="color:var(--sub); font-size:13px;">
-        Permite actualizar de forma segura y permanente las contraseñas del panel de administración y del portal de documentación.
-      </p>
+ </div>
 
-      <div style="margin-top:16px;">
-        <h3 style="font-size:14px; color:#fff; margin-bottom:8px;">Cambiar Contraseña de Docs o Administración</h3>
-        <div class="form-pwd">
-          <input type="password" id="pwd-actual" placeholder="Contraseña actual de Admin">
-          <select id="pwd-tipo" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff;">
-            <option value="docs">Contraseña de Documentación (/docs)</option>
-            <option value="administrador">Contraseña de Administrador Municipal (/administrador)</option>
-            <option value="admin">Contraseña de Super Admin Supremo (/admin)</option>
-          </select>
-          <input type="password" id="pwd-nueva" placeholder="Nueva contraseña (mínimo 4 caracteres)">
-          <button onclick="cambiarClave()">Actualizar Contraseña</button>
-        </div>
-        <div id="pwd-msg" style="margin-top:10px; font-size:13px;"></div>
-      </div>
-    </div>
+ <script>
+ let claveActual = localStorage.getItem("docs_clave") || "";
 
-  </div>
+ function login() {
+ const c = document.getElementById("clave").value.trim();
+ if (!c) { document.getElementById("msg-login").innerText = "Ingresa la contraseña."; return; }
+ 
+ fetch("/docs_api?clave=" + encodeURIComponent(c))
+ .then(r => r.json())
+ .then(data => {
+ if (!data.authorized) {
+ document.getElementById("msg-login").innerText = "Contraseña incorrecta.";
+ return;
+ }
+ claveActual = c;
+ localStorage.setItem("docs_clave", c);
+ document.getElementById("login-view").style.display = "none";
+ document.getElementById("main-view").style.display = "block";
+ renderDatos(data);
+ })
+ .catch(() => {
+ document.getElementById("msg-login").innerText = "Error al conectar con el servidor.";
+ });
+ }
 
-  <script>
-    let claveActual = localStorage.getItem("docs_clave") || "";
+ function cerrarSesion() {
+ localStorage.removeItem("docs_clave");
+ location.reload();
+ }
 
-    function login() {
-      const c = document.getElementById("clave").value.trim();
-      if (!c) { document.getElementById("msg-login").innerText = "Ingresa la contraseña."; return; }
-      
-      fetch("/docs_api?clave=" + encodeURIComponent(c))
-        .then(r => r.json())
-        .then(data => {
-          if (!data.authorized) {
-            document.getElementById("msg-login").innerText = "Contraseña incorrecta.";
-            return;
-          }
-          claveActual = c;
-          localStorage.setItem("docs_clave", c);
-          document.getElementById("login-view").style.display = "none";
-          document.getElementById("main-view").style.display = "block";
-          renderDatos(data);
-        })
-        .catch(() => {
-          document.getElementById("msg-login").innerText = "Error al conectar con el servidor.";
-        });
-    }
+ function cargarDatos() {
+ if (!claveActual) return;
+ fetch("/docs_api?clave=" + encodeURIComponent(claveActual))
+ .then(r => r.json())
+ .then(data => {
+ if (data.authorized) renderDatos(data);
+ });
+ }
 
-    function cerrarSesion() {
-      localStorage.removeItem("docs_clave");
-      location.reload();
-    }
+ function cargarCola() {
+ if (!claveActual) return;
+ fetch("/docs_cola?clave=" + encodeURIComponent(claveActual))
+ .then(r => r.json())
+ .then(data => {
+ const tCola = document.getElementById("tabla-cola");
+ if (!data.cola || data.cola.length === 0) {
+ tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--sub);">No hay documentos pendientes en la cola nocturna.</td></tr>';
+ } else {
+ tCola.innerHTML = data.cola.map(item => `
+ <tr>
+ <td class="mono"><b>${item.archivo}</b></td>
+ <td>${item.tamano}</td>
+ <td><span class="pill azul">${item.categoria}</span></td>
+ <td><b>${item.chunks_estimados}</b></td>
+ <td><span class="pill verde">${item.hora_programada}</span></td>
+ <td><span class="pill amarilla">Encolado</span></td>
+ </tr>
+ `).join("");
+ }
+ });
+ }
 
-    function cargarDatos() {
-      if (!claveActual) return;
-      fetch("/docs_api?clave=" + encodeURIComponent(claveActual))
-        .then(r => r.json())
-        .then(data => {
-          if (data.authorized) renderDatos(data);
-        });
-    }
+ function subirDocumento(e) {
+ e.preventDefault();
+ const fileInput = document.getElementById("up-file");
+ if (!fileInput.files.length) return;
 
-    function cargarCola() {
-      if (!claveActual) return;
-      fetch("/docs_cola?clave=" + encodeURIComponent(claveActual))
-        .then(r => r.json())
-        .then(data => {
-          const tCola = document.getElementById("tabla-cola");
-          if (!data.cola || data.cola.length === 0) {
-            tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--sub);">No hay documentos pendientes en la cola nocturna.</td></tr>';
-          } else {
-            tCola.innerHTML = data.cola.map(item => `
-              <tr>
-                <td class="mono"><b>${item.archivo}</b></td>
-                <td>${item.tamano}</td>
-                <td><span class="pill azul">${item.categoria}</span></td>
-                <td><b>${item.chunks_estimados}</b></td>
-                <td><span class="pill verde">${item.hora_programada}</span></td>
-                <td><span class="pill amarilla">Encolado</span></td>
-              </tr>
-            `).join("");
-          }
-        });
-    }
+ const file = fileInput.files[0];
+ const prog = document.getElementById("up-prog").value === "true";
+ const cat = "General";
+ const resBox = document.getElementById("up-result");
+ const btn = document.getElementById("btn-up");
 
-    function subirDocumento(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById("up-file");
-      if (!fileInput.files.length) return;
+ btn.disabled = true;
+ btn.innerText = "Analizando documento...";
+ resBox.style.display = "block";
+ resBox.innerHTML = '<span style="color:var(--sub);"> Extrayendo texto y analizando estructura del documento...</span>';
 
-      const file = fileInput.files[0];
-      const prog = document.getElementById("up-prog").value === "true";
-      const cat = "General";
-      const resBox = document.getElementById("up-result");
-      const btn = document.getElementById("btn-up");
+ const formData = new FormData();
+ formData.append("archivo", file);
+ formData.append("programar", prog);
+ formData.append("categoria", cat);
+ formData.append("clave", claveActual);
 
-      btn.disabled = true;
-      btn.innerText = "Analizando documento...";
-      resBox.style.display = "block";
-      resBox.innerHTML = '<span style="color:var(--sub);">⏳ Extrayendo texto y analizando estructura del documento...</span>';
+ fetch("/docs_upload", {
+ method: "POST",
+ body: formData
+ })
+ .then(r => r.json())
+ .then(res => {
+ btn.disabled = false;
+ btn.innerText = "Analizar y Guardar";
 
-      const formData = new FormData();
-      formData.append("archivo", file);
-      formData.append("programar", prog);
-      formData.append("categoria", cat);
-      formData.append("clave", claveActual);
+ if (res.ok) {
+ const a = res.analisis;
+ resBox.innerHTML = `
+ <div style="color:var(--verde); font-weight:600; margin-bottom:6px;"> ${res.mensaje}</div>
+ <div style="color:var(--texto); font-size:12px;">
+ <b>Detalles del análisis:</b> ${a.resumen}<br>
+ <b>Tamaño:</b> ${a.tamano_kb} KB · <b>Páginas/Filas:</b> ${a.paginas_o_filas} · <b>Chunks proyectados:</b> ${a.chunks_estimados}
+ </div>
+ ${a.preview ? `<div style="margin-top:8px; padding:6px 10px; background:#111622; border-radius:6px; color:#8ba3c7; font-family:monospace; font-size:11px; max-height:80px; overflow:hidden;">${a.preview.replace(/</g, "&lt;").replace(/>/g, "&gt;")}...</div>` : ''}
+ `;
+ fileInput.value = "";
+ cargarCola();
+ if (!prog) {
+ cargarDatos();
+ }
+ } else {
+ resBox.innerHTML = `<span style="color:var(--rojo);">️ Error: ${res.mensaje || "No se pudo procesar el archivo"}</span>`;
+ }
+ })
+ .catch(err => {
+ btn.disabled = false;
+ btn.innerText = "Analizar y Guardar";
+ resBox.innerHTML = `<span style="color:var(--rojo);">Error de conexión al subir documento: ${err}</span>`;
+ });
+ }
 
-      fetch("/docs_upload", {
-        method: "POST",
-        body: formData
-      })
-      .then(r => r.json())
-      .then(res => {
-        btn.disabled = false;
-        btn.innerText = "Analizar y Guardar";
+ function sincronizarDriveAhora() {
+ const btn = document.getElementById("btn-sync-drive");
+ const st = document.getElementById("sync-drive-status");
+ btn.disabled = true;
+ btn.innerText = "Sincronizando...";
+ st.innerText = " Descargando e indexando documentos de Drive...";
 
-        if (res.ok) {
-          const a = res.analisis;
-          resBox.innerHTML = `
-            <div style="color:var(--verde); font-weight:600; margin-bottom:6px;">✓ ${res.mensaje}</div>
-            <div style="color:var(--texto); font-size:12px;">
-              <b>Detalles del análisis:</b> ${a.resumen}<br>
-              <b>Tamaño:</b> ${a.tamano_kb} KB · <b>Páginas/Filas:</b> ${a.paginas_o_filas} · <b>Chunks proyectados:</b> ${a.chunks_estimados}
-            </div>
-            ${a.preview ? `<div style="margin-top:8px; padding:6px 10px; background:#111622; border-radius:6px; color:#8ba3c7; font-family:monospace; font-size:11px; max-height:80px; overflow:hidden;">${a.preview.replace(/</g, "&lt;").replace(/>/g, "&gt;")}...</div>` : ''}
-          `;
-          fileInput.value = "";
-          cargarCola();
-          if (!prog) {
-            cargarDatos();
-          }
-        } else {
-          resBox.innerHTML = `<span style="color:var(--rojo);">⚠️ Error: ${res.mensaje || "No se pudo procesar el archivo"}</span>`;
-        }
-      })
-      .catch(err => {
-        btn.disabled = false;
-        btn.innerText = "Analizar y Guardar";
-        resBox.innerHTML = `<span style="color:var(--rojo);">Error de conexión al subir documento: ${err}</span>`;
-      });
-    }
+ fetch("/admin_sync_drive?clave=" + encodeURIComponent(claveActual), { method: "POST" })
+ .then(r => r.json())
+ .then(data => {
+ st.innerText = " " + (data.status || "Sincronización iniciada en segundo plano.");
+ setTimeout(() => {
+ btn.disabled = false;
+ btn.innerText = " Sincronizar desde Drive Ahora";
+ st.innerText = "Sincronización completada.";
+ cargarDatos();
+ }, 4000);
+ })
+ .catch(err => {
+ btn.disabled = false;
+ btn.innerText = " Sincronizar desde Drive Ahora";
+ st.innerText = "️ Error al conectar con el servidor.";
+ });
+ }
 
-    function sincronizarDriveAhora() {
-      const btn = document.getElementById("btn-sync-drive");
-      const st = document.getElementById("sync-drive-status");
-      btn.disabled = true;
-      btn.innerText = "Sincronizando...";
-      st.innerText = "⏳ Descargando e indexando documentos de Drive...";
+ function procesarColaAhora() {
+ if (!confirm("¿Deseas procesar e indexar inmediatamente todos los documentos encolados en vez de esperar a las 03:00 AM?")) return;
+ 
+ const tCola = document.getElementById("tabla-cola");
+ tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--amarillo);"> Procesando e indexando documentos en ChromaDB...</td></tr>';
 
-      fetch("/admin_sync_drive?clave=" + encodeURIComponent(claveActual), { method: "POST" })
-        .then(r => r.json())
-        .then(data => {
-          st.innerText = "✓ " + (data.status || "Sincronización iniciada en segundo plano.");
-          setTimeout(() => {
-            btn.disabled = false;
-            btn.innerText = "🔄 Sincronizar desde Drive Ahora";
-            st.innerText = "Sincronización completada.";
-            cargarDatos();
-          }, 4000);
-        })
-        .catch(err => {
-          btn.disabled = false;
-          btn.innerText = "🔄 Sincronizar desde Drive Ahora";
-          st.innerText = "⚠️ Error al conectar con el servidor.";
-        });
-    }
+ fetch("/docs_procesar_cola?clave=" + encodeURIComponent(claveActual), { method: "POST" })
+ .then(r => r.json())
+ .then(res => {
+ alert(res.mensaje);
+ cargarCola();
+ cargarDatos();
+ })
+ .catch(() => {
+ alert("Error al procesar la cola.");
+ cargarCola();
+ });
+ }
 
-    function procesarColaAhora() {
-      if (!confirm("¿Deseas procesar e indexar inmediatamente todos los documentos encolados en vez de esperar a las 03:00 AM?")) return;
-      
-      const tCola = document.getElementById("tabla-cola");
-      tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--amarillo);">⚡ Procesando e indexando documentos en ChromaDB...</td></tr>';
+ function escanearWeb(e) {
+ e.preventDefault();
+ const url = document.getElementById("scan-url").value.trim();
+ const cat = "Páginas Web";
+ const prog = document.getElementById("scan-prog").value === "true";
+ const btn = document.getElementById("btn-scan");
+ const fb = document.getElementById("scan-feedback");
+ const msg = document.getElementById("scan-msg");
+ const deta = document.getElementById("scan-detalle");
+ const prev = document.getElementById("scan-preview");
 
-      fetch("/docs_procesar_cola?clave=" + encodeURIComponent(claveActual), { method: "POST" })
-        .then(r => r.json())
-        .then(res => {
-          alert(res.mensaje);
-          cargarCola();
-          cargarDatos();
-        })
-        .catch(() => {
-          alert("Error al procesar la cola.");
-          cargarCola();
-        });
-    }
+ if (!url) return;
 
-    function escanearWeb(e) {
-      e.preventDefault();
-      const url = document.getElementById("scan-url").value.trim();
-      const cat = "Páginas Web";
-      const prog = document.getElementById("scan-prog").value === "true";
-      const btn = document.getElementById("btn-scan");
-      const fb = document.getElementById("scan-feedback");
-      const msg = document.getElementById("scan-msg");
-      const deta = document.getElementById("scan-detalle");
-      const prev = document.getElementById("scan-preview");
+ btn.disabled = true;
+ btn.innerHTML = " Escaneando...";
+ fb.style.display = "block";
+ msg.style.color = "var(--amarillo)";
+ msg.innerText = "Conectando con la página web y limpiando contenido...";
+ deta.innerHTML = "";
+ prev.style.display = "none";
 
-      if (!url) return;
+ fetch("/docs_scan_web", {
+ method: "POST",
+ headers: { "Content-Type": "application/json" },
+ body: JSON.stringify({
+ url: url,
+ categoria: cat,
+ programar: prog,
+ clave: claveActual
+ })
+ })
+ .then(r => r.json())
+ .then(res => {
+ btn.disabled = false;
+ btn.innerHTML = " Escanear Web";
 
-      btn.disabled = true;
-      btn.innerHTML = "⏳ Escaneando...";
-      fb.style.display = "block";
-      msg.style.color = "var(--amarillo)";
-      msg.innerText = "Conectando con la página web y limpiando contenido...";
-      deta.innerHTML = "";
-      prev.style.display = "none";
+ if (res.ok) {
+ msg.style.color = "var(--verde)";
+ msg.innerText = " " + res.mensaje;
+ deta.innerHTML = `
+ <strong>Título:</strong> ${res.titulo}<br>
+ <strong>Archivo generado:</strong> <code>${res.archivo}</code><br>
+ <strong>Contenido extraído:</strong> ${res.palabras} palabras (${res.caracteres} caracteres)<br>
+ <strong>${res.programado ? 'Chunks estimados:' : 'Chunks indexados:'}</strong> ${res.programado ? res.chunks_estimados : res.chunks}
+ `;
+ if (res.preview) {
+ prev.style.display = "block";
+ prev.innerText = res.preview;
+ }
+ document.getElementById("scan-url").value = "";
+ cargarCola();
+ if (!res.programado) {
+ setTimeout(cargarDatos, 1000);
+ }
+ } else {
+ msg.style.color = "var(--rojo)";
+ msg.innerText = " Fallo al escanear: " + res.mensaje;
+ deta.innerHTML = '<span style="color:var(--sub);">Recuerda que este método es experimental. Se recomienda cargar los documentos manualmente en formato PDF o Excel.</span>';
+ }
+ })
+ .catch(err => {
+ btn.disabled = false;
+ btn.innerHTML = " Escanear Web";
+ msg.style.color = "var(--rojo)";
+ msg.innerText = " Error de conexión al escanear.";
+ deta.innerHTML = err;
+ });
+ }
 
-      fetch("/docs_scan_web", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: url,
-          categoria: cat,
-          programar: prog,
-          clave: claveActual
-        })
-      })
-      .then(r => r.json())
-      .then(res => {
-        btn.disabled = false;
-        btn.innerHTML = "🔍 Escanear Web";
+ function renderDatos(d) {
+ cargarCola();
+ // Configurar enlaces de descarga
+ document.getElementById("btn-export-csv").href = "/docs_report/export/csv?clave=" + encodeURIComponent(claveActual);
+ document.getElementById("btn-export-json").href = "/docs_report/export/json?clave=" + encodeURIComponent(claveActual);
 
-        if (res.ok) {
-          msg.style.color = "var(--verde)";
-          msg.innerText = "✓ " + res.mensaje;
-          deta.innerHTML = `
-            <strong>Título:</strong> ${res.titulo}<br>
-            <strong>Archivo generado:</strong> <code>${res.archivo}</code><br>
-            <strong>Contenido extraído:</strong> ${res.palabras} palabras (${res.caracteres} caracteres)<br>
-            <strong>${res.programado ? 'Chunks estimados:' : 'Chunks indexados:'}</strong> ${res.programado ? res.chunks_estimados : res.chunks}
-          `;
-          if (res.preview) {
-            prev.style.display = "block";
-            prev.innerText = res.preview;
-          }
-          document.getElementById("scan-url").value = "";
-          cargarCola();
-          if (!res.programado) {
-            setTimeout(cargarDatos, 1000);
-          }
-        } else {
-          msg.style.color = "var(--rojo)";
-          msg.innerText = "❌ Fallo al escanear: " + res.mensaje;
-          deta.innerHTML = '<span style="color:var(--sub);">Recuerda que este método es experimental. Se recomienda cargar los documentos manualmente en formato PDF o Excel.</span>';
-        }
-      })
-      .catch(err => {
-        btn.disabled = false;
-        btn.innerHTML = "🔍 Escanear Web";
-        msg.style.color = "var(--rojo)";
-        msg.innerText = "❌ Error de conexión al escanear.";
-        deta.innerHTML = err;
-      });
-    }
+ // Métricas
+ const docs = d.documentos || {};
+ const rep = d.reporte_preguntas || {};
 
-    function renderDatos(d) {
-      cargarCola();
-      // Configurar enlaces de descarga
-      document.getElementById("btn-export-csv").href = "/docs_report/export/csv?clave=" + encodeURIComponent(claveActual);
-      document.getElementById("btn-export-json").href = "/docs_report/export/json?clave=" + encodeURIComponent(claveActual);
+ document.getElementById("m-docs").innerText = docs.total_documentos || 0;
+ document.getElementById("m-docs-deta").innerText = `${docs.fuentes ? docs.fuentes.length : 0} fuentes registradas`;
+ document.getElementById("m-chunks").innerText = docs.total_chunks || 0;
+ document.getElementById("m-consultas").innerText = rep.total_consultas || 0;
 
-      // Métricas
-      const docs = d.documentos || {};
-      const rep = d.reporte_preguntas || {};
+ if (rep.temas && rep.temas.length > 0) {
+ document.getElementById("m-top-tema").innerText = rep.temas[0].tema;
+ document.getElementById("m-top-deta").innerText = `${rep.temas[0].conteo} consultas (${rep.temas[0].porcentaje}%)`;
+ } else {
+ document.getElementById("m-top-tema").innerText = "Sin datos aún";
+ document.getElementById("m-top-deta").innerText = "--";
+ }
 
-      document.getElementById("m-docs").innerText = docs.total_documentos || 0;
-      document.getElementById("m-docs-deta").innerText = `${docs.fuentes ? docs.fuentes.length : 0} fuentes registradas`;
-      document.getElementById("m-chunks").innerText = docs.total_chunks || 0;
-      document.getElementById("m-consultas").innerText = rep.total_consultas || 0;
+ // Tabla Documentos
+ const tDocs = document.getElementById("tabla-documentos");
+ if (!docs.fuentes || docs.fuentes.length === 0) {
+ tDocs.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--sub);">Sin documentos indexados en ChromaDB.</td></tr>';
+ } else {
+ tDocs.innerHTML = docs.fuentes.map(f => `
+ <tr>
+ <td class="mono"><b>${f.archivo}</b></td>
+ <td><span class="pill azul">${f.categoria}</span></td>
+ <td><b>${f.chunks}</b> chunks</td>
+ <td><span class="pill verde">${f.estado}</span></td>
+ </tr>
+ `).join("");
+ }
 
-      if (rep.temas && rep.temas.length > 0) {
-        document.getElementById("m-top-tema").innerText = rep.temas[0].tema;
-        document.getElementById("m-top-deta").innerText = `${rep.temas[0].conteo} consultas (${rep.temas[0].porcentaje}%)`;
-      } else {
-        document.getElementById("m-top-tema").innerText = "Sin datos aún";
-        document.getElementById("m-top-deta").innerText = "--";
-      }
+ // Ranking Temas
+ const rDiv = document.getElementById("ranking-temas");
+ if (!rep.temas || rep.temas.length === 0) {
+ rDiv.innerHTML = '<div style="text-align:center; color:var(--sub); padding:16px;">Aún no hay suficientes preguntas registradas para armar el reporte.</div>';
+ } else {
+ const max = Math.max(...rep.temas.map(t => t.conteo), 1);
+ rDiv.innerHTML = rep.temas.map(t => {
+ const w = Math.round((t.conteo / max) * 100);
+ const ej = t.ejemplos && t.ejemplos.length ? `Ejemplos: "${t.ejemplos.join('", "')}"` : '';
+ return `
+ <div style="margin-bottom:14px;">
+ <div class="barra">
+ <span class="nombre">${t.tema}</span>
+ <div class="fill"><span class="inner" style="width:${w}%"></span></div>
+ <span class="n"><b>${t.conteo}</b> (${t.porcentaje}%)</span>
+ </div>
+ ${ej ? `<div class="ejemplos-box">${ej}</div>` : ''}
+ </div>
+ `;
+ }).join("");
+ }
 
-      // Tabla Documentos
-      const tDocs = document.getElementById("tabla-documentos");
-      if (!docs.fuentes || docs.fuentes.length === 0) {
-        tDocs.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--sub);">Sin documentos indexados en ChromaDB.</td></tr>';
-      } else {
-        tDocs.innerHTML = docs.fuentes.map(f => `
-          <tr>
-            <td class="mono"><b>${f.archivo}</b></td>
-            <td><span class="pill azul">${f.categoria}</span></td>
-            <td><b>${f.chunks}</b> chunks</td>
-            <td><span class="pill verde">${f.estado}</span></td>
-          </tr>
-        `).join("");
-      }
+ // Tabla Últimas Consultas
+ const tUlt = document.getElementById("tabla-ultimas");
+ if (!rep.ultimas_preguntas || rep.ultimas_preguntas.length === 0) {
+ tUlt.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--sub);">Sin consultas recientes registradas.</td></tr>';
+ } else {
+ tUlt.innerHTML = rep.ultimas_preguntas.map(q => `
+ <tr>
+ <td style="color:var(--sub); font-size:12px; white-space:nowrap;">${q.fecha}</td>
+ <td>${q.pregunta}</td>
+ <td><span class="pill azul">${q.tema}</span></td>
+ </tr>
+ `).join("");
+ }
+ }
 
-      // Ranking Temas
-      const rDiv = document.getElementById("ranking-temas");
-      if (!rep.temas || rep.temas.length === 0) {
-        rDiv.innerHTML = '<div style="text-align:center; color:var(--sub); padding:16px;">Aún no hay suficientes preguntas registradas para armar el reporte.</div>';
-      } else {
-        const max = Math.max(...rep.temas.map(t => t.conteo), 1);
-        rDiv.innerHTML = rep.temas.map(t => {
-          const w = Math.round((t.conteo / max) * 100);
-          const ej = t.ejemplos && t.ejemplos.length ? `Ejemplos: "${t.ejemplos.join('", "')}"` : '';
-          return `
-            <div style="margin-bottom:14px;">
-              <div class="barra">
-                <span class="nombre">${t.tema}</span>
-                <div class="fill"><span class="inner" style="width:${w}%"></span></div>
-                <span class="n"><b>${t.conteo}</b> (${t.porcentaje}%)</span>
-              </div>
-              ${ej ? `<div class="ejemplos-box">${ej}</div>` : ''}
-            </div>
-          `;
-        }).join("");
-      }
-
-      // Tabla Últimas Consultas
-      const tUlt = document.getElementById("tabla-ultimas");
-      if (!rep.ultimas_preguntas || rep.ultimas_preguntas.length === 0) {
-        tUlt.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--sub);">Sin consultas recientes registradas.</td></tr>';
-      } else {
-        tUlt.innerHTML = rep.ultimas_preguntas.map(q => `
-          <tr>
-            <td style="color:var(--sub); font-size:12px; white-space:nowrap;">${q.fecha}</td>
-            <td>${q.pregunta}</td>
-            <td><span class="pill azul">${q.tema}</span></td>
-          </tr>
-        `).join("");
-      }
-    }
-
-    function cambiarClave() {
-      const act = document.getElementById("pwd-actual").value.trim();
-      const tipo = document.getElementById("pwd-tipo").value;
-      const nva = document.getElementById("pwd-nueva").value.trim();
-      const msg = document.getElementById("pwd-msg");
-
-      if (!act || !nva) {
-        msg.innerHTML = '<span style="color:var(--rojo)">Por favor completa todos los campos.</span>';
-        return;
-      }
-
-      fetch("/admin_cambiar_clave", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: tipo, nueva_clave: nva, clave_actual: act })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.ok) {
-          msg.innerHTML = '<span style="color:var(--verde)">' + res.mensaje + '</span>';
-          document.getElementById("pwd-actual").value = "";
-          document.getElementById("pwd-nueva").value = "";
-          if (tipo === "docs") {
-            claveActual = nva;
-            localStorage.setItem("docs_clave", nva);
-          }
-        } else {
-          msg.innerHTML = '<span style="color:var(--rojo)">' + res.mensaje + '</span>';
-        }
-      })
-      .catch(() => {
-        msg.innerHTML = '<span style="color:var(--rojo)">Error al procesar la solicitud.</span>';
-      });
-    }
-
-    // Auto-login si ya había clave guardada
-    if (claveActual) {
-      document.getElementById("clave").value = claveActual;
-      login();
-    }
-  </script>
+ // Auto-login si ya había clave guardada
+ if (claveActual) {
+ document.getElementById("clave").value = claveActual;
+ login();
+ }
+ </script>
 </body>
 </html>

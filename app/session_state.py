@@ -100,13 +100,13 @@ def evaluar(session_id: str, pregunta: str) -> dict:
             if st["strikes"] < 3:
                 return {
                     "accion": "advertencia",
-                    "mensaje": f"⚠️ Advertencia ({st['strikes']}/3): Por favor, mantengamos un lenguaje respetuoso para poder ayudarte."
+                    "mensaje": f"Advertencia ({st['strikes']}/3): Por favor, mantengamos un lenguaje respetuoso para poder atenderte."
                 }
             else:
                 st["strikes"] = 0
                 return {
                     "accion": "cerrar",
-                    "mensaje_personalizado": "🚫 Has excedido el límite de faltas de respeto (3/3). El chat ha sido cerrado."
+                    "mensaje_personalizado": "Has excedido el límite de advertencias de conducta (3/3). El chat ha sido cerrado."
                 }
 
         # Si pasó mucho tiempo (> 5 min), reseteamos el historial corto

@@ -168,9 +168,9 @@ El prototipo actual es **monolítico y local**. Estas son las vías para crecer:
 
 | Componente | Mantiene (no escala fácil) | Cambia (por qué) |
 |-----------|---------------------------|------------------|
-| Motor RAG (rag_engine.py) | ✅ Lógica estable | — |
-| Handoff WebSockets | ✅ Tiempo real robusto | Escalable con Redis pub/sub |
-| FastAPI (main.py) | ✅ API estable | Añade auth real/rate-limit |
+| Motor RAG (rag_engine.py) |  Lógica estable | — |
+| Handoff WebSockets |  Tiempo real robusto | Escalable con Redis pub/sub |
+| FastAPI (main.py) |  API estable | Añade auth real/rate-limit |
 | ChromaDB local | Aceptable en prototipo | → gestionada (Qdrant/Pinecone) |
 | SQLite (memoria) | Aceptable en prototipo | → Postgres/Redis |
 | Uvicorn single-process | Aceptable en dev | → contenedores + autoescalado |

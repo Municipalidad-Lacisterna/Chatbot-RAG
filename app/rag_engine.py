@@ -212,13 +212,13 @@ def _build_transfer_offer_message(es_fallback: bool = False) -> str:
         return (
             f"No logré encontrar esa información en mis registros o tu consulta sale de mi conocimiento municipal. "
             f"Sin embargo, puedes comunicarte directamente con nuestros funcionarios a través de nuestro WhatsApp oficial:\n\n"
-            f"👉 {url_wa}\n\n"
+            f"{url_wa}\n\n"
             f"¿Quieres que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
         )
     else:
         return (
             f"¡Por supuesto! Para darte la mejor atención y comunicarte directamente con nuestros ejecutivos municipales, puedes escribirnos a nuestro WhatsApp oficial:\n\n"
-            f"👉 {url_wa}\n\n"
+            f"{url_wa}\n\n"
             f"¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
         )
 
@@ -267,7 +267,7 @@ def _build_llm_error_message(exc: Exception) -> str:
         "Disculpa la molestia, en este momento no puedo darte una respuesta: "
         "mi sistema está momentáneamente ocupado. No quiero inventarte algo que "
         "no sé, así que lo mejor es que te atienda un funcionario a través de "
-        f"nuestro WhatsApp oficial:\n\n👉 {url_wa}\n\n"
+        f"nuestro WhatsApp oficial:\n\n{url_wa}\n\n"
         "¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
     )
 
@@ -291,7 +291,7 @@ def build_internal_error_message(exc: Exception) -> str:
     return (
         "Disculpa la molestia, tuve un problema técnico al atender tu consulta. "
         "No quiero inventarte algo que no sé, así que lo mejor es que te atienda "
-        f"un funcionario a través de nuestro WhatsApp oficial:\n\n👉 {url_wa}\n\n"
+        f"un funcionario a través de nuestro WhatsApp oficial:\n\n{url_wa}\n\n"
         "¿Deseas que te transfiera a WhatsApp ahora?\n[[TRANSFERIR]]"
     )
 
@@ -471,7 +471,7 @@ def _es_despedida_o_gracias(texto: str) -> bool:
     return t in _PATRONES_DESPEDIDA
 
 def _respuesta_despedida() -> str:
-    return "¡De nada, vecino! Recuerda que estoy aquí 24/7 para cualquier otra duda municipal. ¡Que tengas un excelente día! 👋"
+    return "¡De nada, vecino! Recuerda que estoy disponible para cualquier otra duda municipal. ¡Que tengas un excelente día!"
 
 _PATRONES_CHISTE = [
 "chiste", "estoy aburrido", "cuentame algo", "cuéntame algo"]
@@ -485,12 +485,12 @@ def _es_easter_egg(texto: str) -> bool:
 def _respuesta_easter_egg(texto: str) -> str:
     t = texto.lower()
     if any(p in t for p in _PATRONES_CHISTE):
-        return "¡Jaja! ¿Quieres un chiste municipal? Ahí va: ¿Por qué el semáforo de Gran Avenida se puso rojo? ¡Porque lo pillaron haciendo un trámite sin sacar número! 🚦😂 Pero ya, volviendo a lo nuestro... ¿en qué te puedo ayudar?"
+        return "Ahi va uno: ¿Por qué el semáforo de Gran Avenida se puso rojo? ¡Porque lo pillaron haciendo un trámite sin sacar número! Pero volviendo a lo nuestro... ¿en qué te puedo ayudar?"
     if any(p in t for p in _PATRONES_SED):
-        return "¡Uf, hace sed! Te recomendaría un buen mote con huesillo ahí en el Paradero 24. Eso sí, recuerda que beber alcohol en la vía pública amerita parte municipal, ¡así que pórtense bien, vecinos! 🥤😎 ¿Buscabas ayuda con algún trámite?"
+        return "Te recomendaría un buen mote con huesillo en el Paradero 24. Recuerda que beber alcohol en la vía pública amerita parte municipal. ¿Buscabas ayuda con algún trámite?"
     if any(p in t for p in _PATRONES_AGUANTE):
-        return "¡Esa es la actitud, vecino! ¡Puro aguante La Cisterna! 💪❤️ Aquí estamos trabajando para que la comuna sea cada día mejor. ¿En qué trámite te puedo orientar hoy?"
-    return "¡Qué buen sentido del humor! 😄 ¿En qué trámite municipal te ayudo hoy?"
+        return "Esa es la actitud. Aquí estamos trabajando para que la comuna sea cada día mejor. ¿En qué trámite te puedo orientar hoy?"
+    return "Buen sentido del humor. ¿En qué trámite municipal te ayudo hoy?"
 
 _PATRONES_IDENTIDAD = [
 
@@ -570,8 +570,8 @@ def query_chatbot(question: str, session_id: str = None) -> str:
 
     if accion["accion"] == "bloquear":
         aviso = (
-            "¡Wow, vas muy rápido! Dame un respiro de unos segunditos "
-            "para poder procesar todo. 🙏"
+            "Vas muy rápido. Dame un momento "
+            "para poder procesar tu solicitud."
         )
         # No lo guardamos en la memoria para que el historial no se llene de
         # bloqueos si el usuario (o bot malicioso) sigue insistiendo.

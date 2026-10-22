@@ -49,7 +49,7 @@ def indexar():
         metadatas=[{"source": fuente, "categoria": "DIDEL / Fomento Productivo", "chunk_index": 0}],
         ids=[doc_id]
     )
-    print("✓ Tarjeta Vecino indexada exitosamente en ChromaDB!")
+    print("[OK] Tarjeta Vecino indexada exitosamente en ChromaDB!")
 
 if __name__ == "__main__":
     indexar()

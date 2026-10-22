@@ -139,7 +139,7 @@ def main():
         salida = os.path.join(DATA_DIR, md)
         with open(salida, "w", encoding="utf-8") as f:
             f.write("\n\n".join(partes) + "\n")
-        print(f"[✓] {md}: {n} trámites extraídos -> {salida}")
+        print(f"[[OK]] {md}: {n} trámites extraídos -> {salida}")
         total += n
 
     print(f"\nTotal: {total} trámites escritos en data/*.md")

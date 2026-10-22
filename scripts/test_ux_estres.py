@@ -41,8 +41,8 @@ for i, (status, data) in enumerate(resultados):
         fallas += 1
 
 if fallas == 0:
-    print("\n✅ TODO OK: El bot resiste la brutalidad humana sin caerse.")
+    print("\n TODO OK: El bot resiste la brutalidad humana sin caerse.")
     sys.exit(0)
 else:
-    print("\n❌ FALLARON algunas peticiones.")
+    print("\n FALLARON algunas peticiones.")
     sys.exit(1)

@@ -130,7 +130,7 @@ def main():
             final = os.path.join(DATA_DIR, nombre + ".pdf")
             shutil.move(pdf_local, final)
             sz = os.path.getsize(final)
-            print(f"      ✓ {os.path.basename(final)}  ({sz//1024} KB)")
+            print(f"      [OK] {os.path.basename(final)}  ({sz//1024} KB)")
             n += 1
         else:
             print(f"      [x] no se pudo convertir {nombre}")
@@ -155,7 +155,7 @@ def main():
         final = os.path.join(DATA_DIR, nombre)
         shutil.move(destino_tmp, final)
         sz = os.path.getsize(final)
-        print(f"      ✓ {os.path.basename(final)}  ({sz//1024} KB)")
+        print(f"      [OK] {os.path.basename(final)}  ({sz//1024} KB)")
         n += 1
 
     print(f"\nListo: {n} documentos descargados a {DATA_DIR}")

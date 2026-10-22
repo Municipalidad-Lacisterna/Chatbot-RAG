@@ -16,12 +16,12 @@ oficiales del municipio que le indexemos.
 
 | Capacidad | Estado |
 |-----------|--------|
-| Responder trámites documentados | ✅ Probado (beca, partes, privacidad) |
-| No inventar si no sabe (deriva a humano) | ✅ 0% alucinación en pruebas |
-| Responder con trato cordial y formal (tono "usted") | ✅ Tono híbrido |
-| Recordar contexto de la conversación | ✅ Memoria por sesión |
-| Interfaz web para el vecino | ✅ `/chat` (estilo WhatsApp) |
-| Leer documentos e imágenes como memorial | ✅ OCR + modelo multimodal (Qwen) |
+| Responder trámites documentados |  Probado (beca, partes, privacidad) |
+| No inventar si no sabe (deriva a humano) |  0% alucinación en pruebas |
+| Responder con trato cordial y formal (tono "usted") |  Tono híbrido |
+| Recordar contexto de la conversación |  Memoria por sesión |
+| Interfaz web para el vecino |  `/chat` (estilo WhatsApp) |
+| Leer documentos e imágenes como memorial |  OCR + modelo multimodal (Qwen) |
 
 ### Ventajas de la nueva versión (IA local)
 1. **Soberanía total de datos**: los documentos y consultas nunca salen del servidor.
@@ -80,9 +80,9 @@ pedimos:
 
 ## 5. Mensajes clave para recordar
 
-- ✅ El bot **ya funciona** y está probado (10/10 pruebas), atiende **texto e imágenes**.
-- 🔒 **Soberanía total**: los datos quedan en el municipio, sin depender de terceros.
-- 💰 **$878.000 CLP una vez**, luego **$0/mes**.
-- 🚀 Solo falta el **presupuesto + acceso + datos** para la versión final.
+-  El bot **ya funciona** y está probado (10/10 pruebas), atiende **texto e imágenes**.
+-  **Soberanía total**: los datos quedan en el municipio, sin depender de terceros.
+-  **$878.000 CLP una vez**, luego **$0/mes**.
+-  Solo falta el **presupuesto + acceso + datos** para la versión final.
 
 ---

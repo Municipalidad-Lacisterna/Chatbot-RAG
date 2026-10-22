@@ -13,7 +13,7 @@ y los indexa en ChromaDB **todos los días a las 07:00** (via systemd timer).
 Que compartan la carpeta **`Documentos Municipal`** (o el nombre que sea)
 con la cuenta **`chatbot@cisterna.cl`** y el rol **Lector (Viewer)**.
 
-- ✅ **Lector** es suficiente: rclone solo necesita LEER/descargar los PDFs.
+-  **Lector** es suficiente: rclone solo necesita LEER/descargar los PDFs.
 - No hace falta rol de editor ni comentarista.
 
 ---

@@ -20,7 +20,7 @@
 
 | | Servidor propio + LLM local (elegido) | Servicio en la nube |
 |---|---|---|
-| **Datos** | 100% en el municipio (soberanía total) ✅ | viajan al proveedor |
+| **Datos** | 100% en el municipio (soberanía total)  | viajan al proveedor |
 | **Costo mensual** | **$0** | crece con el uso |
 | **Dependencia** | ninguna (autónomo) | internet + proveedor externo |
 | **Privacidad** | completa (nada sale) | condicionada al contrato |

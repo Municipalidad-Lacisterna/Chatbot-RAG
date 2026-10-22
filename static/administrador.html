@@ -16,11 +16,11 @@
       font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
       padding: 24px 32px;
     }
-    h1 { font-size: 22px; font-weight: 600; letter-spacing: .3px; }
+    h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
     .subt { color: var(--sub); font-size: 13px; margin-top: 6px; }
     header {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-      border-bottom: 1px solid var(--borde); padding-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      border-bottom: 1px solid var(--borde); padding-bottom: 14px; gap: 12px;
     }
     .badge-online { color: #8be9a7; background: rgba(52,201,138,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
     .badge-offline { color: #ff9ba0; background: rgba(229,83,75,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
@@ -54,20 +54,19 @@
     .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
     .pill.amarilla { background: rgba(230,182,76,.15); color: #f3cf7a; }
     .pill.roja { background: rgba(229,83,75,.15); color: #ff9ba0; }
-    .pill.azul { background: rgba(74,158,255,.15); color: #8bc3ff; }
 
     .empty { color: var(--sub); font-size: 13px; padding: 14px; text-align: center; }
     .foot { color: var(--sub); font-size: 12px; margin-top: 22px; text-align: right; }
-    .login { max-width: 380px; margin: 80px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 26px; }
-    .login h2 { font-size: 18px; margin-bottom: 8px; }
+    .login { max-width: 360px; margin: 80px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 26px; }
+    .login h2 { font-size: 18px; margin-bottom: 12px; }
     .login input, .login button { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: var(--texto); }
-    .login button { background: #128C7E; color: #fff; border: none; font-weight: 600; cursor: pointer; }
-    .login button:hover { background: #25D366; }
-    #msg-login { color: var(--rojo); font-size: 13px; margin-bottom: 10px; }
+    .login button { background: var(--azul); color: #fff; border: none; font-weight: 600; cursor: pointer; }
+    .login .err { color: var(--rojo); font-size: 13px; min-height: 18px; }
+    #msg-login { color: var(--rojo); font-size: 13px; }
 
     .btn {
       background: var(--azul); color: #fff; border: none; border-radius: 8px;
-      padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none;
+      padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
     }
     .btn:hover { filter: brightness(1.1); }
     .btn.peligro { background: var(--rojo); }
@@ -86,8 +85,8 @@
 <body>
   <div id="login-view" style="display:none;">
     <div class="login">
-      <h2>🏛️ Panel del Administrador Municipal</h2>
-      <div class="subt" style="margin-bottom:14px;">Ingresa la contraseña de administrador municipal para gestionar la atención ciudadana.</div>
+      <h2>Panel del Administrador Municipal</h2>
+      <div class="subt" style="margin-bottom:14px;">Ingresa la contraseña de administrador municipal para gestionar la atencion ciudadana.</div>
       <input type="password" id="clave" placeholder="Contraseña de Administrador" onkeydown="if(event.key==='Enter')login()">
       <div id="msg-login"></div>
       <button onclick="login()">Ingresar al Panel</button>
@@ -97,14 +96,14 @@
   <div id="main-view" style="display:none;">
     <header>
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <h1>Alcaldía Bot — Administrador Municipal</h1>
-        <span id="online-badge" class="badge-online">● en línea</span>
+        <h1>Alcaldia Bot — Administrador Municipal</h1>
+        <span id="online-badge" class="badge-online">● en linea</span>
         <div class="subt" id="subinfo"></div>
       </div>
       <div style="display:flex; gap:10px;">
-        <a href="/docs" target="_blank" class="btn" style="background:#128C7E;">📚 Gestionar Documentación y Reportes (/docs)</a>
-        <a href="/chat" target="_blank" class="btn" style="background:#2a3340;">💬 Ver Chatbot</a>
-        <button class="btn acc" onclick="cerrarSesion()">Cerrar sesión</button>
+        <a href="/docs" target="_blank" class="btn" style="background:#128C7E;">Gestionar Documentacion y Reportes (/docs)</a>
+        <a href="/chat" target="_blank" class="btn" style="background:#2a3340;">Ver Chatbot</a>
+        <button class="btn acc" onclick="cerrarSesion()">Cerrar sesion</button>
       </div>
     </header>
 
@@ -120,12 +119,12 @@
     <div class="card" style="margin-bottom:20px; border-left: 4px solid var(--verde);">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
         <div>
-          <h2>Atención Humana / Derivación a WhatsApp</h2>
-          <div class="subt">Controla si el bot ofrece el botón "Hablar con un agente" y deriva a WhatsApp a los vecinos.</div>
+          <h2>Atencion Humana / Derivacion a WhatsApp</h2>
+          <div class="subt">Controla si el bot ofrece el boton "Hablar con un agente" y deriva a WhatsApp a los vecinos.</div>
         </div>
         <div style="display:flex; align-items:center; gap:14px;">
           <span id="badge-agente" class="badge-online">● Habilitado</span>
-          <button id="btn-toggle-agente" class="btn peligro" onclick="toggleAgente()">Desactivar Atención Humana</button>
+          <button id="btn-toggle-agente" class="btn peligro" onclick="toggleAgente()">Desactivar Atencion Humana</button>
         </div>
       </div>
     </div>
@@ -145,7 +144,7 @@
     <div class="card" style="margin-top:22px">
       <h2>Historial de Chats y Consultas Ciudadanas</h2>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
-        <button class="btn" onclick="cargarHistorial()">🔄 Refrescar</button>
+        <button class="btn" onclick="cargarHistorial()">Refrescar</button>
         <span class="sep"></span>
         <span class="lbl">Exportar todo:</span>
         <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
@@ -158,10 +157,43 @@
     <div class="card" style="margin-top:22px">
       <h2>Conocimiento Aprendido de Agentes (Memoria del Bot)</h2>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
-        <button class="btn" onclick="cargarAprendizajes()">🔄 Refrescar</button>
-        <span class="lbl">El bot aprende automáticamente de las respuestas de los funcionarios al cerrar cada atención.</span>
+        <button class="btn" onclick="cargarAprendizajes()">Refrescar</button>
+        <span class="lbl">El bot aprende automaticamente de las respuestas de los funcionarios al cerrar cada atencion.</span>
       </div>
       <div id="aprendizajes-list"><div class="empty">Cargando…</div></div>
+    </div>
+
+    <!-- Gestión de Contraseñas (Administrador Municipal: solo puede cambiar administrador y docs) -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--amarillo);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>Gestion de Contraseñas (Administrador Municipal)</h2>
+        <span class="pill amarilla">Seguridad Municipal</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
+        Como Administrador Municipal, puedes actualizar tu clave de acceso o la clave del portal de Documentacion.
+      </p>
+
+      <form id="form-pwd-admin" onsubmit="cambiarClaveAdmin(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Tu Contraseña Actual de Administrador:</label>
+          <input type="password" id="pwd-actual" required placeholder="Contraseña actual" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Nivel a Modificar:</label>
+          <select id="pwd-tipo" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="administrador">Administrador Municipal (/administrador)</option>
+            <option value="docs">Documentacion y Reportes (/docs)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Nueva Contraseña (minimo 4 caracteres):</label>
+          <input type="password" id="pwd-nueva" required minlength="4" placeholder="Nueva contraseña" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <button type="submit" class="btn" style="background:#0284c7; width:100%; justify-content:center; padding:10px;" id="btn-pwd">Actualizar Contraseña</button>
+        </div>
+      </form>
+      <div id="pwd-msg" style="margin-top:10px; font-size:13px;"></div>
     </div>
 
     <div class="foot" id="foot">Actualizado: --</div>
@@ -202,12 +234,12 @@
         badge.className = "badge-online";
         badge.innerText = "● Habilitado";
         btn.className = "btn peligro";
-        btn.innerText = "Desactivar Atención Humana";
+        btn.innerText = "Desactivar Atencion Humana";
       } else {
         badge.className = "badge-offline";
         badge.innerText = "○ Deshabilitado";
         btn.className = "btn";
-        btn.innerText = "Activar Atención Humana";
+        btn.innerText = "Activar Atencion Humana";
       }
     }
 
@@ -266,7 +298,7 @@
 
       const pend = d.inbox.pendientes.length;
       document.getElementById("m-inbox").innerText = pend;
-      document.getElementById("m-inbox-deta").innerText = pend ? "procesar" : "vacío";
+      document.getElementById("m-inbox-deta").innerText = pend ? "procesar" : "vacio";
 
       const fuDiv = document.getElementById("fuentes");
       const f = d.documentos.fuentes;
@@ -282,7 +314,7 @@
       }
 
       const ib = document.getElementById("inbox-list");
-      if (!pend) ib.innerHTML = '<div class="empty">Cola vacía — no hay documentos pendientes de procesar.</div>';
+      if (!pend) ib.innerHTML = '<div class="empty">Cola vacia — no hay documentos pendientes de procesar.</div>';
       else ib.innerHTML =
         '<table class="tabla"><tr><th>Archivo</th><th>Tamaño</th><th>Estado</th></tr>' +
         d.inbox.pendientes.map(x=>`<tr><td class="mono">${escp(x.archivo)}</td><td>${x.kb} KB</td><td><span class="pill amarilla">pendiente</span></td></tr>`).join("") +
@@ -298,7 +330,7 @@
       try {
         const r = await fetch(`/admin_chats?clave=${encodeURIComponent(c)}`);
         const d = await r.json();
-        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorización.</div>'; return; }
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
         const ses = d.sesiones || [];
         if (!ses.length) { cont.innerHTML = '<div class="empty">No hay conversaciones registradas.</div>'; return; }
         cont.innerHTML = ses.map(s => {
@@ -313,7 +345,7 @@
               <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
             </div>
             <div class="hist-acciones">
-              <button class="btn acc" onclick="verTranscripcion('${escp(s.session_id)}')">👁 Ver</button>
+              <button class="btn acc" onclick="verTranscripcion('${escp(s.session_id)}')">Ver</button>
             </div>
             <div id="transc-${escp(s.session_id)}"></div>
           </div>`;
@@ -332,7 +364,7 @@
         const r = await fetch(`/admin_chat/${encodeURIComponent(sessionId)}?clave=${encodeURIComponent(c)}`);
         const d = await r.json();
         const msgs = d.mensajes || [];
-        if (!msgs.length) { div.innerHTML = '<div class="empty">Conversación vacía.</div>'; }
+        if (!msgs.length) { div.innerHTML = '<div class="empty">Conversacion vacia.</div>'; }
         else {
           div.innerHTML = '<div class="transc">' + msgs.map(m =>
             `<div class="msg"><span class="rol">${escp(m.role)}:</span> ${escp(m.content)}</div>`
@@ -340,7 +372,7 @@
         }
         div.dataset.abierto = "1";
       } catch (e) {
-        div.innerHTML = '<div class="empty">Error al cargar conversación.</div>';
+        div.innerHTML = '<div class="empty">Error al cargar conversacion.</div>';
       }
     }
 
@@ -355,10 +387,10 @@
       try {
         const r = await fetch(`/admin_aprendizajes?clave=${encodeURIComponent(c)}`);
         const d = await r.json();
-        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorización.</div>'; return; }
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
         const ap = d.aprendizajes || [];
         window.__aprendizajes = ap;
-        if (!ap.length) { cont.innerHTML = '<div class="empty">Aún no hay conocimiento aprendido de agentes.</div>'; return; }
+        if (!ap.length) { cont.innerHTML = '<div class="empty">Aun no hay conocimiento aprendido de agentes.</div>'; return; }
         cont.innerHTML = ap.map(a => {
           const q = a.pregunta && a.pregunta.length > 70 ? a.pregunta.slice(0,70) + "…" : (a.pregunta || a.qa_id);
           return `<div class="hist-sesion">
@@ -368,7 +400,7 @@
               <span class="lbl">${escp(a.fecha || "")}</span>
             </div>
             <div class="hist-acciones">
-              <button class="btn acc" onclick="verDetalleQA('${escp(a.qa_id)}')">👁 Detalle</button>
+              <button class="btn acc" onclick="verDetalleQA('${escp(a.qa_id)}')">Detalle</button>
             </div>
             <div id="qa-${escp(a.qa_id)}"></div>
           </div>`;
@@ -385,6 +417,41 @@
       const ap = (window.__aprendizajes || []).find(x => x.qa_id === qaId);
       if (ap) div.innerHTML = '<pre style="white-space:pre-wrap;background:#202837;padding:10px;border-radius:8px;font-size:12px;margin-top:8px">' + escp(ap.texto || "") + '</pre>';
       div.dataset.abierto = "1";
+    }
+
+    function cambiarClaveAdmin(e) {
+      e.preventDefault();
+      const act = document.getElementById("pwd-actual").value.trim();
+      const tipo = document.getElementById("pwd-tipo").value;
+      const nva = document.getElementById("pwd-nueva").value.trim();
+      const msg = document.getElementById("pwd-msg");
+
+      if (!act || !nva) {
+        msg.innerHTML = '<span style="color:var(--rojo)">Por favor completa todos los campos.</span>';
+        return;
+      }
+
+      fetch("/admin_cambiar_clave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: tipo, nueva_clave: nva, clave_actual: act })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msg.innerHTML = '<span style="color:var(--verde)">' + res.mensaje + '</span>';
+          document.getElementById("pwd-actual").value = "";
+          document.getElementById("pwd-nueva").value = "";
+          if (tipo === "administrador") {
+            localStorage.setItem("administrador_clave", nva);
+          }
+        } else {
+          msg.innerHTML = '<span style="color:var(--rojo)">' + res.mensaje + '</span>';
+        }
+      })
+      .catch(() => {
+        msg.innerHTML = '<span style="color:var(--rojo)">Error al procesar la solicitud.</span>';
+      });
     }
 
     const saved = localStorage.getItem("administrador_clave");

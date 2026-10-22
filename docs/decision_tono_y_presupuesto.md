@@ -10,7 +10,7 @@ Se probaron **3 estilos de system prompt** contra **10 preguntas** (7 documentad
 
 | Tono | Prom. (s) | Chars | Precisión | Alucinación | Global |
 |------|-----------|-------|-----------|-------------|--------|
-| **frío** | 3.2 | 99 | 79.8% | **0%** | **85.8%** ✅ |
+| **frío** | 3.2 | 99 | 79.8% | **0%** | **85.8%**  |
 | balanceado | 4.7 | 169 | 79.8% | 67% | 65.8% |
 | humano | 2.4 | 447 | 82.1% | 67% | 67.5% |
 
@@ -152,7 +152,7 @@ Para alimentar al bot con **documentos reales del municipio**, se preparó una c
    (rclone baja Drive → `data/` → `app.ingestion` indexa en ChromaDB).
 7. Ver el log: `tail /tmp/rclone_sync.log`.
 
-> **Detalle:** ⚠️ la ingesta **borra los PDFs físicos de `data/`** tras indexar
+> **Detalle:** ️ la ingesta **borra los PDFs físicos de `data/`** tras indexar
 > (el conocimiento queda en ChromaDB). Usa el `BACKUP_DIR` del script si quieres
 > conservar copia local.
 

@@ -46,7 +46,7 @@ Sumamos al chatbot todo documento **público y consultable** que los vecinos pre
 **Formatos aceptados:** PDF (recomendado), y también documentos de Google
 (Google Docs, Hojas, Presentaciones) — el sistema los convierte solo a PDF.
 
-> 💡 **Regla de oro:** si el vecino puede preguntarlo, súbalo. Si el documento **cambia** (nuevo valor, nuevo plazo, nueva dirección), **reemplace el archivo** en la carpeta y el chatbot quedará actualizado al día siguiente (17:01).
+>  **Regla de oro:** si el vecino puede preguntarlo, súbalo. Si el documento **cambia** (nuevo valor, nuevo plazo, nueva dirección), **reemplace el archivo** en la carpeta y el chatbot quedará actualizado al día siguiente (17:01).
 
 ---
 
@@ -82,10 +82,10 @@ carpeta de Drive del municipio o en el servidor). Es una cifra **ampliamente sob
 
 ## 6. Importante (lo que el chatbot hace y NO hace)
 
-- ✅ **Sí** responde con la información de los documentos que USTED sube.
-- ✅ **Sí** se actualiza solo al día siguiente de subir un documento nuevo o cambiado.
-- ✅ **No alucina**: si una pregunta no está en los documentos, el bot **no inventa** la respuesta; deriva al vecino al equipo humano de Atención al Vecino (teléfono/email).
-- ❌ **No reemplaza** al personal humano en trámites complejos; lo complementa respondiendo preguntas frecuentes en 24/7.
+-  **Sí** responde con la información de los documentos que USTED sube.
+-  **Sí** se actualiza solo al día siguiente de subir un documento nuevo o cambiado.
+-  **No alucina**: si una pregunta no está en los documentos, el bot **no inventa** la respuesta; deriva al vecino al equipo humano de Atención al Vecino (teléfono/email).
+-  **No reemplaza** al personal humano en trámites complejos; lo complementa respondiendo preguntas frecuentes en 24/7.
 
 ---
 

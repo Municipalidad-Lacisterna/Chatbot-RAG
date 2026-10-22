@@ -103,7 +103,7 @@ def aprender_sesion(session_id: str) -> int:
         ids.append(f"qa-{session_id}-{i}")
 
     collection.add(documents=docs, metadatas=metadatas, ids=ids)
-    print(f"[aprendizaje] ✓ sesión '{session_id}': {len(pares)} par(es) QA aprendido(s)")
+    print(f"[aprendizaje] [OK] sesión '{session_id}': {len(pares)} par(es) QA aprendido(s)")
     return len(pares)
 
 
@@ -138,7 +138,7 @@ def olvidar_aprendizaje(qa_id: str) -> bool:
     res = collection.get(ids=[qa_id], where={"origen": ORIGEN_APRENDIDO})
     if res and res.get("ids"):
         collection.delete(ids=[qa_id])
-        print(f"[aprendizaje] ✗ olvidado: {qa_id}")
+        print(f"[aprendizaje] [ERROR] olvidado: {qa_id}")
         return True
     return False
 
@@ -151,6 +151,6 @@ def olvidar_aprendizajes_sesion(session_id: str) -> int:
     )
     if res and res.get("ids"):
         collection.delete(ids=res["ids"])
-        print(f"[aprendizaje] ✗ sesión '{session_id}': {len(res['ids'])} aprendizajes olvidados")
+        print(f"[aprendizaje] [ERROR] sesión '{session_id}': {len(res['ids'])} aprendizajes olvidados")
         return len(res["ids"])
     return 0

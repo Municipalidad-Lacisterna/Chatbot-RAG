@@ -130,7 +130,7 @@
 
     <footer>
       <input id="entrada" type="text" placeholder="Escribe tu consulta…" autocomplete="off" />
-      <button id="enviar" title="Enviar">➤</button>
+      <button id="enviar" title="Enviar">Enviar</button>
     </footer>
   </div>
 
@@ -188,7 +188,7 @@
     function derivarAWhatsApp() {
       const url = configUI.whatsapp_url || "https://wa.me/56912345678";
       window.open(url, '_blank');
-      bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:\n\n👉 ${url}\n\n¡Haz clic en el enlace si no se abrió automáticamente!`, 'bot');
+      bubble(`Para comunicarte directamente con nuestros funcionarios municipales, te derivamos a nuestro WhatsApp oficial:\n\n${url}\n\nHaz clic en el enlace si no se abrio automaticamente.`, 'bot');
     }
 
     function sendQuickReply(item) {
@@ -196,10 +196,10 @@
       const label = typeof item === 'object' ? item.label : item;
       const query = typeof item === 'object' ? item.query : item;
 
-      if (label.includes('agente')) {
+      if (label.toLowerCase().includes('agente')) {
         bubble(label, 'user');
         if (configUI.habilitar_agente === false) {
-          bubble("La atención directa con agentes municipales se encuentra desactivada temporalmente.", "bot");
+          bubble("La atencion directa con agentes municipales se encuentra desactivada temporalmente.", "bot");
           return;
         }
         derivarAWhatsApp();
@@ -215,18 +215,18 @@
       cont.className = 'quick-replies';
       
       const options = [
-        { label: "🚗 Licencia de Conducir", query: "¿Cómo sacar o renovar la licencia de conducir?" },
-        { label: "🚙 Permiso de Circulación", query: "¿Cómo pagar o consultar el permiso de circulación?" },
-        { label: "💊 Farmacia Comunal", query: "¿Dónde está la farmacia comunal y cómo me inscribo?" },
-        { label: "📋 Registro Social de Hogares", query: "¿Cómo sacar o actualizar mi Registro Social de Hogares?" },
-        { label: "💳 Tarjeta Vecino", query: "¿Cómo tramitar la Tarjeta Vecino y qué beneficios tiene?" },
-        { label: "🐾 Veterinaria Municipal", query: "¿Qué servicios tiene la veterinaria municipal y cómo esterilizar?" },
-        { label: "🗑️ Retiro de Escombros", query: "¿Cómo solicitar el retiro de escombros domiciliarios?" },
-        { label: "💼 Cursos y Empleos OMIL", query: "¿Qué ofertas de trabajo o cursos de capacitación tiene la OMIL?" }
+        { label: "Licencia de Conducir", query: "¿Cómo sacar o renovar la licencia de conducir?" },
+        { label: "Permiso de Circulación", query: "¿Cómo pagar o consultar el permiso de circulación?" },
+        { label: "Farmacia Comunal", query: "¿Dónde está la farmacia comunal y cómo me inscribo?" },
+        { label: "Registro Social de Hogares", query: "¿Cómo sacar o actualizar mi Registro Social de Hogares?" },
+        { label: "Tarjeta Vecino", query: "¿Cómo tramitar la Tarjeta Vecino y qué beneficios tiene?" },
+        { label: "Veterinaria Municipal", query: "¿Qué servicios tiene la veterinaria municipal y cómo esterilizar?" },
+        { label: "Retiro de Escombros", query: "¿Cómo solicitar el retiro de escombros domiciliarios?" },
+        { label: "Cursos y Empleos OMIL", query: "¿Qué ofertas de trabajo o cursos de capacitación tiene la OMIL?" }
       ];
 
       if (configUI.habilitar_agente !== false) {
-        options.push({ label: "🗣️ Hablar con un agente", query: "🗣️ Hablar con un agente" });
+        options.push({ label: "Hablar con un agente", query: "Hablar con un agente" });
       }
 
       options.forEach(opt => {

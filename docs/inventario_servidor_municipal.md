@@ -13,7 +13,7 @@ relacionado:
   - "[[presentacion_jefes]]"
 ---
 
-# 📋 Inventario técnico y de compra — Servidor municipal para "Cisternin"
+#  Inventario técnico y de compra — Servidor municipal para "Cisternin"
 
 > [!info] Meta del documento
 > Confirmar si el servidor de la municipalidad puede alojar el chatbot **Cisternin** (inteligencia artificial local + integración WhatsApp). Requisito de diseño: **soberanía total de datos** — la información municipal nunca sale del servidor.
@@ -59,10 +59,10 @@ relacionado:
 
 | # | Recurso | Cantidad | Costo estimado | Gestión | Prioridad |
 |---|---------|----------|----------------|---------|-----------|
-| C1 | **Números de WhatsApp nuevos** — chips prepago SIN cuenta WhatsApp vinculada (números limpios) | **2** (1 bot + 1 respaldo/pruebas) | CLP 5.000–15.000 c/u | Comprar y entregar los 2 SIMS | 🔴 URGENTE |
-| C2 | **Dominio / subdominio** (ej. `bot.cisterna.cl`) | 1 | Ya existe (según lo conversado) | Pedir acceso para configurar DNS + HTTPS | 🔴 URGENTE |
-| C3 | **Verificación de negocio en Meta** | — | $0 | Documentos: RUT, escritura de constitución, boleta de servicios | ⏳ CRÍTICO — **1-14 días hábiles** |
-| C4 | **Tarjeta de pago para Meta Billing** | 1 | $0 (solo respaldo de facturación) | Registrar **antes del 30 sep 2026** o se corta la entrega de mensajes | ⏳ CRÍTICO |
+| C1 | **Números de WhatsApp nuevos** — chips prepago SIN cuenta WhatsApp vinculada (números limpios) | **2** (1 bot + 1 respaldo/pruebas) | CLP 5.000–15.000 c/u | Comprar y entregar los 2 SIMS |  URGENTE |
+| C2 | **Dominio / subdominio** (ej. `bot.cisterna.cl`) | 1 | Ya existe (según lo conversado) | Pedir acceso para configurar DNS + HTTPS |  URGENTE |
+| C3 | **Verificación de negocio en Meta** | — | $0 | Documentos: RUT, escritura de constitución, boleta de servicios |  CRÍTICO — **1-14 días hábiles** |
+| C4 | **Tarjeta de pago para Meta Billing** | 1 | $0 (solo respaldo de facturación) | Registrar **antes del 30 sep 2026** o se corta la entrega de mensajes |  CRÍTICO |
 | C5 | **Documentos reales del municipio** (PDFs/MD de trámites y normas) | Según existan | $0 | Compartir carpeta Drive o entregar archivos | Alta (después del setup) |
 
 ---

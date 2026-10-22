@@ -37,7 +37,7 @@ while true; do
   if [ $((AHORA_EPOCH - ULTIMA)) -ge "$INTERVALO_PURGA" ]; then
     log "Purga de historial (última hace $(( (AHORA_EPOCH - ULTIMA) / 60 )) min)..."
     (cd "$PROJECT_DIR" && "$PYTHON" scripts/purge_historial.py) >>"$LOG_PURGE" 2>&1 || \
-      log "⚠️ Purga falló (ver $LOG_PURGE)"
+      log "[AVISO]️ Purga falló (ver $LOG_PURGE)"
     date +%s > "$ULTIMA_PURGA"
   fi
 
@@ -45,11 +45,11 @@ while true; do
   if [ "$AHORA" = "03:00" ]; then
     log "Hora de mantenimiento (03:00): ejecutando gdown_sync..."
     bash "$PROJECT_DIR/scripts/gdown_sync.sh" || \
-      log "⚠️ Sincronización falló (ver $LOG_SYNC)"
+      log "[AVISO]️ Sincronización falló (ver $LOG_SYNC)"
 
     log "Procesando documentos programados en inbox..."
     (cd "$PROJECT_DIR" && "$PYTHON" scripts/ingest_programado.py) || \
-      log "⚠️ Ingesta programada de inbox falló"
+      log "[AVISO]️ Ingesta programada de inbox falló"
   fi
 
   # Duerme 57 min (margen para no desfasar la hora de 07:00)
