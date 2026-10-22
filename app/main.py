@@ -88,6 +88,13 @@ class ToggleAgenteRequest(BaseModel):
     habilitar: bool
 
 
+class ScanWebRequest(BaseModel):
+    url: str
+    categoria: str = "Páginas Web"
+    programar: bool = True
+    clave: str = ""
+
+
 @app.get("/")
 async def root():
     return {
@@ -713,3 +720,17 @@ async def docs_procesar_cola_endpoint(clave: str = ""):
         return {"ok": False, "mensaje": "No autorizado"}
     from app import document_analyzer
     return document_analyzer.procesar_cola_inbox()
+
+
+@app.post("/docs_scan_web")
+async def docs_scan_web_endpoint(req: ScanWebRequest):
+    """Escanea una URL municipal y la indexa o encola (función experimental)."""
+    if not _docs_valida(req.clave):
+        return {"ok": False, "mensaje": "Clave de acceso no autorizada"}
+
+    from app import web_scraper
+    return web_scraper.procesar_escaneo_web(
+        url=req.url,
+        categoria=req.categoria,
+        programar=req.programar
+    )

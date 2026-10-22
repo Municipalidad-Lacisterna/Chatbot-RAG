@@ -236,6 +236,51 @@
       </div>
     </div>
 
+    <!-- Sección de Escaneo de Páginas Web (Experimental) -->
+    <div class="card" style="border-left: 4px solid var(--amarillo);">
+      <div class="card-head">
+        <h2>🌐 Escanear Página Web (Web Scraper RAG)</h2>
+        <span class="pill amarilla">⚠️ Función Experimental</span>
+      </div>
+
+      <!-- Aviso Destacado de Precaución -->
+      <div style="background: rgba(230, 182, 76, 0.12); border: 1px solid rgba(230, 182, 76, 0.35); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px;">
+        <span style="font-size: 18px; line-height: 1;">⚠️</span>
+        <div style="font-size: 13px; color: #f3cf7a; line-height: 1.4;">
+          <strong>Aviso:</strong> (experimental, puede fallar. Se recomienda cargar los documentos manualmente).<br>
+          <span style="font-size: 12px; color: #d6b46b;">Esta herramienta extrae el contenido público de una URL municipal limpiando menús y pies de página. Dependiendo de cómo esté construido el sitio (ej. JavaScript dinámico o formularios), podría omitir datos. Para máxima precisión, sube los archivos en PDF o Excel.</span>
+        </div>
+      </div>
+
+      <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:end;">
+        <div style="grid-column: span 2;">
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL Pública a Escanear:</label>
+          <input type="url" id="scan-url" required placeholder="https://www.cisterna.cl/pages/body/departamento-de-..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Categoría / Dirección:</label>
+          <input type="text" id="scan-cat" placeholder="Ej: Tránsito, DIDECO, DIDEL" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+          <select id="scan-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
+            <option value="false">⚡ Indexar de inmediato (Urgente)</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn" style="background:#e6b64c; color:#1a1f2b; font-weight:700; width:100%; justify-content:center; padding:10px;" id="btn-scan">🔍 Escanear Web</button>
+        </div>
+      </form>
+
+      <!-- Panel de Diagnóstico del Escaneo -->
+      <div id="scan-feedback" style="display:none; margin-top:16px; background:#12161f; border:1px solid var(--borde); border-radius:8px; padding:14px;">
+        <div id="scan-msg" style="font-size:13px; font-weight:600; margin-bottom:8px;"></div>
+        <div id="scan-detalle" style="font-size:12px; color:var(--sub); line-height:1.5;"></div>
+        <pre id="scan-preview" style="margin-top:10px; background:#0a0c10; border:1px solid #1a2230; border-radius:6px; padding:10px; font-size:11px; color:#a1abb9; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none;"></pre>
+      </div>
+    </div>
+
     <!-- Sección 1: Documentos Cargados -->
     <div class="card">
       <div class="card-head">
@@ -484,6 +529,75 @@
           alert("Error al procesar la cola.");
           cargarCola();
         });
+    }
+
+    function escanearWeb(e) {
+      e.preventDefault();
+      const url = document.getElementById("scan-url").value.trim();
+      const cat = document.getElementById("scan-cat").value.trim() || "Páginas Web";
+      const prog = document.getElementById("scan-prog").value === "true";
+      const btn = document.getElementById("btn-scan");
+      const fb = document.getElementById("scan-feedback");
+      const msg = document.getElementById("scan-msg");
+      const deta = document.getElementById("scan-detalle");
+      const prev = document.getElementById("scan-preview");
+
+      if (!url) return;
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Escaneando...";
+      fb.style.display = "block";
+      msg.style.color = "var(--amarillo)";
+      msg.innerText = "Conectando con la página web y limpiando contenido...";
+      deta.innerHTML = "";
+      prev.style.display = "none";
+
+      fetch("/docs_scan_web", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: url,
+          categoria: cat,
+          programar: prog,
+          clave: claveActual
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = "🔍 Escanear Web";
+
+        if (res.ok) {
+          msg.style.color = "var(--verde)";
+          msg.innerText = "✓ " + res.mensaje;
+          deta.innerHTML = `
+            <strong>Título:</strong> ${res.titulo}<br>
+            <strong>Archivo generado:</strong> <code>${res.archivo}</code><br>
+            <strong>Contenido extraído:</strong> ${res.palabras} palabras (${res.caracteres} caracteres)<br>
+            <strong>${res.programado ? 'Chunks estimados:' : 'Chunks indexados:'}</strong> ${res.programado ? res.chunks_estimados : res.chunks}
+          `;
+          if (res.preview) {
+            prev.style.display = "block";
+            prev.innerText = res.preview;
+          }
+          document.getElementById("scan-url").value = "";
+          cargarCola();
+          if (!res.programado) {
+            setTimeout(cargarDatos, 1000);
+          }
+        } else {
+          msg.style.color = "var(--rojo)";
+          msg.innerText = "❌ Fallo al escanear: " + res.mensaje;
+          deta.innerHTML = '<span style="color:var(--sub);">Recuerda que este método es experimental. Se recomienda cargar los documentos manualmente en formato PDF o Excel.</span>';
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = "🔍 Escanear Web";
+        msg.style.color = "var(--rojo)";
+        msg.innerText = "❌ Error de conexión al escanear.";
+        deta.innerHTML = err;
+      });
     }
 
     function renderDatos(d) {
