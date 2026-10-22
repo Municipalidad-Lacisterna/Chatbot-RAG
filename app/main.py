@@ -194,7 +194,7 @@ def _correr_sincronizacion_drive():
 @app.post("/admin_sync_drive")
 async def admin_sync_drive(background_tasks: BackgroundTasks, clave: str = ""):
     """Lanza la sincronización de Drive a ChromaDB en segundo plano."""
-    if not _admin_valida(clave):
+    if not _docs_valida(clave):
         raise HTTPException(status_code=403, detail="Acceso denegado")
     background_tasks.add_task(_correr_sincronizacion_drive)
     return {"status": "Sincronización iniciada en segundo plano."}
@@ -203,7 +203,7 @@ async def admin_sync_drive(background_tasks: BackgroundTasks, clave: str = ""):
 @app.post("/admin_check_drive")
 async def admin_check_drive(clave: str = ""):
     """Revisa qué archivos hay nuevos en Drive comparando con lo indexado."""
-    if not _admin_valida(clave):
+    if not _docs_valida(clave):
         raise HTTPException(status_code=403, detail="Acceso denegado")
     
     script_path = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'gdown_sync.sh')
@@ -250,7 +250,7 @@ async def admin_check_drive(clave: str = ""):
 @app.get("/admin_sync_status")
 async def admin_sync_status(clave: str = ""):
     """Lee las últimas líneas del log de sincronización."""
-    if not _admin_valida(clave):
+    if not _docs_valida(clave):
         raise HTTPException(status_code=403, detail="Acceso denegado")
     log_file = "/tmp/gdown_sync.log"
     if not os.path.exists(log_file):

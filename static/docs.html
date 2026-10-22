@@ -158,6 +158,22 @@
       </div>
     </div>
 
+    <!-- Sección de Google Drive Municipal -->
+    <div class="card" style="border-left: 4px solid var(--azul);">
+      <div class="card-head">
+        <h2>📁 Google Drive Municipal (Sincronización Cloud)</h2>
+        <span class="pill azul">Carpeta Oficial Compartida</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
+        Los funcionarios municipales pueden arrastrar y depositar archivos directamente en la carpeta de Google Drive como siempre. A las 03:00 AM se indexan automáticamente, o puedes sincronizar en tiempo real con el botón de abajo.
+      </p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <a class="btn" style="background:#1a73e8;" href="https://drive.google.com/drive/folders/16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD" target="_blank">📁 Abrir Carpeta en Google Drive</a>
+        <button class="btn verde" onclick="sincronizarDriveAhora()" id="btn-sync-drive">🔄 Sincronizar desde Drive Ahora</button>
+        <span id="sync-drive-status" style="font-size:12px; color:var(--sub);"></span>
+      </div>
+    </div>
+
     <!-- Sección de Carga y Análisis de Documentos -->
     <div class="card" style="border-left: 4px solid var(--verde);">
       <div class="card-head">
@@ -424,6 +440,31 @@
         btn.innerText = "Analizar y Guardar";
         resBox.innerHTML = `<span style="color:var(--rojo);">Error de conexión al subir documento: ${err}</span>`;
       });
+    }
+
+    function sincronizarDriveAhora() {
+      const btn = document.getElementById("btn-sync-drive");
+      const st = document.getElementById("sync-drive-status");
+      btn.disabled = true;
+      btn.innerText = "Sincronizando...";
+      st.innerText = "⏳ Descargando e indexando documentos de Drive...";
+
+      fetch("/admin_sync_drive?clave=" + encodeURIComponent(claveActual), { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          st.innerText = "✓ " + (data.status || "Sincronización iniciada en segundo plano.");
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.innerText = "🔄 Sincronizar desde Drive Ahora";
+            st.innerText = "Sincronización completada.";
+            cargarDatos();
+          }, 4000);
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerText = "🔄 Sincronizar desde Drive Ahora";
+          st.innerText = "⚠️ Error al conectar con el servidor.";
+        });
     }
 
     function procesarColaAhora() {
