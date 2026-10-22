@@ -110,7 +110,7 @@ AGENTE_HORA_FIN = os.getenv("AGENTE_HORA_FIN", "17:00")  # 24h local
 ADMIN_PANEL_CLAVE = _read_secret("ADMIN_PANEL_CLAVE", _read_secret("AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026"))
 AGENTE_PANEL_CLAVE = ADMIN_PANEL_CLAVE
 # Nivel 2: Administrador Municipal (/administrador)
-ADMINISTRADOR_PASSWORD = _read_secret("ADMINISTRADOR_PASSWORD", "muni2026")
+ADMINISTRADOR_PASSWORD = _read_secret("ADMINISTRADOR_PASSWORD", "jefatura2026")
 # Nivel 3: Documentación y Reportes (/docs)
 DOCS_PASSWORD = _read_secret("DOCS_PASSWORD", "docs2026")
 

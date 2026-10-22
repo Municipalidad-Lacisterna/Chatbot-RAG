@@ -156,6 +156,150 @@
       </div>
     </div>
 
+    <!-- 1. Sección de Google Drive Municipal -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--azul);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>📁 1. Google Drive Municipal (Sincronización Cloud)</h2>
+        <span class="pill azul">Carpeta Oficial Compartida</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
+        Los funcionarios pueden arrastrar y depositar archivos directamente en la carpeta de Google Drive. A las 03:00 AM se indexan automáticamente, o puedes sincronizar en tiempo real con el botón de abajo.
+      </p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <a class="btn" style="background:#1a73e8; text-decoration:none;" href="https://drive.google.com/drive/folders/16paTbHeCuQw9YWH-ldniMJbxzuQvjBLD" target="_blank">📁 Abrir Carpeta en Google Drive</a>
+        <button class="btn" style="background:var(--verde); color:#111; font-weight:700;" onclick="sincronizarDriveAhora()" id="btn-sync-drive">🔄 Sincronizar desde Drive Ahora</button>
+        <span id="sync-drive-status" style="font-size:12px; color:var(--sub);"></span>
+      </div>
+    </div>
+
+    <!-- 2. Sección de Carga y Actualización Directa de Documentos -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--verde);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>📤 2. Carga y Actualización Directa de Documentos (1 Clic)</h2>
+        <span class="pill verde">⚡ Subida Rápida</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:16px;">
+        Arrastra o selecciona instructivos, planillas Excel, resoluciones o PDFs. Se analiza la estructura y se indexa de inmediato al bot en 1 clic.
+      </p>
+
+      <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div style="grid-column: span 2;">
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Seleccionar Archivo (PDF, Excel, CSV, MD):</label>
+          <input type="file" id="up-file" required accept=".pdf,.xlsx,.xls,.csv,.md" style="padding:8px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+          <select id="up-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="false">⚡ Indexar inmediatamente (Recomendado)</option>
+            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn" style="background:var(--verde); color:#111; font-weight:700; width:100%; justify-content:center; padding:10px;" id="btn-up">⚡ Subir y Aplicar Cambios</button>
+        </div>
+      </form>
+
+      <div id="up-result" style="margin-top:14px; display:none; padding:12px 16px; border-radius:8px; background:#1c2533; border:1px solid var(--borde); font-size:13px;"></div>
+    </div>
+
+    <!-- 3. Sección de Escaneo de Páginas Web -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--amarillo);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>🌐 3. Escanear Página Web (Web Scraper RAG)</h2>
+        <span class="pill amarilla">⚠️ Función Experimental</span>
+      </div>
+
+      <div style="background: rgba(230, 182, 76, 0.12); border: 1px solid rgba(230, 182, 76, 0.35); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: flex-start; gap: 10px;">
+        <span style="font-size: 18px; line-height: 1;">⚠️</span>
+        <div style="font-size: 13px; color: #f3cf7a; line-height: 1.4;">
+          <strong>Aviso:</strong> Extrae el contenido público de una URL municipal limpiando menús y pies de página. Para máxima precisión, sube los archivos en PDF o Excel.
+        </div>
+      </div>
+
+      <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div style="grid-column: span 2;">
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL Pública a Escanear:</label>
+          <input type="url" id="scan-url" required placeholder="https://www.cisterna.cl/pages/body/..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
+          <select id="scan-prog" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="false">⚡ Indexar de inmediato (Recomendado)</option>
+            <option value="true">⏳ Programar para la noche (03:00 AM)</option>
+          </select>
+        </div>
+        <div>
+          <button type="submit" class="btn" style="background:#e6b64c; color:#1a1f2b; font-weight:700; width:100%; justify-content:center; padding:10px;" id="btn-scan">🔍 Escanear Web</button>
+        </div>
+      </form>
+
+      <div id="scan-feedback" style="display:none; margin-top:16px; background:#12161f; border:1px solid var(--borde); border-radius:8px; padding:14px;">
+        <div id="scan-msg" style="font-size:13px; font-weight:600; margin-bottom:8px;"></div>
+        <div id="scan-detalle" style="font-size:12px; color:var(--sub); line-height:1.5;"></div>
+        <pre id="scan-preview" style="margin-top:10px; background:#0a0c10; border:1px solid #1a2230; border-radius:6px; padding:10px; font-size:11px; color:#a1abb9; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none;"></pre>
+      </div>
+    </div>
+
+    <!-- 4. Sección de Cola de Procesamiento Programado -->
+    <div class="card" style="margin-top:22px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>⏳ 4. Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" style="background:#2a3340;" onclick="cargarCola()">🔄 Refrescar Cola</button>
+          <button class="btn" style="background:#e6b64c; color:#111; font-weight:700;" onclick="procesarColaAhora()">⚡ Procesar Cola Ahora</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Tamaño</th>
+              <th>Categoría</th>
+              <th>Chunks Est.</th>
+              <th>Hora Programada</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-cola">
+            <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Control de Contraseñas Globales (Super Admin) -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--rojo);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>🔐 Gestión de Contraseñas Globales (Super Administrador)</h2>
+        <span class="pill roja">Control Maestro</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px;">
+        Como Super Administrador, puedes cambiar y fijar la contraseña de cualquiera de los 3 niveles del sistema. El cambio se guarda de forma permanente en el archivo .env del servidor.
+      </p>
+
+      <div style="margin-top:16px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+          <div>
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Usuario o Nivel a Modificar:</label>
+            <select id="pwd-tipo-admin" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+              <option value="admin">⚡ Super Administrador (/admin)</option>
+              <option value="administrador">🏛️ Administrador Municipal (/administrador)</option>
+              <option value="docs">📚 Documentación y Reportes (/docs)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Nueva Contraseña (mínimo 4 caracteres):</label>
+            <input type="password" id="pwd-nueva-admin" placeholder="Escribe la nueva contraseña..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+          </div>
+          <div>
+            <button onclick="cambiarClaveSuperAdmin()" class="btn" style="background:var(--azul); width:100%; justify-content:center; padding:10px;">💾 Guardar Contraseña</button>
+          </div>
+        </div>
+        <div id="pwd-msg-admin" style="margin-top:10px; font-size:13px;"></div>
+      </div>
+    </div>
+
     <!-- Mantenimiento y Actualizaciones del Bot (Git Pull) -->
     <div class="card" style="margin-top:22px; border-left: 4px solid var(--azul);">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -261,6 +405,7 @@
         render(data);
         cargarHistorial();
         cargarAprendizajes();
+        cargarCola();
         fetch("/ui_config").then(r => r.json()).then(u => {
           if (u && typeof u.habilitar_agente !== "undefined") {
             actualizarUI_Agente(u.habilitar_agente);
@@ -529,6 +674,202 @@
           res.style.color = "var(--rojo)";
           res.innerText = "Error de conexión al intentar actualizar: " + err;
         });
+    }
+
+    // ====================== GESTIÓN DOCUMENTAL SUPER ADMIN ======================
+    function subirDocumento(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById("up-file");
+      if (!fileInput.files.length) return;
+
+      const file = fileInput.files[0];
+      const prog = document.getElementById("up-prog").value === "true";
+      const cat = "General";
+      const resBox = document.getElementById("up-result");
+      const btn = document.getElementById("btn-up");
+      const c = claveAdmin();
+
+      btn.disabled = true;
+      btn.innerText = "Analizando e indexando...";
+      resBox.style.display = "block";
+      resBox.innerHTML = '<span style="color:var(--sub);">⏳ Extrayendo texto y procesando documento...</span>';
+
+      const formData = new FormData();
+      formData.append("archivo", file);
+      formData.append("programar", prog);
+      formData.append("categoria", cat);
+      formData.append("clave", c);
+
+      fetch("/docs_upload", {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerText = "⚡ Subir y Aplicar Cambios";
+
+        if (res.ok) {
+          const a = res.analisis;
+          resBox.innerHTML = `
+            <div style="color:var(--verde); font-weight:600; margin-bottom:6px;">✓ ${res.mensaje}</div>
+            <div style="color:var(--texto); font-size:12px;">
+              <b>Detalles:</b> ${a.resumen} · <b>Tamaño:</b> ${a.tamano_kb} KB · <b>Chunks proyectados:</b> ${a.chunks_estimados}
+            </div>
+          `;
+          fileInput.value = "";
+          cargarCola();
+        } else {
+          resBox.innerHTML = `<span style="color:var(--rojo);">⚠️ Error: ${res.mensaje || "No se pudo procesar el archivo"}</span>`;
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "⚡ Subir y Aplicar Cambios";
+        resBox.innerHTML = `<span style="color:var(--rojo);">Error de conexión: ${err}</span>`;
+      });
+    }
+
+    function sincronizarDriveAhora() {
+      const btn = document.getElementById("btn-sync-drive");
+      const st = document.getElementById("sync-drive-status");
+      const c = claveAdmin();
+      btn.disabled = true;
+      btn.innerText = "Sincronizando...";
+      st.innerText = "⏳ Descargando e indexando documentos de Drive...";
+
+      fetch("/admin_sync_drive?clave=" + encodeURIComponent(c), { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          st.innerText = "✓ " + (data.status || "Sincronización iniciada.");
+          setTimeout(() => {
+            btn.disabled = false;
+            btn.innerText = "🔄 Sincronizar desde Drive Ahora";
+            st.innerText = "Sincronización completada.";
+          }, 4000);
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerText = "🔄 Sincronizar desde Drive Ahora";
+          st.innerText = "⚠️ Error al conectar con el servidor.";
+        });
+    }
+
+    function cargarCola() {
+      const c = claveAdmin();
+      fetch("/docs_cola?clave=" + encodeURIComponent(c))
+        .then(r => r.json())
+        .then(data => {
+          const tCola = document.getElementById("tabla-cola");
+          if (!tCola) return;
+          if (!data.cola || data.cola.length === 0) {
+            tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--sub);">No hay documentos pendientes en la cola nocturna.</td></tr>';
+          } else {
+            tCola.innerHTML = data.cola.map(item => `
+              <tr>
+                <td class="mono"><b>${item.archivo}</b></td>
+                <td>${item.tamano}</td>
+                <td><span class="pill azul">${item.categoria}</span></td>
+                <td><b>${item.chunks_estimados}</b></td>
+                <td><span class="pill verde">${item.hora_programada}</span></td>
+                <td><span class="pill amarilla">Encolado</span></td>
+              </tr>
+            `).join("");
+          }
+        })
+        .catch(e => {});
+    }
+
+    function procesarColaAhora() {
+      if (!confirm("¿Deseas procesar e indexar inmediatamente todos los documentos encolados?")) return;
+      const c = claveAdmin();
+      const tCola = document.getElementById("tabla-cola");
+      tCola.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--amarillo);">⚡ Procesando e indexando documentos en ChromaDB...</td></tr>';
+
+      fetch("/docs_procesar_cola?clave=" + encodeURIComponent(c), { method: "POST" })
+        .then(r => r.json())
+        .then(res => {
+          alert(res.mensaje);
+          cargarCola();
+        })
+        .catch(() => {
+          alert("Error al procesar la cola.");
+          cargarCola();
+        });
+    }
+
+    function escanearWeb(e) {
+      e.preventDefault();
+      const url = document.getElementById("scan-url").value.trim();
+      const prog = document.getElementById("scan-prog").value === "true";
+      const btn = document.getElementById("btn-scan");
+      const fb = document.getElementById("scan-feedback");
+      const msg = document.getElementById("scan-msg");
+      const deta = document.getElementById("scan-detalle");
+      const c = claveAdmin();
+
+      if (!url) return;
+      btn.disabled = true;
+      btn.innerText = "Escaneando...";
+      fb.style.display = "block";
+      msg.innerHTML = '<span style="color:var(--amarillo);">⏳ Conectando al sitio y extrayendo texto...</span>';
+
+      fetch("/docs_scan_web", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: url, categoria: "Web", programar: prog, clave: c })
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerText = "🔍 Escanear Web";
+        if (res.ok) {
+          msg.innerHTML = `<span style="color:var(--verde);">✓ ${res.mensaje}</span>`;
+          deta.innerHTML = `<b>Título:</b> ${res.titulo} · <b>Chunks:</b> ${res.chunks_estimados} · <b>Caracteres:</b> ${res.caracteres}`;
+          document.getElementById("scan-url").value = "";
+          cargarCola();
+        } else {
+          msg.innerHTML = `<span style="color:var(--rojo);">⚠️ Error: ${res.mensaje}</span>`;
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "🔍 Escanear Web";
+        msg.innerHTML = `<span style="color:var(--rojo);">Error al escanear: ${err}</span>`;
+      });
+    }
+
+    function cambiarClaveSuperAdmin() {
+      const tipo = document.getElementById("pwd-tipo-admin").value;
+      const nva = document.getElementById("pwd-nueva-admin").value.trim();
+      const msg = document.getElementById("pwd-msg-admin");
+      const c = claveAdmin();
+
+      if (!nva || nva.length < 4) {
+        msg.innerHTML = '<span style="color:var(--rojo);">La nueva clave debe tener al menos 4 caracteres.</span>';
+        return;
+      }
+
+      fetch("/admin_cambiar_clave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: tipo, nueva_clave: nva, clave_actual: c })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msg.innerHTML = '<span style="color:var(--verde);">✓ ' + res.mensaje + '</span>';
+          document.getElementById("pwd-nueva-admin").value = "";
+          if (tipo === "admin") {
+            localStorage.setItem("admin_clave", nva);
+          }
+        } else {
+          msg.innerHTML = '<span style="color:var(--rojo);">⚠️ ' + res.mensaje + '</span>';
+        }
+      })
+      .catch(err => {
+        msg.innerHTML = '<span style="color:var(--rojo);">Error al conectar: ' + err + '</span>';
+      });
     }
 
     // --- arranque: si hay clave guardada, intenta auto-login ---

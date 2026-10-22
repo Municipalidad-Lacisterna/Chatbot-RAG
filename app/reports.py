@@ -194,11 +194,10 @@ def cambiar_clave(tipo: str, nueva_clave: str, clave_actual: str) -> tuple[bool,
     if not nueva_clave or len(nueva_clave) < 4:
         return False, "La nueva contraseña debe tener al menos 4 caracteres."
 
-    # Validar que la clave actual corresponda a la de administración
-    clave_admin_valida = (clave_actual == settings.ADMIN_PANEL_CLAVE or clave_actual == settings.AGENTE_PANEL_CLAVE)
-    
-    if not clave_admin_valida:
-        return False, "La clave actual de administración es incorrecta."
+    c_limpia = (clave_actual or "").strip()
+    from app.main import _admin_valida, _superadmin_valida
+    if not (_superadmin_valida(c_limpia) or _admin_valida(c_limpia)):
+        return False, "La clave actual de autorización es incorrecta."
 
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     env_path = os.path.join(base_dir, ".env")
