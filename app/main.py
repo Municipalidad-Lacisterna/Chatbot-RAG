@@ -113,12 +113,19 @@ async def root():
     }
 
 
+_NO_CACHE_HEADERS = {
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    "Pragma": "no-cache",
+    "Expires": "0",
+}
+
+
 @app.get("/chat", include_in_schema=False)
 async def chat_ui():
     """Sirve la interfaz web del chat (si existe el HTML)."""
     html = os.path.join(_STATIC_DIR, "index.html")
     if os.path.isfile(html):
-        return FileResponse(html)
+        return FileResponse(html, headers=_NO_CACHE_HEADERS)
     return {"error": "No se encontró static/index.html"}
 
 
@@ -127,7 +134,7 @@ async def docs_ui():
     """Sirve el portal de documentación y reportes ciudadanos."""
     html = os.path.join(_STATIC_DIR, "docs.html")
     if os.path.isfile(html):
-        return FileResponse(html)
+        return FileResponse(html, headers=_NO_CACHE_HEADERS)
     return {"error": "No se encontró static/docs.html"}
 
 
@@ -190,7 +197,7 @@ async def admin_ui():
     """Sirve el panel de super administración suprema (estado del servidor e infraestructura)."""
     html = os.path.join(_STATIC_DIR, "admin.html")
     if os.path.isfile(html):
-        return FileResponse(html)
+        return FileResponse(html, headers=_NO_CACHE_HEADERS)
     return {"error": "No se encontró static/admin.html"}
 
 
@@ -199,7 +206,7 @@ async def administrador_ui():
     """Sirve el panel del administrador municipal (gestión ciudadana y operativa)."""
     html = os.path.join(_STATIC_DIR, "administrador.html")
     if os.path.isfile(html):
-        return FileResponse(html)
+        return FileResponse(html, headers=_NO_CACHE_HEADERS)
     return {"error": "No se encontró static/administrador.html"}
 
 
