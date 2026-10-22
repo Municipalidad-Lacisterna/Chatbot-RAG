@@ -184,14 +184,10 @@
         Sube instructivos, planillas Excel, resoluciones o PDFs. El sistema analizará la estructura, estimará los fragmentos vectoriales y lo programará para la sincronización nocturna (o lo indexará de inmediato).
       </p>
 
-      <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:end;">
-        <div>
+      <form id="form-upload" onsubmit="subirDocumento(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div style="grid-column: span 2;">
           <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Seleccionar Archivo (PDF, Excel, CSV, MD):</label>
           <input type="file" id="up-file" required accept=".pdf,.xlsx,.xls,.csv,.md" style="padding:8px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-        </div>
-        <div>
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Categoría / Dirección:</label>
-          <input type="text" id="up-cat" placeholder="Ej: Tránsito, DIDECO, DIMAO" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
         </div>
         <div>
           <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
@@ -252,14 +248,10 @@
         </div>
       </div>
 
-      <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; align-items:end;">
+      <form id="form-scan-web" onsubmit="escanearWeb(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
         <div style="grid-column: span 2;">
           <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL Pública a Escanear:</label>
           <input type="url" id="scan-url" required placeholder="https://www.cisterna.cl/pages/body/departamento-de-..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-        </div>
-        <div>
-          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Categoría / Dirección:</label>
-          <input type="text" id="scan-cat" placeholder="Ej: Tránsito, DIDECO, DIDEL" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
         </div>
         <div>
           <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Momento de Ingesta:</label>
@@ -437,7 +429,7 @@
 
       const file = fileInput.files[0];
       const prog = document.getElementById("up-prog").value === "true";
-      const cat = document.getElementById("up-cat").value.trim() || "General";
+      const cat = "General";
       const resBox = document.getElementById("up-result");
       const btn = document.getElementById("btn-up");
 
@@ -534,7 +526,7 @@
     function escanearWeb(e) {
       e.preventDefault();
       const url = document.getElementById("scan-url").value.trim();
-      const cat = document.getElementById("scan-cat").value.trim() || "Páginas Web";
+      const cat = "Páginas Web";
       const prog = document.getElementById("scan-prog").value === "true";
       const btn = document.getElementById("btn-scan");
       const fb = document.getElementById("scan-feedback");
