@@ -298,6 +298,38 @@
       <div id="git-pull-result" style="display:none; margin-top:12px; padding:10px 14px; background:#12161f; border-radius:8px; font-size:12px; font-family:monospace; white-space:pre-wrap;"></div>
     </div>
 
+    <!-- Configuración Avanzada de API y Proveedores -->
+    <div class="card" style="margin-top:18px; border-left: 4px solid var(--amarillo);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>Configuracion Avanzada de API y Proveedores</h2>
+        <span class="pill amarilla">Credenciales Externas</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px;">
+        Actualiza los endpoints, tokens de acceso o modelos de los proveedores de IA o servicios externos conectados al bot. Los cambios se persisten de forma segura en el archivo .env del servidor.
+      </p>
+
+      <div style="margin-top:16px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+          <div>
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL de API (LLM_API_URL):</label>
+            <input type="text" id="api-url" placeholder="https://api.proveedor.com/v1" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Token / Clave de API (LLM_API_KEY):</label>
+            <input type="password" id="api-token" placeholder="Bearer token o clave secreta..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Modelo Activo (OLLAMA_MODEL):</label>
+            <input type="text" id="api-modelo" placeholder="ej. santi-gemma o qwen2.5:7b" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+          </div>
+          <div>
+            <button onclick="guardarConfigApi()" class="btn" style="background:var(--amarillo); color:#111; width:100%; justify-content:center; padding:10px; font-weight:600;">Guardar Configuración API</button>
+          </div>
+        </div>
+        <div id="api-msg-res" style="margin-top:10px; font-size:13px;"></div>
+      </div>
+    </div>
+
     <!-- Control de Contraseñas Globales (Super Admin puede cambiar todas) -->
     <div class="card" style="margin-top:18px; border-left: 4px solid var(--rojo);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
@@ -842,6 +874,46 @@
             alert("Error: " + (data.error || "No se pudo procesar"));
           }
         });
+    }
+
+    function guardarConfigApi() {
+      const c = claveAdmin();
+      const apiUrl = document.getElementById("api-url").value.trim();
+      const apiToken = document.getElementById("api-token").value.trim();
+      const apiModelo = document.getElementById("api-modelo").value.trim();
+      const msgDiv = document.getElementById("api-msg-res");
+
+      if (!apiUrl && !apiToken && !apiModelo) {
+        msgDiv.innerHTML = '<span style="color:var(--rojo)">Ingresa al menos un valor para actualizar.</span>';
+        return;
+      }
+
+      msgDiv.innerHTML = '<span style="color:var(--amarillo)">Guardando configuración en el servidor...</span>';
+
+      fetch("/admin_actualizar_api", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clave: c,
+          api_url: apiUrl,
+          api_token: apiToken,
+          modelo: apiModelo
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msgDiv.innerHTML = '<span style="color:var(--verde)">✓ ' + res.mensaje + '</span>';
+          document.getElementById("api-url").value = "";
+          document.getElementById("api-token").value = "";
+          document.getElementById("api-modelo").value = "";
+        } else {
+          msgDiv.innerHTML = '<span style="color:var(--rojo)">⚠️ ' + (res.error || "No se pudo actualizar.") + '</span>';
+        }
+      })
+      .catch(err => {
+        msgDiv.innerHTML = '<span style="color:var(--rojo)">Error de conexión: ' + err + '</span>';
+      });
     }
 
     function cambiarClaveSuperAdmin() {

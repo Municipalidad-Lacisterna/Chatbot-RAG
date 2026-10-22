@@ -83,6 +83,13 @@ class CambiarClaveRequest(BaseModel):
     clave_actual: str
 
 
+class ActualizarApiRequest(BaseModel):
+    clave: str
+    api_url: str = ""
+    api_token: str = ""
+    modelo: str = ""
+
+
 class ToggleAgenteRequest(BaseModel):
     clave: str
     habilitar: bool
@@ -724,6 +731,30 @@ async def admin_cambiar_clave_endpoint(req: CambiarClaveRequest):
     from app import reports
     ok, msg = reports.cambiar_clave(req.tipo, req.nueva_clave, req.clave_actual)
     return {"ok": ok, "mensaje": msg}
+
+
+@app.post("/admin_actualizar_api")
+async def admin_actualizar_api_endpoint(req: ActualizarApiRequest):
+    """Permite actualizar la URL, token y modelo de la API de proveedores de forma segura (Exclusivo Super Admin)."""
+    if not _superadmin_valida(req.clave):
+        return {"ok": False, "error": "Acceso restringido: Se requiere clave del Super Administrador Supremo (/admin)"}
+    
+    try:
+        from app import reports
+        env_path = os.path.join(_BASE_DIR, ".env")
+        if req.api_url:
+            reports._persistir_en_env(env_path, "LLM_API_URL", req.api_url)
+            os.environ["LLM_API_URL"] = req.api_url
+        if req.api_token:
+            reports._persistir_en_env(env_path, "LLM_API_KEY", req.api_token)
+            os.environ["LLM_API_KEY"] = req.api_token
+        if req.modelo:
+            reports._persistir_en_env(env_path, "OLLAMA_MODEL", req.modelo)
+            os.environ["OLLAMA_MODEL"] = req.modelo
+            
+        return {"ok": True, "mensaje": "Configuración de API actualizada y persistida con éxito en el servidor."}
+    except Exception as e:
+        return {"ok": False, "error": f"Error al actualizar la API: {e}"}
 
 
 # ---------------------------------------------------------------------------
