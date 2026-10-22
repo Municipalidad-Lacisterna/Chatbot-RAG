@@ -39,6 +39,18 @@ def _connect():
         )
         """
     )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS preguntas_sin_respuesta (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            pregunta TEXT NOT NULL,
+            timestamp REAL NOT NULL,
+            atendida INTEGER DEFAULT 0,
+            respuesta TEXT DEFAULT NULL
+        )
+        """
+    )
     _migrar_canal(conn)
     return conn
 
@@ -245,10 +257,42 @@ def export_sessions() -> dict:
     return {"sesiones": resultado, "total": len(resultado)}
 
 
-def clear_session(session_id: str):
-    """Elimina todo el historial de una sesión (util para testing/reset)."""
+def registrar_pregunta_sin_respuesta(session_id: str, pregunta: str):
+    """Registra una consulta que el bot no pudo responder para revisión de agentes."""
     with get_db() as conn:
-        conn.execute("DELETE FROM chat_history WHERE session_id = ?", (session_id,))
+        conn.execute(
+            "INSERT INTO preguntas_sin_respuesta (session_id, pregunta, timestamp, atendida) VALUES (?, ?, ?, 0)",
+            (session_id, pregunta, time.time())
+        )
+
+
+def list_preguntas_sin_respuesta() -> list[dict]:
+    """Lista las preguntas sin respuesta pendientes o atendidas."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT id, session_id, pregunta, timestamp, atendida, respuesta FROM preguntas_sin_respuesta ORDER BY timestamp DESC"
+        ).fetchall()
+    res = []
+    for r in rows:
+        res.append({
+            "id": r[0],
+            "session_id": r[1],
+            "pregunta": r[2],
+            "fecha": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(r[3])),
+            "atendida": bool(r[4]),
+            "respuesta": r[5] or ""
+        })
+    return res
+
+
+def resolver_pregunta_sin_respuesta(qid: int, respuesta: str) -> bool:
+    """Marca una pregunta como atendida y opcionalmente añade respuesta a memoria."""
+    with get_db() as conn:
+        cur = conn.execute(
+            "UPDATE preguntas_sin_respuesta SET atendida = 1, respuesta = ? WHERE id = ?",
+            (respuesta, qid)
+        )
+        return cur.rowcount > 0
 
 
 def clear_all():

@@ -260,18 +260,26 @@
 
     <!-- BLOQUE 3: HISTORIAL, APRENDIZAJE, GIT PULL Y CLAVES -->
     <div class="card" style="margin-top:18px">
-      <h2>Historial de chats</h2>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
-        <button class="btn" onclick="cargarHistorial()">Refrescar</button>
-        <span class="sep"></span>
-        <span class="lbl">Exportar todo:</span>
-        <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
-        <button class="btn" onclick="exportarHistorial('json')">JSON</button>
-        <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
-        <span class="sep"></span>
-        <button class="btn peligro" onclick="borrarTodo()">Borrar todo</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h2>Historial de chats</h2>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="historial-badge-count" class="pill azul" style="display:none;">0 sesiones</span>
+          <button id="btn-toggle-historial" class="btn" style="background:#2a3340; color:var(--texto); font-size:12px;" onclick="toggleHistorial()">Plegar historial</button>
+        </div>
       </div>
-      <div id="historial-chats"><div class="empty">Cargando historial…</div></div>
+      <div id="historial-wrapper" style="margin-top:12px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+          <button class="btn" onclick="cargarHistorial()">Refrescar</button>
+          <span class="sep"></span>
+          <span class="lbl">Exportar todo:</span>
+          <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
+          <button class="btn" onclick="exportarHistorial('json')">JSON</button>
+          <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
+          <span class="sep"></span>
+          <button class="btn peligro" onclick="borrarTodo()">Borrar todo</button>
+        </div>
+        <div id="historial-chats" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"><div class="empty">Cargando historial…</div></div>
+      </div>
     </div>
 
     <div class="card" style="margin-top:18px">
@@ -298,32 +306,24 @@
       <div id="git-pull-result" style="display:none; margin-top:12px; padding:10px 14px; background:#12161f; border-radius:8px; font-size:12px; font-family:monospace; white-space:pre-wrap;"></div>
     </div>
 
-    <!-- Configuración Avanzada de API y Proveedores -->
+    <!-- Configuración de API Key del Proveedor -->
     <div class="card" style="margin-top:18px; border-left: 4px solid var(--amarillo);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-        <h2>Configuracion Avanzada de API y Proveedores</h2>
-        <span class="pill amarilla">Credenciales Externas</span>
+        <h2>Clave de API del Proveedor (API_KEY)</h2>
+        <span class="pill amarilla">Credencial de Inteligencia Artificial</span>
       </div>
       <p style="color:var(--sub); font-size:13px;">
-        Actualiza los endpoints, tokens de acceso o modelos de los proveedores de IA o servicios externos conectados al bot. Los cambios se persisten de forma segura en el archivo .env del servidor.
+        Ingresa la clave de API (API Key) del proveedor de Inteligencia Artificial que utilice la municipalidad. El cambio se guarda de forma permanente en el archivo .env del servidor.
       </p>
 
       <div style="margin-top:16px;">
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div style="display:grid; grid-template-columns:1fr auto; gap:12px; align-items:end;">
           <div>
-            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">URL de API (LLM_API_URL):</label>
-            <input type="text" id="api-url" placeholder="https://api.proveedor.com/v1" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Clave de API (API_KEY):</label>
+            <input type="password" id="api-token" placeholder="Pega aquí tu clave de API (ej. AIzaSy... o sk-...)" style="padding:10px 14px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%; font-size:13px;">
           </div>
           <div>
-            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Token / Clave de API (LLM_API_KEY):</label>
-            <input type="password" id="api-token" placeholder="Bearer token o clave secreta..." style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-          </div>
-          <div>
-            <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Modelo Activo (OLLAMA_MODEL):</label>
-            <input type="text" id="api-modelo" placeholder="ej. santi-gemma o qwen2.5:7b" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
-          </div>
-          <div>
-            <button onclick="guardarConfigApi()" class="btn" style="background:var(--amarillo); color:#111; width:100%; justify-content:center; padding:10px; font-weight:600;">Guardar Configuración API</button>
+            <button onclick="guardarConfigApi()" class="btn" style="background:var(--amarillo); color:#111; padding:10px 18px; font-weight:600; white-space:nowrap;">Guardar Clave de API</button>
           </div>
         </div>
         <div id="api-msg-res" style="margin-top:10px; font-size:13px;"></div>
@@ -552,6 +552,15 @@
       return localStorage.getItem("admin_clave") || "";
     }
 
+    let historialPlegado = false;
+    function toggleHistorial() {
+      historialPlegado = !historialPlegado;
+      const wrap = document.getElementById("historial-wrapper");
+      const btn = document.getElementById("btn-toggle-historial");
+      if (wrap) wrap.style.display = historialPlegado ? "none" : "";
+      if (btn) btn.innerText = historialPlegado ? "Desplegar historial" : "Plegar historial";
+    }
+
     async function cargarHistorial() {
       const c = claveAdmin(); if (!c) return;
       const cont = document.getElementById("historial-chats");
@@ -561,6 +570,11 @@
         const d = await r.json();
         if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
         const ses = d.sesiones || [];
+        const countBadge = document.getElementById("historial-badge-count");
+        if (countBadge) {
+          countBadge.innerText = `${ses.length} conversaciones`;
+          countBadge.style.display = "inline-block";
+        }
         if (!ses.length) { cont.innerHTML = '<div class="empty">No hay conversaciones registradas.</div>'; return; }
         cont.innerHTML = ses.map(s => {
           const pill = s.canal === "agente"
@@ -575,7 +589,7 @@
                 <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
               </div>
               <div class="hist-acciones">
-                <button class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
+                <button id="btn-transc-${escp(s.session_id)}" class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
                 <button class="btn peligro" style="padding:3px 8px; font-size:11px;" onclick="borrarSesion('${escp(s.session_id)}')">Borrar</button>
               </div>
             </div>
@@ -589,20 +603,28 @@
 
     async function verTranscripcion(sessionId) {
       const div = document.getElementById("transc-" + sessionId);
+      const btn = document.getElementById("btn-transc-" + sessionId);
       if (!div) return;
-      if (div.dataset.abierto) { div.innerHTML = ""; delete div.dataset.abierto; return; }
+      if (div.dataset.abierto) {
+        div.innerHTML = "";
+        delete div.dataset.abierto;
+        if (btn) btn.innerText = "Desplegar";
+        return;
+      }
       const c = claveAdmin(); if (!c) return;
       try {
         const r = await fetch(`/admin_chat/${encodeURIComponent(sessionId)}?clave=${encodeURIComponent(c)}`);
         const d = await r.json();
         const msgs = d.mensajes || [];
-        if (!msgs.length) { div.innerHTML = '<div class="empty">Conversacion vacia.</div>'; }
-        else {
+        if (!msgs.length) {
+          div.innerHTML = '<div class="empty">Conversacion vacia.</div>';
+        } else {
           div.innerHTML = '<div class="transc">' + msgs.map(m =>
             `<div class="msg"><span class="rol">${escp(m.role)}:</span> ${escp(m.content)}</div>`
           ).join("") + '</div>';
         }
         div.dataset.abierto = "1";
+        if (btn) btn.innerText = "Plegar";
       } catch (e) {
         div.innerHTML = '<div class="empty">Error al cargar conversacion.</div>';
       }
@@ -885,39 +907,33 @@
 
     function guardarConfigApi() {
       const c = claveAdmin();
-      const apiUrl = document.getElementById("api-url").value.trim();
       const apiToken = document.getElementById("api-token").value.trim();
-      const apiModelo = document.getElementById("api-modelo").value.trim();
       const msgDiv = document.getElementById("api-msg-res");
 
-      if (!apiUrl && !apiToken && !apiModelo) {
-        msgDiv.innerHTML = '<span style="color:var(--rojo)">Ingresa al menos un valor para actualizar.</span>';
+      if (!apiToken) {
+        msgDiv.innerHTML = '<span style="color:var(--rojo)">Ingresa la clave de API para actualizar.</span>';
         return;
       }
 
-      if (!confirm("ADVERTENCIA DE SEGURIDAD:\nEstás a punto de modificar credenciales críticas de la API (API Key / URL) en el servidor de producción. ¿Estás totalmente seguro de aplicar este cambio?")) {
+      if (!confirm("ADVERTENCIA DE SEGURIDAD:\n¿Confirmas que deseas actualizar la clave de API (API_KEY) en el servidor?")) {
         return;
       }
 
-      msgDiv.innerHTML = '<span style="color:var(--amarillo)">Guardando configuración en el servidor...</span>';
+      msgDiv.innerHTML = '<span style="color:var(--amarillo)">Guardando clave de API en el servidor...</span>';
 
       fetch("/admin_actualizar_api", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clave: c,
-          api_url: apiUrl,
-          api_token: apiToken,
-          modelo: apiModelo
+          api_token: apiToken
         })
       })
       .then(r => r.json())
       .then(res => {
         if (res.ok) {
           msgDiv.innerHTML = '<span style="color:var(--verde)">✓ ' + res.mensaje + '</span>';
-          document.getElementById("api-url").value = "";
           document.getElementById("api-token").value = "";
-          document.getElementById("api-modelo").value = "";
         } else {
           msgDiv.innerHTML = '<span style="color:var(--rojo)">⚠️ ' + (res.error || "No se pudo actualizar.") + '</span>';
         }

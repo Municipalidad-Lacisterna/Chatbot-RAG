@@ -142,16 +142,24 @@
     </div>
 
     <div class="card" style="margin-top:22px">
-      <h2>Historial de Chats y Consultas Ciudadanas</h2>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
-        <button class="btn" onclick="cargarHistorial()">Refrescar</button>
-        <span class="sep"></span>
-        <span class="lbl">Exportar todo:</span>
-        <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
-        <button class="btn" onclick="exportarHistorial('json')">JSON</button>
-        <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h2>Historial de Chats y Consultas Ciudadanas</h2>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="historial-badge-count" class="pill azul" style="display:none;">0 sesiones</span>
+          <button id="btn-toggle-historial" class="btn" style="background:#2a3340; color:var(--texto); font-size:12px;" onclick="toggleHistorial()">Plegar historial</button>
+        </div>
       </div>
-      <div id="historial-chats"><div class="empty">Cargando historial…</div></div>
+      <div id="historial-wrapper" style="margin-top:12px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+          <button class="btn" onclick="cargarHistorial()">Refrescar</button>
+          <span class="sep"></span>
+          <span class="lbl">Exportar todo:</span>
+          <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
+          <button class="btn" onclick="exportarHistorial('json')">JSON</button>
+          <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
+        </div>
+        <div id="historial-chats" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"><div class="empty">Cargando historial…</div></div>
+      </div>
     </div>
 
     <div class="card" style="margin-top:22px">
@@ -323,6 +331,15 @@
       document.getElementById("foot").innerText = "Actualizado: " + (d.fecha_hora || "--");
     }
 
+    let historialPlegado = false;
+    function toggleHistorial() {
+      historialPlegado = !historialPlegado;
+      const wrap = document.getElementById("historial-wrapper");
+      const btn = document.getElementById("btn-toggle-historial");
+      if (wrap) wrap.style.display = historialPlegado ? "none" : "";
+      if (btn) btn.innerText = historialPlegado ? "Desplegar historial" : "Plegar historial";
+    }
+
     async function cargarHistorial() {
       const c = claveAdmin(); if (!c) return;
       const cont = document.getElementById("historial-chats");
@@ -332,6 +349,11 @@
         const d = await r.json();
         if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
         const ses = d.sesiones || [];
+        const countBadge = document.getElementById("historial-badge-count");
+        if (countBadge) {
+          countBadge.innerText = `${ses.length} conversaciones`;
+          countBadge.style.display = "inline-block";
+        }
         if (!ses.length) { cont.innerHTML = '<div class="empty">No hay conversaciones registradas.</div>'; return; }
         cont.innerHTML = ses.map(s => {
           const pill = s.canal === "agente"
@@ -346,7 +368,7 @@
                 <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
               </div>
               <div class="hist-acciones">
-                <button class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
+                <button id="btn-transc-adm-${escp(s.session_id)}" class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
               </div>
             </div>
             <div id="transc-${escp(s.session_id)}"></div>
@@ -359,20 +381,28 @@
 
     async function verTranscripcion(sessionId) {
       const div = document.getElementById("transc-" + sessionId);
+      const btn = document.getElementById("btn-transc-adm-" + sessionId);
       if (!div) return;
-      if (div.dataset.abierto) { div.innerHTML = ""; delete div.dataset.abierto; return; }
+      if (div.dataset.abierto) {
+        div.innerHTML = "";
+        delete div.dataset.abierto;
+        if (btn) btn.innerText = "Desplegar";
+        return;
+      }
       const c = claveAdmin(); if (!c) return;
       try {
         const r = await fetch(`/admin_chat/${encodeURIComponent(sessionId)}?clave=${encodeURIComponent(c)}`);
         const d = await r.json();
         const msgs = d.mensajes || [];
-        if (!msgs.length) { div.innerHTML = '<div class="empty">Conversacion vacia.</div>'; }
-        else {
+        if (!msgs.length) {
+          div.innerHTML = '<div class="empty">Conversacion vacia.</div>';
+        } else {
           div.innerHTML = '<div class="transc">' + msgs.map(m =>
             `<div class="msg"><span class="rol">${escp(m.role)}:</span> ${escp(m.content)}</div>`
           ).join("") + '</div>';
         }
         div.dataset.abierto = "1";
+        if (btn) btn.innerText = "Plegar";
       } catch (e) {
         div.innerHTML = '<div class="empty">Error al cargar conversacion.</div>';
       }
