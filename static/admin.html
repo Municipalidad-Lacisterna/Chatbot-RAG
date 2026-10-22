@@ -76,14 +76,13 @@
     .btn.acc { background: #2a3340; color: var(--texto); }
     .lbl { color: var(--sub); font-size: 12px; align-self: center; }
     .sep { width: 1px; height: 22px; background: var(--borde); align-self: center; }
-    .hist-sesion { border: 1px solid var(--borde); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-    .hist-sesion .head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .hist-sesion .head .id { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; flex: 1; }
-    .hist-acciones { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-    .transc { margin-top: 10px; border-left: 3px solid var(--azul); padding-left: 12px; font-size: 13px; max-height: 260px; overflow: auto; }
+    .hist-sesion { border: 1px solid var(--borde); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; background: #161b22; display: flex; flex-direction: column; gap: 4px; }
+    .hist-sesion .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .hist-sesion .head .id { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: var(--texto); }
+    .hist-acciones { display: flex; gap: 6px; align-items: center; }
+    .transc { margin-top: 8px; border-left: 3px solid var(--azul); padding-left: 10px; font-size: 12px; max-height: 280px; overflow-y: auto; background: #10141c; padding: 10px; border-radius: 6px; }
     .transc .msg { margin-bottom: 6px; }
     .transc .rol { font-weight: 600; color: var(--sub); }
-    .transc .canal { color: var(--verde); font-size: 11px; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -563,14 +562,16 @@
             : '<span class="pill">bot</span>';
           return `<div class="hist-sesion">
             <div class="head">
-              <span class="id">${escp(s.session_id)}</span>
-              ${pill}
-              <span class="lbl">${s.mensajes} msgs</span>
-              <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
-            </div>
-            <div class="hist-acciones">
-              <button class="btn acc" onclick="verTranscripcion('${escp(s.session_id)}')">Ver</button>
-              <button class="btn peligro" onclick="borrarSesion('${escp(s.session_id)}')">Borrar</button>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="id">${escp(s.session_id)}</span>
+                ${pill}
+                <span class="lbl">${s.mensajes} msgs</span>
+                <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
+              </div>
+              <div class="hist-acciones">
+                <button class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
+                <button class="btn peligro" style="padding:3px 8px; font-size:11px;" onclick="borrarSesion('${escp(s.session_id)}')">Borrar</button>
+              </div>
             </div>
             <div id="transc-${escp(s.session_id)}"></div>
           </div>`;
