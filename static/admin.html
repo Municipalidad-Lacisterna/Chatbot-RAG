@@ -155,6 +155,21 @@
       </div>
     </div>
 
+    <!-- Mantenimiento y Actualizaciones del Bot (Git Pull) -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--azul);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2>🚀 Actualización de Código del Bot (GitHub)</h2>
+          <div class="subt">Descarga los últimos cambios del repositorio oficial sin acceder al servidor municipal ni tocar otros sistemas.</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="pill azul">Branch: main</span>
+          <button id="btn-git-pull" class="btn" style="background:var(--azul);" onclick="actualizarCodigo()">🚀 Actualizar Bot (Git Pull)</button>
+        </div>
+      </div>
+      <div id="git-pull-result" style="display:none; margin-top:12px; padding:10px 14px; background:#12161f; border-radius:8px; font-size:12px; font-family:monospace; white-space:pre-wrap;"></div>
+    </div>
+
     <div class="card" style="margin-top:22px">
       <h2>Historial de chats</h2>
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
@@ -480,6 +495,40 @@
       cargarAprendizajes();
     }
     // ====================== FIN APRENDIZAJE ======================
+
+    function actualizarCodigo() {
+      if (!confirm("¿Deseas descargar la última versión de código desde GitHub y actualizar el bot?")) return;
+
+      const btn = document.getElementById("btn-git-pull");
+      const res = document.getElementById("git-pull-result");
+      const c = claveAdmin();
+
+      btn.disabled = true;
+      btn.innerText = "⏳ Descargando cambios...";
+      res.style.display = "block";
+      res.style.color = "var(--amarillo)";
+      res.innerText = "Conectando con GitHub y ejecutando git pull origin main...";
+
+      fetch("/admin_git_pull?clave=" + encodeURIComponent(c), { method: "POST" })
+        .then(r => r.json())
+        .then(data => {
+          btn.disabled = false;
+          btn.innerText = "🚀 Actualizar Bot (Git Pull)";
+          if (data.ok) {
+            res.style.color = "var(--verde)";
+            res.innerText = "✓ " + data.mensaje + "\n\n" + (data.detalle || "");
+          } else {
+            res.style.color = "var(--rojo)";
+            res.innerText = "⚠️ Error: " + (data.error || "No se pudo actualizar.") + "\n\n" + (data.detalle || "");
+          }
+        })
+        .catch(err => {
+          btn.disabled = false;
+          btn.innerText = "🚀 Actualizar Bot (Git Pull)";
+          res.style.color = "var(--rojo)";
+          res.innerText = "Error de conexión al intentar actualizar: " + err;
+        });
+    }
 
     // --- arranque: si hay clave guardada, intenta auto-login ---
     const saved = localStorage.getItem("admin_clave");

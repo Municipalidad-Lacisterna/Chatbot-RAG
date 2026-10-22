@@ -617,6 +617,41 @@ async def admin_toggle_agente_endpoint(req: ToggleAgenteRequest):
     return {"ok": True, "habilitar_agente": req.habilitar}
 
 
+@app.post("/admin_git_pull")
+async def admin_git_pull(clave: str = ""):
+    """Descarga la última versión de código desde GitHub mediante git pull."""
+    if not _admin_valida(clave):
+        return {"ok": False, "error": "Clave de administración incorrecta"}
+
+    try:
+        proc = subprocess.run(
+            ["git", "pull", "origin", "main"],
+            cwd=_BASE_DIR,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        salida = (proc.stdout or "") + ("\n" + proc.stderr if proc.stderr else "")
+        if proc.returncode == 0:
+            return {
+                "ok": True,
+                "mensaje": "Código actualizado exitosamente desde GitHub.",
+                "detalle": salida.strip()
+            }
+        else:
+            return {
+                "ok": False,
+                "error": "Git retornó un código de salida no cero.",
+                "detalle": salida.strip()
+            }
+    except Exception as e:
+        return {
+            "ok": False,
+            "error": f"Fallo al ejecutar git: {e}",
+            "detalle": ""
+        }
+
+
 # ---------------------------------------------------------------------------
 # Portal de Documentación, Reportes y Cambio de Contraseñas
 # ---------------------------------------------------------------------------
