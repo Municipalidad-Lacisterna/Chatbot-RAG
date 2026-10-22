@@ -87,22 +87,23 @@
 <body>
   <div id="login-view" style="display:none;">
     <div class="login">
-      <h2>🔐 Panel de Administración</h2>
-      <div class="subt">Ingresa la clave para ver el estado del servidor.</div>
-      <input type="password" id="clave" placeholder="Clave de administración" onkeydown="if(event.key==='Enter')login()">
+      <h2>⚡ Super Administrador (Gestionador Supremo)</h2>
+      <div class="subt">Acceso exclusivo de infraestructura y mantenimiento de Cisternin.</div>
+      <input type="password" id="clave" placeholder="Clave de Super Administrador" onkeydown="if(event.key==='Enter')login()">
       <div id="msg-login"></div>
-      <button onclick="login()">Entrar</button>
+      <button onclick="login()">Entrar al Control Supremo</button>
     </div>
   </div>
 
   <div id="main-view" style="display:none;">
     <header style="display:flex; justify-content:space-between; align-items:center;">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <h1>Alcaldía Bot — Administración</h1>
+        <h1>Alcaldía Bot — Super Administrador Supremo</h1>
         <span id="online-badge" class="badge-online">● en línea</span>
-        <div class="subt" id="subinfo"></div>
+        <div class="subt" id="subinfo">Control de infraestructura, actualizaciones de código y gestión global</div>
       </div>
       <div style="display:flex; gap:10px;">
+        <a href="/administrador" target="_blank" class="btn" style="background:#0284c7; text-decoration:none;">🏛️ Panel Administrador Municipal</a>
         <a href="/docs" target="_blank" class="btn" style="background:#128C7E; text-decoration:none;">📚 Documentación y Reportes</a>
         <a href="/chat" target="_blank" class="btn" style="background:#2a3340; text-decoration:none;">💬 Ver Chatbot</a>
       </div>

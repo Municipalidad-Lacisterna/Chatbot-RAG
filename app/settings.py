@@ -105,9 +105,13 @@ AGENTE_HORARIO_TEXTO = os.getenv(
 AGENTE_HORA_INICIO = os.getenv("AGENTE_HORA_INICIO", "09:00")  # 24h local
 AGENTE_HORA_FIN = os.getenv("AGENTE_HORA_FIN", "17:00")  # 24h local
 
-# Claves de acceso a los paneles
-ADMIN_PANEL_CLAVE = _read_secret("ADMIN_PANEL_CLAVE", _read_secret("AGENTE_PANEL_CLAVE", "cisterna2026"))
+# Claves de acceso a los paneles (Jerarquía de 3 niveles)
+# Nivel 1: Super Administrador Supremo (/admin)
+ADMIN_PANEL_CLAVE = _read_secret("ADMIN_PANEL_CLAVE", _read_secret("AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026"))
 AGENTE_PANEL_CLAVE = ADMIN_PANEL_CLAVE
+# Nivel 2: Administrador Municipal (/administrador)
+ADMINISTRADOR_PASSWORD = _read_secret("ADMINISTRADOR_PASSWORD", "muni2026")
+# Nivel 3: Documentación y Reportes (/docs)
 DOCS_PASSWORD = _read_secret("DOCS_PASSWORD", "docs2026")
 
 # Texto que se muestra cuando NO hay agente disponible en este momento

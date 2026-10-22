@@ -180,11 +180,20 @@ def verificar_auth_paneles(credentials: HTTPBasicCredentials = Depends(security)
 # ---------------------------------------------------------------------------
 @app.get("/admin", include_in_schema=False)
 async def admin_ui():
-    """Sirve el panel de administración (estado del servidor y de la base)."""
+    """Sirve el panel de super administración suprema (estado del servidor e infraestructura)."""
     html = os.path.join(_STATIC_DIR, "admin.html")
     if os.path.isfile(html):
         return FileResponse(html)
     return {"error": "No se encontró static/admin.html"}
+
+
+@app.get("/administrador", include_in_schema=False)
+async def administrador_ui():
+    """Sirve el panel del administrador municipal (gestión ciudadana y operativa)."""
+    html = os.path.join(_STATIC_DIR, "administrador.html")
+    if os.path.isfile(html):
+        return FileResponse(html)
+    return {"error": "No se encontró static/administrador.html"}
 
 
 # ---------------------------------------------------------------------------
@@ -436,8 +445,8 @@ async def ws_agente(websocket: WebSocket):
 # ---------------------------------------------------------------------------
 # Registro histórico de chats y validación de claves
 # ---------------------------------------------------------------------------
-def _admin_valida(clave: str) -> bool:
-    """Valida la clave del panel admin."""
+def _superadmin_valida(clave: str) -> bool:
+    """Valida la clave del Super Administrador Supremo (/admin)."""
     from app import settings
     return clave in (
         getattr(settings, "ADMIN_PANEL_CLAVE", "SuperSecretoCisterna2026"),
@@ -445,11 +454,27 @@ def _admin_valida(clave: str) -> bool:
     )
 
 
+def _administrador_valida(clave: str) -> bool:
+    """Valida la clave del Administrador Municipal (/administrador)."""
+    from app import settings
+    return clave in (
+        getattr(settings, "ADMINISTRADOR_PASSWORD", "muni2026"),
+        getattr(settings, "ADMIN_PANEL_CLAVE", "SuperSecretoCisterna2026"),
+        getattr(settings, "AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026")
+    )
+
+
+def _admin_valida(clave: str) -> bool:
+    """Valida acceso operativo (acepta Superadmin o Administrador Municipal)."""
+    return _administrador_valida(clave)
+
+
 def _docs_valida(clave: str) -> bool:
-    """Valida la clave del portal de documentación (acepta clave docs o admin)."""
+    """Valida la clave del portal de documentación (acepta docs, administrador o superadmin)."""
     from app import settings
     return clave in (
         getattr(settings, "DOCS_PASSWORD", "docs2026"),
+        getattr(settings, "ADMINISTRADOR_PASSWORD", "muni2026"),
         getattr(settings, "ADMIN_PANEL_CLAVE", "SuperSecretoCisterna2026"),
         getattr(settings, "AGENTE_PANEL_CLAVE", "SuperSecretoCisterna2026")
     )
@@ -619,9 +644,9 @@ async def admin_toggle_agente_endpoint(req: ToggleAgenteRequest):
 
 @app.post("/admin_git_pull")
 async def admin_git_pull(clave: str = ""):
-    """Descarga la última versión de código desde GitHub mediante git pull."""
-    if not _admin_valida(clave):
-        return {"ok": False, "error": "Clave de administración incorrecta"}
+    """Descarga la última versión de código desde GitHub mediante git pull (Exclusivo Super Admin /admin)."""
+    if not _superadmin_valida(clave):
+        return {"ok": False, "error": "Acceso restringido: Se requiere clave del Super Administrador Supremo (/admin)"}
 
     try:
         proc = subprocess.run(

@@ -209,11 +209,15 @@ def cambiar_clave(tipo: str, nueva_clave: str, clave_actual: str) -> tuple[bool,
             settings.AGENTE_PANEL_CLAVE = nueva_clave
             _persistir_en_env(env_path, "ADMIN_PANEL_CLAVE", nueva_clave)
             _persistir_en_env(env_path, "AGENTE_PANEL_CLAVE", nueva_clave)
-            return True, "Contraseña de administración actualizada con éxito."
+            return True, "Contraseña de Super Administrador (/admin) actualizada con éxito."
+        elif tipo == "administrador":
+            settings.ADMINISTRADOR_PASSWORD = nueva_clave
+            _persistir_en_env(env_path, "ADMINISTRADOR_PASSWORD", nueva_clave)
+            return True, "Contraseña de Administrador Municipal (/administrador) actualizada con éxito."
         elif tipo == "docs":
             settings.DOCS_PASSWORD = nueva_clave
             _persistir_en_env(env_path, "DOCS_PASSWORD", nueva_clave)
-            return True, "Contraseña de documentación y reportes actualizada con éxito."
+            return True, "Contraseña de documentación y reportes (/docs) actualizada con éxito."
         else:
             return False, f"Tipo de clave no válido: {tipo}"
     except Exception as e:

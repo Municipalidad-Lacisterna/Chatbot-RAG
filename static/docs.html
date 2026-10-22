@@ -111,7 +111,8 @@
       </div>
       <div class="nav-links">
         <a href="/chat" target="_blank">💬 Ver Chatbot</a>
-        <a href="/admin">⚙️ Panel Admin Servidor</a>
+        <a href="/administrador">🏛️ Administrador Municipal</a>
+        <a href="/admin">⚡ Super Admin</a>
         <button class="btn" style="background:#2a3340; padding:6px 12px;" onclick="cerrarSesion()">Cerrar sesión</button>
       </div>
     </header>
@@ -158,10 +159,10 @@
       </div>
     </div>
 
-    <!-- Sección de Google Drive Municipal -->
+    <!-- 1. Sección de Google Drive Municipal -->
     <div class="card" style="border-left: 4px solid var(--azul);">
       <div class="card-head">
-        <h2>📁 Google Drive Municipal (Sincronización Cloud)</h2>
+        <h2>📁 1. Google Drive Municipal (Sincronización Cloud)</h2>
         <span class="pill azul">Carpeta Oficial Compartida</span>
       </div>
       <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
@@ -174,10 +175,10 @@
       </div>
     </div>
 
-    <!-- Sección de Carga y Análisis de Documentos -->
+    <!-- 2. Sección de Carga y Análisis de Documentos -->
     <div class="card" style="border-left: 4px solid var(--verde);">
       <div class="card-head">
-        <h2>📤 Carga y Análisis de Nuevos Documentos</h2>
+        <h2>📤 2. Carga y Análisis de Nuevos Documentos</h2>
         <span class="pill verde">Ingesta Programada (03:00 AM) o Inmediata</span>
       </div>
       <p style="color:var(--sub); font-size:13px; margin-bottom:16px;">
@@ -204,38 +205,10 @@
       <div id="up-result" style="margin-top:14px; display:none; padding:12px 16px; border-radius:8px; background:#1c2533; border:1px solid var(--borde); font-size:13px;"></div>
     </div>
 
-    <!-- Sección de Documentos en Cola Programada -->
-    <div class="card" id="card-cola">
-      <div class="card-head">
-        <h2>⏳ Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
-        <div style="display:flex; gap:8px;">
-          <button class="btn" style="background:#2a3340;" onclick="cargarCola()">🔄 Refrescar Cola</button>
-          <button class="btn" style="background:#e6b64c; color:#111;" onclick="procesarColaAhora()">⚡ Procesar Cola Ahora</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="tabla">
-          <thead>
-            <tr>
-              <th>Documento</th>
-              <th>Tamaño</th>
-              <th>Categoría</th>
-              <th>Chunks Est.</th>
-              <th>Hora Programada</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="tabla-cola">
-            <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Sección de Escaneo de Páginas Web (Experimental) -->
+    <!-- 3. Sección de Escaneo de Páginas Web (Experimental) -->
     <div class="card" style="border-left: 4px solid var(--amarillo);">
       <div class="card-head">
-        <h2>🌐 Escanear Página Web (Web Scraper RAG)</h2>
+        <h2>🌐 3. Escanear Página Web (Web Scraper RAG)</h2>
         <span class="pill amarilla">⚠️ Función Experimental</span>
       </div>
 
@@ -270,6 +243,34 @@
         <div id="scan-msg" style="font-size:13px; font-weight:600; margin-bottom:8px;"></div>
         <div id="scan-detalle" style="font-size:12px; color:var(--sub); line-height:1.5;"></div>
         <pre id="scan-preview" style="margin-top:10px; background:#0a0c10; border:1px solid #1a2230; border-radius:6px; padding:10px; font-size:11px; color:#a1abb9; max-height:160px; overflow-y:auto; white-space:pre-wrap; display:none;"></pre>
+      </div>
+    </div>
+
+    <!-- 4. Sección de Documentos en Cola Programada -->
+    <div class="card" id="card-cola">
+      <div class="card-head">
+        <h2>⏳ 4. Cola de Procesamiento Programado (Inbox para las 03:00 AM)</h2>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" style="background:#2a3340;" onclick="cargarCola()">🔄 Refrescar Cola</button>
+          <button class="btn" style="background:#e6b64c; color:#111;" onclick="procesarColaAhora()">⚡ Procesar Cola Ahora</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Documento</th>
+              <th>Tamaño</th>
+              <th>Categoría</th>
+              <th>Chunks Est.</th>
+              <th>Hora Programada</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-cola">
+            <tr><td colspan="6" style="text-align:center; color:var(--sub);">Cargando cola de procesamiento…</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -348,8 +349,9 @@
         <div class="form-pwd">
           <input type="password" id="pwd-actual" placeholder="Contraseña actual de Admin">
           <select id="pwd-tipo" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff;">
-            <option value="docs">Contraseña de Docs (/docs)</option>
-            <option value="admin">Contraseña de Admin (/admin)</option>
+            <option value="docs">Contraseña de Documentación (/docs)</option>
+            <option value="administrador">Contraseña de Administrador Municipal (/administrador)</option>
+            <option value="admin">Contraseña de Super Admin Supremo (/admin)</option>
           </select>
           <input type="password" id="pwd-nueva" placeholder="Nueva contraseña (mínimo 4 caracteres)">
           <button onclick="cambiarClave()">Actualizar Contraseña</button>
