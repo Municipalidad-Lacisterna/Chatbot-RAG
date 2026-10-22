@@ -103,10 +103,11 @@
         <span id="online-badge" class="badge-online">● en linea</span>
         <div class="subt" id="subinfo">Control de infraestructura, codigo y gestion global</div>
       </div>
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
         <a href="/administrador" target="_blank" class="btn" style="background:#0284c7; text-decoration:none;">Panel Administrador Municipal</a>
         <a href="/docs" target="_blank" class="btn" style="background:#128C7E; text-decoration:none;">Documentacion y Reportes</a>
         <a href="/chat" target="_blank" class="btn" style="background:#2a3340; text-decoration:none;">Ver Chatbot</a>
+        <button class="btn acc" onclick="cerrarSesion()" style="background:#e5534b; color:#fff;">Cerrar sesion</button>
       </div>
     </header>
 
@@ -466,6 +467,11 @@
           actualizarUI_Agente(res.habilitar_agente, !res.habilitar_agente);
         }
       });
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("admin_clave");
+      location.reload();
     }
 
     function login() {
