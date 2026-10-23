@@ -201,13 +201,22 @@ async def admin_ui():
     return {"error": "No se encontró static/admin.html"}
 
 
-@app.get("/administrador", include_in_schema=False)
-async def administrador_ui():
-    """Sirve el panel del administrador municipal (gestión ciudadana y operativa)."""
-    html = os.path.join(_STATIC_DIR, "administrador.html")
+@app.get("/comunicaciones", include_in_schema=False)
+async def comunicaciones_ui():
+    """Sirve el panel de comunicaciones (gestión ciudadana y operativa)."""
+    html = os.path.join(_STATIC_DIR, "comunicaciones.html")
     if os.path.isfile(html):
         return FileResponse(html, headers=_NO_CACHE_HEADERS)
-    return {"error": "No se encontró static/administrador.html"}
+    return {"error": "No se encontró static/comunicaciones.html"}
+
+
+@app.get("/agentes", include_in_schema=False)
+async def agentes_ui():
+    """Sirve el portal de documentación y reportes ciudadanos."""
+    html = os.path.join(_STATIC_DIR, "agentes.html")
+    if os.path.isfile(html):
+        return FileResponse(html, headers=_NO_CACHE_HEADERS)
+    return {"error": "No se encontró static/agentes.html"}
 
 
 # ---------------------------------------------------------------------------
