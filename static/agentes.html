@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel del Administrador Municipal — Cisternin</title>
+  <style>
+    :root {
+      --bg: #0f1117; --card: #1a1f2b; --borde: #2a3340;
+      --texto: #e6e6ea; --sub: #9aa3b2;
+      --verde: #34c98a; --amarillo: #e6b64c; --rojo: #e5534b; --azul: #4a9eff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--texto);
+      font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 24px 32px;
+    }
+    h1 { font-size: 20px; font-weight: 600; letter-spacing: .3px; }
+    .subt { color: var(--sub); font-size: 13px; margin-top: 6px; }
+    header {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      border-bottom: 1px solid var(--borde); padding-bottom: 14px; gap: 12px;
+    }
+    .badge-online { color: #8be9a7; background: rgba(52,201,138,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+    .badge-offline { color: #ff9ba0; background: rgba(229,83,75,.15); padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+
+    .grid { display: grid; gap: 18px; }
+    .card { background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 18px 20px; }
+    .card h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .8px; color: var(--sub); margin-bottom: 12px; }
+
+    .metricas { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 14px; margin-bottom: 18px; }
+    .metrica {
+      background: var(--card); border: 1px solid var(--borde); border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .metrica .label { color: var(--sub); font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .metrica .valor { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .metrica .detalle { color: var(--sub); font-size: 12px; }
+
+    .barra { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .barra .nombre { width: 220px; color: var(--texto); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .barra .fill { flex: 1; height: 10px; background: #232a38; border-radius: 5px; overflow: hidden; position: relative; }
+    .barra .fill .inner { display: block; height: 100%; width: 0%; background: var(--azul); border-radius: 5px; transition: width .4s; }
+    .barra .n { width: 42px; text-align: right; color: var(--sub); font-size: 12px; }
+
+    .tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .tabla th { color: var(--sub); text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--borde); text-transform: uppercase; font-size: 11px; letter-spacing: .4px; }
+    .tabla td { padding: 9px 12px; border-bottom: 1px solid #232a38; }
+    .tabla tr:last-child td { border-bottom: none; }
+    .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; }
+
+    .pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; }
+    .pill.verde { background: rgba(52,201,138,.15); color: #8be9a7; }
+    .pill.amarilla { background: rgba(230,182,76,.15); color: #f3cf7a; }
+    .pill.roja { background: rgba(229,83,75,.15); color: #ff9ba0; }
+
+    .empty { color: var(--sub); font-size: 13px; padding: 14px; text-align: center; }
+    .foot { color: var(--sub); font-size: 12px; margin-top: 22px; text-align: right; }
+    .login { max-width: 360px; margin: 80px auto; background: var(--card); border: 1px solid var(--borde); border-radius: 12px; padding: 26px; }
+    .login h2 { font-size: 18px; margin-bottom: 12px; }
+    .login input, .login button { width: 100%; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--borde); border-radius: 8px; background: #202837; color: var(--texto); }
+    .login button { background: var(--azul); color: #fff; border: none; font-weight: 600; cursor: pointer; }
+    .login .err { color: var(--rojo); font-size: 13px; min-height: 18px; }
+    #msg-login { color: var(--rojo); font-size: 13px; }
+
+    .btn {
+      background: var(--azul); color: #fff; border: none; border-radius: 8px;
+      padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    .btn:hover { filter: brightness(1.1); }
+    .btn.peligro { background: var(--rojo); }
+    .btn.acc { background: #2a3340; color: var(--texto); }
+    .lbl { color: var(--sub); font-size: 12px; align-self: center; }
+    .sep { width: 1px; height: 22px; background: var(--borde); align-self: center; }
+    .hist-sesion { border: 1px solid var(--borde); border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; background: #161b22; display: flex; flex-direction: column; gap: 4px; }
+    .hist-sesion .head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .hist-sesion .head .id { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 12px; color: var(--texto); }
+    .hist-acciones { display: flex; gap: 6px; align-items: center; }
+    .transc { margin-top: 8px; border-left: 3px solid var(--azul); padding-left: 10px; font-size: 12px; max-height: 280px; overflow-y: auto; background: #10141c; padding: 10px; border-radius: 6px; }
+    .transc .msg { margin-bottom: 6px; }
+    .transc .rol { font-weight: 600; color: var(--sub); }
+  </style>
+</head>
+<body>
+  <div id="login-view" style="display:none;">
+    <div class="login">
+      <h2>Panel del Administrador Municipal</h2>
+      <div class="subt" style="margin-bottom:14px;">Ingresa la contraseña de administrador municipal para gestionar la atencion ciudadana.</div>
+      <input type="password" id="clave" placeholder="Contraseña de Administrador" onkeydown="if(event.key==='Enter')login()">
+      <div id="msg-login"></div>
+      <button onclick="login()">Ingresar al Panel</button>
+    </div>
+  </div>
+
+  <div id="main-view" style="display:none;">
+    <header style="background: linear-gradient(135deg, #1a1f2b 0%, #0f1117 100%); border-bottom: 2px solid #0284c7; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; padding:18px 24px;">
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+        <div style="background:#0284c7; color:#fff; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; letter-spacing:1px;">NIVEL 2</div>
+        <div>
+          <h1>Panel de Comunicaciones</h1>
+          <div class="subt" id="subinfo">Supervision de atencion ciudadana, chats, reportes y contenidos</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <a href="/agentes" target="_blank" class="btn" style="background:#128C7E;">Agentes (/agentes)</a>
+        <a href="/chat" target="_blank" class="btn" style="background:#2a3340;">Chatbot</a>
+        <button class="btn acc" onclick="cerrarSesion()" style="background:#e5534b; color:#fff;">Cerrar sesion</button>
+      </div>
+    </header>
+
+    <div class="metricas" style="margin-top:22px">
+      <div class="metrica"><div class="label">Carga del Sistema</div><div class="valor" id="m-carga">--</div><div class="detalle" id="m-carga-deta">nucleos: --</div></div>
+      <div class="metrica"><div class="label">Memoria RAM</div><div class="valor" id="m-ram">--</div><div class="detalle" id="m-ram-deta">--</div></div>
+      <div class="metrica"><div class="label">Disco Vectorial</div><div class="valor" id="m-disk">--</div><div class="detalle" id="m-disk-deta">--</div></div>
+      <div class="metrica"><div class="label">Documentos Cargados</div><div class="valor" id="m-docs">--</div><div class="detalle" id="m-docs-deta">chunks: --</div></div>
+      <div class="metrica"><div class="label">Pendientes en Inbox</div><div class="valor" id="m-inbox">--</div><div class="detalle" id="m-inbox-deta">--</div></div>
+    </div>
+
+    <!-- Control de Atención Humana / Derivación -->
+    <div class="card" style="margin-bottom:20px; border-left: 4px solid var(--verde);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+        <div>
+          <h2>Atencion Humana / Derivacion a WhatsApp</h2>
+          <div class="subt">Controla si el bot ofrece el boton "Hablar con un agente" y deriva a WhatsApp a los vecinos.</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px;">
+          <span id="badge-agente" class="badge-online">● Habilitado</span>
+          <button id="btn-toggle-agente" class="btn peligro" onclick="toggleAgente()">Desactivar Atencion Humana</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Documentos cargados en Base de Conocimiento (RAG)</h2>
+        <div id="fuentes"></div>
+      </div>
+
+      <div class="card">
+        <h2>Cola de procesamiento programado (Inbox)</h2>
+        <div id="inbox-list"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+        <h2>Historial de Chats y Consultas Ciudadanas</h2>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="historial-badge-count" class="pill azul" style="display:none;">0 sesiones</span>
+          <button id="btn-toggle-historial" class="btn" style="background:#2a3340; color:var(--texto); font-size:12px;" onclick="toggleHistorial()">Plegar historial</button>
+        </div>
+      </div>
+      <div id="historial-wrapper" style="margin-top:12px;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+          <button class="btn" onclick="cargarHistorial()">Refrescar</button>
+          <span class="sep"></span>
+          <span class="lbl">Exportar todo:</span>
+          <button class="btn" onclick="exportarHistorial('csv')">CSV</button>
+          <button class="btn" onclick="exportarHistorial('json')">JSON</button>
+          <button class="btn" onclick="exportarHistorial('txt')">TXT</button>
+        </div>
+        <div id="historial-chats" style="max-height: 480px; overflow-y: auto; padding-right: 4px;"><div class="empty">Cargando historial…</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:22px">
+      <h2>Conocimiento Aprendido de Agentes (Memoria del Bot)</h2>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px">
+        <button class="btn" onclick="cargarAprendizajes()">Refrescar</button>
+        <span class="lbl">El bot aprende automaticamente de las respuestas de los funcionarios al cerrar cada atencion.</span>
+      </div>
+      <div id="aprendizajes-list"><div class="empty">Cargando…</div></div>
+    </div>
+
+    <!-- Gestión de Contraseñas (Administrador Municipal: solo puede cambiar administrador y docs) -->
+    <div class="card" style="margin-top:22px; border-left: 4px solid var(--amarillo);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h2>Gestion de Contraseñas (Administrador Municipal)</h2>
+        <span class="pill amarilla">Seguridad Municipal</span>
+      </div>
+      <p style="color:var(--sub); font-size:13px; margin-bottom:14px;">
+        Como Administrador Municipal, puedes actualizar tu clave de acceso o la clave del portal de Documentacion.
+      </p>
+
+      <form id="form-pwd-admin" onsubmit="cambiarClaveAdmin(event)" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; align-items:end;">
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Tu Contraseña Actual de Administrador:</label>
+          <input type="password" id="pwd-actual" required placeholder="Contraseña actual" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Nivel a Modificar:</label>
+          <select id="pwd-tipo" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+            <option value="administrador">Administrador Municipal (/administrador)</option>
+            <option value="docs">Documentacion y Reportes (/docs)</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px; color:var(--sub); display:block; margin-bottom:4px;">Nueva Contraseña (minimo 4 caracteres):</label>
+          <input type="password" id="pwd-nueva" required minlength="4" placeholder="Nueva contraseña" style="padding:9px 12px; border:1px solid var(--borde); border-radius:8px; background:#202837; color:#fff; width:100%;">
+        </div>
+        <div>
+          <button type="submit" class="btn" style="background:#0284c7; width:100%; justify-content:center; padding:10px;" id="btn-pwd">Actualizar Contraseña</button>
+        </div>
+      </form>
+      <div id="pwd-msg" style="margin-top:10px; font-size:13px;"></div>
+    </div>
+
+    <div class="foot" id="foot">Actualizado: --</div>
+  </div>
+
+  <script>
+    const API = "/admin_api";
+    let timing = 5000;
+
+    function claveAdmin() {
+      return localStorage.getItem("administrador_clave") || "";
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem("administrador_clave");
+      location.reload();
+    }
+
+    async function fetchEstado(clave) {
+      const sep = API.includes("?") ? "&" : "?";
+      const r = await fetch(API + sep + "clave=" + encodeURIComponent(clave));
+      return await r.json();
+    }
+
+    function fmtBytes(b) {
+      if (b >= 1073741824) return (b/1073741824).toFixed(2) + " GB";
+      if (b >= 1048576) return (b/1048576).toFixed(0) + " MB";
+      return (b/1024).toFixed(0) + " KB";
+    }
+
+    let agenteHabilitado = true;
+    function actualizarUI_Agente(habilitado) {
+      agenteHabilitado = habilitado;
+      const badge = document.getElementById("badge-agente");
+      const btn = document.getElementById("btn-toggle-agente");
+      if (!badge || !btn) return;
+      if (habilitado) {
+        badge.className = "badge-online";
+        badge.innerText = "● Habilitado";
+        btn.className = "btn peligro";
+        btn.innerText = "Desactivar Atencion Humana";
+      } else {
+        badge.className = "badge-offline";
+        badge.innerText = "○ Deshabilitado";
+        btn.className = "btn";
+        btn.innerText = "Activar Atencion Humana";
+      }
+    }
+
+    function toggleAgente() {
+      const c = claveAdmin();
+      const nuevo = !agenteHabilitado;
+      fetch("/admin_toggle_agente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clave: c, habilitar: nuevo })
+      }).then(r => r.json()).then(res => {
+        if (res.ok) actualizarUI_Agente(res.habilitar_agente);
+      });
+    }
+
+    function login() {
+      const c = document.getElementById("clave").value.trim();
+      if (!c) { document.getElementById("msg-login").innerText = "Ingresa una clave."; return; }
+      fetchEstado(c).then(data => {
+        if (data.authorized !== true) { document.getElementById("msg-login").innerText = "Clave incorrecta."; return; }
+        document.getElementById("login-view").style.display = "none";
+        document.getElementById("main-view").style.display = "";
+        localStorage.setItem("administrador_clave", c);
+        render(data);
+        cargarHistorial();
+        cargarAprendizajes();
+        fetch("/ui_config").then(r => r.json()).then(u => {
+          if (u && typeof u.habilitar_agente !== "undefined") {
+            actualizarUI_Agente(u.habilitar_agente);
+          }
+        });
+        setInterval(() => fetchEstado(c).then(render).catch(e=>{}), timing);
+      }).catch(() => { document.getElementById("msg-login").innerText = "No se pudo conectar con el servidor."; });
+    }
+
+    function escp(s) {
+      return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    function render(d) {
+      const carga = (d.sistema.carga || []).map(x=>x).join(" / ");
+      document.getElementById("m-carga").innerText = carga || "--";
+      document.getElementById("m-carga-deta").innerText = "nucleos: " + (d.sistema.cpu_nucleos || 0);
+
+      const mem = d.memoria;
+      const pctRam = mem.total ? Math.round(mem.usado/mem.total*100) : 0;
+      document.getElementById("m-ram").innerText = pctRam + "%";
+      document.getElementById("m-ram-deta").innerText = fmtBytes(mem.usado) + " / " + fmtBytes(mem.total);
+
+      const disk = d.disco;
+      document.getElementById("m-disk").innerText = fmtBytes(disk.usado);
+      document.getElementById("m-disk-deta").innerText = fmtBytes(disk.libre) + " libre";
+
+      document.getElementById("m-docs").innerText = d.documentos.total_chunks;
+      document.getElementById("m-docs-deta").innerText = d.documentos.fuentes.length + " documentos";
+
+      const pend = d.inbox.pendientes.length;
+      document.getElementById("m-inbox").innerText = pend;
+      document.getElementById("m-inbox-deta").innerText = pend ? "procesar" : "vacio";
+
+      const fuDiv = document.getElementById("fuentes");
+      const f = d.documentos.fuentes;
+      if (!f.length) { fuDiv.innerHTML = '<div class="empty">Sin documentos indexados.</div>'; }
+      else {
+        const max = Math.max(...f.map(x=>x.chunks),1);
+        fuDiv.innerHTML =
+          '<div class="barra" style="font-weight:bold"><span class="nombre">Archivo</span><div class="fill"></div><span class="n">Chunks</span></div>' +
+          f.map(x=>{
+            const w = Math.round(x.chunks/max*100);
+            return `<div class="barra"><span class="nombre">${escp(x.archivo)}</span><div class="fill"><span class="inner" style="width:${w}%"></span></div><span class="n">${x.chunks}</span></div>`;
+          }).join("");
+      }
+
+      const ib = document.getElementById("inbox-list");
+      if (!pend) ib.innerHTML = '<div class="empty">Cola vacia — no hay documentos pendientes de procesar.</div>';
+      else ib.innerHTML =
+        '<table class="tabla"><tr><th>Archivo</th><th>Tamaño</th><th>Estado</th></tr>' +
+        d.inbox.pendientes.map(x=>`<tr><td class="mono">${escp(x.archivo)}</td><td>${x.kb} KB</td><td><span class="pill amarilla">pendiente</span></td></tr>`).join("") +
+        '</table>';
+
+      document.getElementById("foot").innerText = "Actualizado: " + (d.fecha_hora || "--");
+    }
+
+    let historialPlegado = false;
+    function toggleHistorial() {
+      historialPlegado = !historialPlegado;
+      const wrap = document.getElementById("historial-wrapper");
+      const btn = document.getElementById("btn-toggle-historial");
+      if (wrap) wrap.style.display = historialPlegado ? "none" : "";
+      if (btn) btn.innerText = historialPlegado ? "Desplegar historial" : "Plegar historial";
+    }
+
+    async function cargarHistorial() {
+      const c = claveAdmin(); if (!c) return;
+      const cont = document.getElementById("historial-chats");
+      cont.innerHTML = '<div class="empty">Cargando…</div>';
+      try {
+        const r = await fetch(`/admin_chats?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
+        const ses = d.sesiones || [];
+        const countBadge = document.getElementById("historial-badge-count");
+        if (countBadge) {
+          countBadge.innerText = `${ses.length} conversaciones`;
+          countBadge.style.display = "inline-block";
+        }
+        if (!ses.length) { cont.innerHTML = '<div class="empty">No hay conversaciones registradas.</div>'; return; }
+        cont.innerHTML = ses.map(s => {
+          const pill = s.canal === "agente"
+            ? '<span class="pill verde">agente</span>'
+            : '<span class="pill">bot</span>';
+          return `<div class="hist-sesion">
+            <div class="head">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="id">${escp(s.session_id)}</span>
+                ${pill}
+                <span class="lbl">${s.mensajes} msgs</span>
+                <span class="lbl">${escp(s.inicio || "")} → ${escp(s.fin || "")}</span>
+              </div>
+              <div class="hist-acciones">
+                <button id="btn-transc-adm-${escp(s.session_id)}" class="btn acc" style="padding:3px 8px; font-size:11px;" onclick="verTranscripcion('${escp(s.session_id)}')">Desplegar</button>
+              </div>
+            </div>
+            <div id="transc-${escp(s.session_id)}"></div>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        cont.innerHTML = '<div class="empty">Error al cargar el historial.</div>';
+      }
+    }
+
+    async function verTranscripcion(sessionId) {
+      const div = document.getElementById("transc-" + sessionId);
+      const btn = document.getElementById("btn-transc-adm-" + sessionId);
+      if (!div) return;
+      if (div.dataset.abierto) {
+        div.innerHTML = "";
+        delete div.dataset.abierto;
+        if (btn) btn.innerText = "Desplegar";
+        return;
+      }
+      const c = claveAdmin(); if (!c) return;
+      try {
+        const r = await fetch(`/admin_chat/${encodeURIComponent(sessionId)}?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        const msgs = d.mensajes || [];
+        if (!msgs.length) {
+          div.innerHTML = '<div class="empty">Conversacion vacia.</div>';
+        } else {
+          div.innerHTML = '<div class="transc">' + msgs.map(m =>
+            `<div class="msg"><span class="rol">${escp(m.role)}:</span> ${escp(m.content)}</div>`
+          ).join("") + '</div>';
+        }
+        div.dataset.abierto = "1";
+        if (btn) btn.innerText = "Plegar";
+      } catch (e) {
+        div.innerHTML = '<div class="empty">Error al cargar conversacion.</div>';
+      }
+    }
+
+    function exportarHistorial(fmt) {
+      const c = claveAdmin(); if (!c) return;
+      window.location.href = `/admin_chats/export/${fmt}?clave=${encodeURIComponent(c)}`;
+    }
+
+    async function cargarAprendizajes() {
+      const c = claveAdmin(); if (!c) return;
+      const cont = document.getElementById("aprendizajes-list");
+      try {
+        const r = await fetch(`/admin_aprendizajes?clave=${encodeURIComponent(c)}`);
+        const d = await r.json();
+        if (d.authorized !== true) { cont.innerHTML = '<div class="empty">Sin autorizacion.</div>'; return; }
+        const ap = d.aprendizajes || [];
+        window.__aprendizajes = ap;
+        if (!ap.length) { cont.innerHTML = '<div class="empty">Aun no hay conocimiento aprendido de agentes.</div>'; return; }
+        cont.innerHTML = ap.map(a => {
+          const q = a.pregunta && a.pregunta.length > 70 ? a.pregunta.slice(0,70) + "…" : (a.pregunta || a.qa_id);
+          return `<div class="hist-sesion">
+            <div class="head">
+              <span class="id">${escp(q)}</span>
+              <span class="pill verde">aprendido</span>
+              <span class="lbl">${escp(a.fecha || "")}</span>
+            </div>
+            <div class="hist-acciones">
+              <button class="btn acc" onclick="verDetalleQA('${escp(a.qa_id)}')">Detalle</button>
+            </div>
+            <div id="qa-${escp(a.qa_id)}"></div>
+          </div>`;
+        }).join("");
+      } catch (e) {
+        cont.innerHTML = '<div class="empty">Error al cargar aprendizajes.</div>';
+      }
+    }
+
+    function verDetalleQA(qaId) {
+      const div = document.getElementById("qa-" + qaId);
+      if (!div) return;
+      if (div.dataset.abierto) { div.innerHTML = ""; delete div.dataset.abierto; return; }
+      const ap = (window.__aprendizajes || []).find(x => x.qa_id === qaId);
+      if (ap) div.innerHTML = '<pre style="white-space:pre-wrap;background:#202837;padding:10px;border-radius:8px;font-size:12px;margin-top:8px">' + escp(ap.texto || "") + '</pre>';
+      div.dataset.abierto = "1";
+    }
+
+    function cambiarClaveAdmin(e) {
+      e.preventDefault();
+      const act = document.getElementById("pwd-actual").value.trim();
+      const tipo = document.getElementById("pwd-tipo").value;
+      const nva = document.getElementById("pwd-nueva").value.trim();
+      const msg = document.getElementById("pwd-msg");
+
+      if (!act || !nva) {
+        msg.innerHTML = '<span style="color:var(--rojo)">Por favor completa todos los campos.</span>';
+        return;
+      }
+
+      fetch("/admin_cambiar_clave", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: tipo, nueva_clave: nva, clave_actual: act })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.ok) {
+          msg.innerHTML = '<span style="color:var(--verde)">' + res.mensaje + '</span>';
+          document.getElementById("pwd-actual").value = "";
+          document.getElementById("pwd-nueva").value = "";
+          if (tipo === "administrador") {
+            localStorage.setItem("administrador_clave", nva);
+          }
+        } else {
+          msg.innerHTML = '<span style="color:var(--rojo)">' + res.mensaje + '</span>';
+        }
+      })
+      .catch(() => {
+        msg.innerHTML = '<span style="color:var(--rojo)">Error al procesar la solicitud.</span>';
+      });
+    }
+
+    const saved = localStorage.getItem("administrador_clave");
+    if (saved) {
+      document.getElementById("clave").value = saved;
+      login();
+    } else {
+      document.getElementById("login-view").style.display = "";
+    }
+  </script>
+</body>
+</html>
