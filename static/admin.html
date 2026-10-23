@@ -97,16 +97,18 @@
   </div>
 
   <div id="main-view" style="display:none;">
-    <header style="display:flex; justify-content:space-between; align-items:center;">
+    <header style="display:flex; justify-content:space-between; align-items:center; background: linear-gradient(135deg, #1a1f2b 0%, #0f1117 100%); border-bottom: 2px solid var(--azul);">
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <h1>Alcaldia Bot — Super Administrador</h1>
-        <span id="online-badge" class="badge-online">● en linea</span>
-        <div class="subt" id="subinfo">Control de infraestructura, codigo y gestion global</div>
+        <div style="background:var(--azul); color:#fff; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; letter-spacing:1px;">NIVEL 1</div>
+        <div>
+          <h1>Panel de Infraestructura y Super Administracion</h1>
+          <div class="subt" id="subinfo">Control técnico del servidor, código fuente, base de datos y credenciales maestras</div>
+        </div>
       </div>
       <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <a href="/administrador" target="_blank" class="btn" style="background:#0284c7; text-decoration:none;">Panel Administrador Municipal</a>
-        <a href="/docs" target="_blank" class="btn" style="background:#128C7E; text-decoration:none;">Documentacion y Reportes</a>
-        <a href="/chat" target="_blank" class="btn" style="background:#2a3340; text-decoration:none;">Ver Chatbot</a>
+        <a href="/administrador" target="_blank" class="btn" style="background:#0284c7; text-decoration:none;">Ir a Panel Municipal</a>
+        <a href="/docs" target="_blank" class="btn" style="background:#128C7E; text-decoration:none;">Documentacion</a>
+        <a href="/chat" target="_blank" class="btn" style="background:#2a3340; text-decoration:none;">Chatbot</a>
         <button class="btn acc" onclick="cerrarSesion()" style="background:#e5534b; color:#fff;">Cerrar sesion</button>
       </div>
     </header>
