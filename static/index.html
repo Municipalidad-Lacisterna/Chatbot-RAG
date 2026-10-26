@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chatbot Municipal · La Cisterna</title>
+  <title>Chatbot Municipal - La Cisterna</title>
   <style>
     :root {
       --verde: #25D366;
@@ -124,16 +124,16 @@
       <img src="/static/cisternin.png" alt="Cisternin" style="height: 75px; width: auto; object-fit: contain; flex-shrink: 0;">
       <div>
         <h1>Municipalidad de La Cisterna</h1>
-        <p>Cisternin · asistente virtual en línea</p>
+        <p>Cisternin - asistente virtual en línea</p>
       </div>
     </header>
 
     <div id="chat" role="log" aria-live="polite"></div>
 
     <footer>
-      <input id="entrada" type="text" placeholder="Escribe tu consulta o usa el micrófono…" autocomplete="off" />
-      <button id="btn-mic" title="Hablar por voz" style="background:#0284c7; width:32px; height:32px; min-width:32px; max-width:32px; border:none; border-radius:50%; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">🎙️</button>
-      <button id="enviar" title="Enviar">➤</button>
+      <input id="entrada" type="text" placeholder="Escribe tu consulta o usa el micrófono..." autocomplete="off" />
+      <button id="btn-mic" title="Hablar por voz" style="background:#0284c7; width:32px; height:32px; min-width:32px; max-width:32px; border:none; border-radius:50%; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;"></button>
+      <button id="enviar" title="Enviar">></button>
     </footer>
   </div>
 
@@ -289,66 +289,39 @@
       };
     }
 
-    function leerEnVozAlta(textoLimpio, btnElem) {
-      if (!('speechSynthesis' in window)) {
-        alert("Tu navegador no soporta lectura de voz.");
-        return;
-      }
-
-      // Si hay voz en curso y presionamos el mismo botón u otro
-      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        window.speechSynthesis.cancel();
-        if (activeTtsBtn) {
-          activeTtsBtn.innerHTML = '🔊 Escuchar respuesta';
-          activeTtsBtn.style.background = '#e2e8f0';
-          activeTtsBtn.style.color = '#1e293b';
-        }
-        if (activeTtsBtn === btnElem) {
-          activeTtsBtn = null;
-          return; // Era para apagar
-        }
-      }
-
+    async function leerEnVozAlta(textoLimpio, btnElem) {
       const clean = (textoLimpio || "").replace(/<[^>]*>?/gm, '').replace(/\[\[TRANSFERIR\]\]/g, '');
       if (!clean) return;
 
-      const utterance = new SpeechSynthesisUtterance(clean);
-      utterance.lang = 'es-ES';
-      utterance.rate = 0.82; // Muy pausado, calmado y conversacional (cero acelerado)
-      utterance.pitch = 0.85; // Tono grave y cálido (elimina por completo el matiz robótico o agudo)
-
-      const seleccionada = obtenerMejorVozMasculina();
-      if (seleccionada) {
-        utterance.voice = seleccionada;
-      }
-
-      activeTtsBtn = btnElem;
       if (btnElem) {
-        btnElem.innerHTML = '⏹ Detener lectura';
-        btnElem.style.background = '#fee2e2';
-        btnElem.style.color = '#991b1b';
+        btnElem.innerHTML = ' Generando voz...';
+        btnElem.disabled = true;
       }
 
-      utterance.onend = () => {
-        if (btnElem) {
-          btnElem.innerHTML = '🔊 Escuchar respuesta';
-          btnElem.style.background = '#e2e8f0';
-          btnElem.style.color = '#1e293b';
-        }
-        if (activeTtsBtn === btnElem) activeTtsBtn = null;
-      };
+      try {
+        const resp = await fetch('/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texto: clean })
+        });
+        if (!resp.ok) throw new Error('Error al generar audio');
+        const blob = await resp.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
 
-      utterance.onerror = (e) => {
-        console.error("TTS error:", e);
         if (btnElem) {
-          btnElem.innerHTML = '🔊 Escuchar respuesta';
-          btnElem.style.background = '#e2e8f0';
-          btnElem.style.color = '#1e293b';
+          btnElem.innerHTML = ' Escuchar respuesta';
+          btnElem.disabled = false;
         }
-        if (activeTtsBtn === btnElem) activeTtsBtn = null;
-      };
-
-      window.speechSynthesis.speak(utterance);
+        audio.play();
+      } catch (e) {
+        console.error('TTS error:', e);
+        if (btnElem) {
+          btnElem.innerHTML = ' Escuchar respuesta';
+          btnElem.disabled = false;
+        }
+        alert('No se pudo reproducir el audio con ElevenLabs.');
+      }
     }
 
     function bubble(texto, quien) {
@@ -368,7 +341,7 @@
         
         const ttsBtn = document.createElement('button');
         ttsBtn.className = 'btn-tts';
-        ttsBtn.innerHTML = '🔊 Escuchar respuesta';
+        ttsBtn.innerHTML = ' Escuchar respuesta';
         ttsBtn.style.cssText = 'background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 16px; cursor: pointer; font-size: 13px; font-weight: 600; padding: 6px 12px; display: flex; align-items: center; gap: 6px; transition: background 0.2s;';
         ttsBtn.onmouseover = () => ttsBtn.style.background = '#cbd5e1';
         ttsBtn.onmouseout = () => ttsBtn.style.background = '#e2e8f0';
@@ -456,8 +429,11 @@
     }
 
     function bienvenida() {
-      bubble('¡Hola, vecino! Soy Cisternin y estoy aquí para orientarte con cualquier proceso municipal que necesites. ¿En qué te ayudo hoy?', 'bot');
+      const msg = '¡Hola, vecino! Soy Cisternin y estoy aquí para orientarte con cualquier proceso municipal que necesites. ¿En qué te ayudo hoy?';
+      bubble(msg, 'bot');
       renderQuickReplies();
+      const a = new Audio('/static/bienvenida.mp3');
+      a.play().catch(e => console.log('Autoplay bloqueado:', e));
     }
 
     // --- Derivación a agente humano (WhatsApp / WebSocket) ---
@@ -471,8 +447,8 @@
       enModoAgente = true;
       txtTransferir = false;
       headerTitulo.textContent = 'Agente de atención';
-      headerSub.textContent = 'Conexión con una persona real · en vivo';
-      bubble('Conectando con un agente, espere un momento por favor…', 'bot');
+      headerSub.textContent = 'Conexión con una persona real - en vivo';
+      bubble('Conectando con un agente, espere un momento por favor...', 'bot');
 
       const proto = location.protocol === 'https:' ? 'wss' : 'ws';
       ws = new WebSocket(`${proto}://${location.host}/ws/vecino/${SESSION}`);
@@ -490,7 +466,7 @@
           // El agente finalizó
           enModoAgente = false;
           headerTitulo.textContent = 'Municipalidad de La Cisterna';
-          headerSub.textContent = 'Cisternin · asistente virtual en línea';
+          headerSub.textContent = 'Cisternin - asistente virtual en línea';
           bubble(m.texto || 'La atención con el agente ha finalizado.', 'bot');
           if (ws) { ws.close(); ws = null; }
         }
@@ -594,7 +570,7 @@
                 hideTyping();
                 alert("Error de conexión al transcribir voz.");
               } finally {
-                entrada.placeholder = "Escribe tu consulta o usa el micrófono…";
+                entrada.placeholder = "Escribe tu consulta o usa el micrófono...";
               }
             };
             mediaRecorder.start();

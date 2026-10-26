@@ -878,3 +878,16 @@ async def docs_scan_web_endpoint(req: ScanWebRequest):
         categoria=req.categoria,
         programar=req.programar
     )
+
+@app.post("/tts")
+async def tts_endpoint(request: Request):
+    data = await request.json()
+    texto = data.get("texto", "")
+    if not texto:
+        return Response(content="Texto vacío", status_code=400)
+    try:
+        from app.tts_service import convertir_texto_a_audio
+        audio_bytes = convertir_texto_a_audio(texto)
+        return Response(content=audio_bytes, media_type="audio/mpeg")
+    except Exception as e:
+        return Response(content=str(e), status_code=500)
