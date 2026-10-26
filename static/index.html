@@ -246,7 +246,7 @@
       return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
     }
 
-    let currentUtterance = null;
+    let activeTtsBtn = null;
 
     function leerEnVozAlta(textoLimpio, btnElem) {
       if (!('speechSynthesis' in window)) {
@@ -254,29 +254,58 @@
         return;
       }
 
-      // Si ya está hablando y se hace clic de nuevo, detener
-      if (window.speechSynthesis.speaking) {
+      // Si hay voz en curso y presionamos el mismo botón u otro
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
         window.speechSynthesis.cancel();
-        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
-        return;
+        if (activeTtsBtn) {
+          activeTtsBtn.innerHTML = '🔊 Escuchar respuesta';
+          activeTtsBtn.style.background = '#e2e8f0';
+          activeTtsBtn.style.color = '#1e293b';
+        }
+        if (activeTtsBtn === btnElem) {
+          activeTtsBtn = null;
+          return; // Era para apagar
+        }
       }
 
-      const clean = textoLimpio.replace(/<[^>]*>?/gm, '').replace(/\[\[TRANSFERIR\]\]/g, '');
+      const clean = (textoLimpio || "").replace(/<[^>]*>?/gm, '').replace(/\[\[TRANSFERIR\]\]/g, '');
+      if (!clean) return;
+
       const utterance = new SpeechSynthesisUtterance(clean);
-      utterance.lang = 'es-CL';
-      utterance.rate = 0.95; // Un poco más pausado para adultos mayores
+      utterance.lang = 'es-ES'; // Usar es-ES o es-MX ya que es-CL a veces no tiene voz instalada en Chrome/Firefox
+      utterance.rate = 0.95;
       utterance.pitch = 1.0;
 
-      if (btnElem) btnElem.innerHTML = '⏹ Detener lectura';
+      activeTtsBtn = btnElem;
+      if (btnElem) {
+        btnElem.innerHTML = '⏹ Detener lectura';
+        btnElem.style.background = '#fee2e2';
+        btnElem.style.color = '#991b1b';
+      }
 
       utterance.onend = () => {
-        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
-      };
-      utterance.onerror = () => {
-        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
+        if (btnElem) {
+          btnElem.innerHTML = '🔊 Escuchar respuesta';
+          btnElem.style.background = '#e2e8f0';
+          btnElem.style.color = '#1e293b';
+        }
+        if (activeTtsBtn === btnElem) activeTtsBtn = null;
       };
 
-      window.speechSynthesis.speak(utterance);
+      utterance.onerror = (e) => {
+        console.error("TTS error:", e);
+        if (btnElem) {
+          btnElem.innerHTML = '🔊 Escuchar respuesta';
+          btnElem.style.background = '#e2e8f0';
+          btnElem.style.color = '#1e293b';
+        }
+        if (activeTtsBtn === btnElem) activeTtsBtn = null;
+      };
+
+      // Forzar un pequeño timeout para asegurar que el cancel anterior surta efecto
+      setTimeout(() => {
+        window.speechSynthesis.speak(utterance);
+      }, 50);
     }
 
     function bubble(texto, quien) {
