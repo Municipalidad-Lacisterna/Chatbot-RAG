@@ -226,9 +226,7 @@
         { label: "Cursos y Empleos OMIL", query: "¿Qué ofertas de trabajo o cursos de capacitación tiene la OMIL?" }
       ];
 
-      if (configUI.habilitar_agente !== false) {
-        options.push({ label: "Hablar con un agente", query: "Hablar con un agente" });
-      }
+      // Agente removido de quick replies: solo aparece ante fallback de conocimiento
 
       options.forEach(opt => {
         const btn = document.createElement('button');
