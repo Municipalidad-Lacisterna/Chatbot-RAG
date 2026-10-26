@@ -248,6 +248,47 @@
 
     let activeTtsBtn = null;
 
+    function obtenerMejorVozMasculina() {
+      if (!('speechSynthesis' in window)) return null;
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return null;
+
+      // 1. Buscar voz en español masculina explícita (pablo, jorge, alvaro, raul, carlos, male)
+      let voz = voices.find(v => v.lang.toLowerCase().startsWith('es') && 
+        (v.name.toLowerCase().includes('pablo') || 
+         v.name.toLowerCase().includes('jorge') || 
+         v.name.toLowerCase().includes('alvaro') || 
+         v.name.toLowerCase().includes('raul') || 
+         v.name.toLowerCase().includes('carlos') || 
+         v.name.toLowerCase().includes('male') ||
+         v.name.toLowerCase().includes('diego') ||
+         v.name.toLowerCase().includes('antonio'))
+      );
+
+      // 2. Si no hay masculina explícita, buscar Google o Microsoft natural en español
+      if (!voz) {
+        voz = voices.find(v => v.lang.toLowerCase().startsWith('es') && 
+          (v.name.toLowerCase().includes('google') || 
+           v.name.toLowerCase().includes('natural') || 
+           v.name.toLowerCase().includes('online'))
+        );
+      }
+
+      // 3. Fallback a cualquier voz en español
+      if (!voz) {
+        voz = voices.find(v => v.lang.toLowerCase().startsWith('es'));
+      }
+
+      return voz || null;
+    }
+
+    // Precargar voces si el navegador lo requiere
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        obtenerMejorVozMasculina();
+      };
+    }
+
     function leerEnVozAlta(textoLimpio, btnElem) {
       if (!('speechSynthesis' in window)) {
         alert("Tu navegador no soporta lectura de voz.");
@@ -273,18 +314,12 @@
 
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = 'es-ES';
-      utterance.rate = 0.95;
-      utterance.pitch = 0.7; // Tono más grave (masculino)
+      utterance.rate = 1.05; // Ritmo ágil, animado y dinámico (energía de personaje amigable)
+      utterance.pitch = 1.25; // Tono más alto y juvenil que encaja con Cisternin (mascota amigable)
 
-      // Intentar buscar una voz en español con nombre masculino (ej. Pablo, Jorge, Google español)
-      const voices = window.speechSynthesis.getVoices();
-      const spanishVoice = voices.find(v => v.lang.startsWith('es') && (v.name.toLowerCase().includes('pablo') || v.name.toLowerCase().includes('jorge') || v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('carlos') || v.name.toLowerCase().includes('español')));
-      if (spanishVoice) {
-        utterance.voice = spanishVoice;
-      } else {
-        // Fallback a cualquier voz en español disponible
-        const anySpanish = voices.find(v => v.lang.startsWith('es'));
-        if (anySpanish) utterance.voice = anySpanish;
+      const seleccionada = obtenerMejorVozMasculina();
+      if (seleccionada) {
+        utterance.voice = seleccionada;
       }
 
       activeTtsBtn = btnElem;
