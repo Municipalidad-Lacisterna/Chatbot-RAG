@@ -314,8 +314,8 @@
 
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = 'es-ES';
-      utterance.rate = 0.98; // Natural y fluido
-      utterance.pitch = 1.05; // Ligeramente alegre pero dentro del registro humano natural (cercano a joven adulto / adolescente)
+      utterance.rate = 0.82; // Muy pausado, calmado y conversacional (cero acelerado)
+      utterance.pitch = 0.85; // Tono grave y cálido (elimina por completo el matiz robótico o agudo)
 
       const seleccionada = obtenerMejorVozMasculina();
       if (seleccionada) {
