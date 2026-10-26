@@ -274,7 +274,18 @@
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = 'es-ES';
       utterance.rate = 0.95;
-      utterance.pitch = 1.0;
+      utterance.pitch = 0.7; // Tono más grave (masculino)
+
+      // Intentar buscar una voz en español con nombre masculino (ej. Pablo, Jorge, Google español)
+      const voices = window.speechSynthesis.getVoices();
+      const spanishVoice = voices.find(v => v.lang.startsWith('es') && (v.name.toLowerCase().includes('pablo') || v.name.toLowerCase().includes('jorge') || v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('carlos') || v.name.toLowerCase().includes('español')));
+      if (spanishVoice) {
+        utterance.voice = spanishVoice;
+      } else {
+        // Fallback a cualquier voz en español disponible
+        const anySpanish = voices.find(v => v.lang.startsWith('es'));
+        if (anySpanish) utterance.voice = anySpanish;
+      }
 
       activeTtsBtn = btnElem;
       if (btnElem) {
