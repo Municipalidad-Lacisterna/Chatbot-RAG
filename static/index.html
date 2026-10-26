@@ -84,20 +84,21 @@
       padding: 10px;
       display: flex;
       gap: 8px;
+      align-items: center;
       border-top: 1px solid #ddd;
     }
     footer input {
       flex: 1;
-      padding: 11px 14px;
+      padding: 10px 14px;
       border: none;
-      border-radius: 22px;
+      border-radius: 20px;
       font-size: 14px;
       outline: none;
       box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
     }
     footer button {
-      width: 44px; height: 44px; min-width: 44px; border: none; border-radius: 50%;
-      background: var(--verde); color: #fff; font-size: 18px; cursor: pointer;
+      width: 32px; height: 32px; min-width: 32px; max-width: 32px; border: none; border-radius: 50%;
+      background: var(--verde); color: #fff; font-size: 14px; cursor: pointer;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
       transition: opacity .15s;
     }
@@ -131,7 +132,8 @@
 
     <footer>
       <input id="entrada" type="text" placeholder="Escribe tu consulta…" autocomplete="off" />
-      <button id="enviar" title="Enviar">Enviar</button>
+      <button id="btn-mic" title="Hablar por voz" style="background:#0284c7; display:none;">🎙️</button>
+      <button id="enviar" title="Enviar">➤</button>
     </footer>
   </div>
 
