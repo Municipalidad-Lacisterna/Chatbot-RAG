@@ -272,7 +272,7 @@
       if (!clean) return;
 
       const utterance = new SpeechSynthesisUtterance(clean);
-      utterance.lang = 'es-ES'; // Usar es-ES o es-MX ya que es-CL a veces no tiene voz instalada en Chrome/Firefox
+      utterance.lang = 'es-ES';
       utterance.rate = 0.95;
       utterance.pitch = 1.0;
 
@@ -302,10 +302,7 @@
         if (activeTtsBtn === btnElem) activeTtsBtn = null;
       };
 
-      // Forzar un pequeño timeout para asegurar que el cancel anterior surta efecto
-      setTimeout(() => {
-        window.speechSynthesis.speak(utterance);
-      }, 50);
+      window.speechSynthesis.speak(utterance);
     }
 
     function bubble(texto, quien) {
