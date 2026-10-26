@@ -246,52 +246,36 @@
       return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
     }
 
+    let currentAudio = null;
     let activeTtsBtn = null;
 
-    function obtenerMejorVozMasculina() {
-      if (!('speechSynthesis' in window)) return null;
-      const voices = window.speechSynthesis.getVoices();
-      if (!voices || voices.length === 0) return null;
-
-      // 1. Buscar voz en español masculina explícita (pablo, jorge, alvaro, raul, carlos, male)
-      let voz = voices.find(v => v.lang.toLowerCase().startsWith('es') && 
-        (v.name.toLowerCase().includes('pablo') || 
-         v.name.toLowerCase().includes('jorge') || 
-         v.name.toLowerCase().includes('alvaro') || 
-         v.name.toLowerCase().includes('raul') || 
-         v.name.toLowerCase().includes('carlos') || 
-         v.name.toLowerCase().includes('male') ||
-         v.name.toLowerCase().includes('diego') ||
-         v.name.toLowerCase().includes('antonio'))
-      );
-
-      // 2. Si no hay masculina explícita, buscar Google o Microsoft natural en español
-      if (!voz) {
-        voz = voices.find(v => v.lang.toLowerCase().startsWith('es') && 
-          (v.name.toLowerCase().includes('google') || 
-           v.name.toLowerCase().includes('natural') || 
-           v.name.toLowerCase().includes('online'))
-        );
+    function detenerAudio() {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
       }
-
-      // 3. Fallback a cualquier voz en español
-      if (!voz) {
-        voz = voices.find(v => v.lang.toLowerCase().startsWith('es'));
+      if (activeTtsBtn) {
+        activeTtsBtn.innerHTML = ' Escuchar respuesta';
+        activeTtsBtn.style.background = '#e2e8f0';
+        activeTtsBtn.style.color = '#1e293b';
+        activeTtsBtn.disabled = false;
+        activeTtsBtn = null;
       }
-
-      return voz || null;
-    }
-
-    // Precargar voces si el navegador lo requiere
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        obtenerMejorVozMasculina();
-      };
     }
 
     async function leerEnVozAlta(textoLimpio, btnElem) {
       const clean = (textoLimpio || "").replace(/<[^>]*>?/gm, '').replace(/\[\[TRANSFERIR\]\]/g, '');
       if (!clean) return;
+
+      // Si se vuelve a presionar el botón del audio que ya está sonando -> detenerlo
+      if (activeTtsBtn === btnElem && currentAudio && !currentAudio.paused) {
+        detenerAudio();
+        return;
+      }
+
+      // Detener cualquier audio previo para evitar que suenen dos voces a la vez
+      detenerAudio();
 
       if (btnElem) {
         btnElem.innerHTML = ' Generando voz...';
@@ -309,17 +293,29 @@
         const audioUrl = URL.createObjectURL(blob);
         const audio = new Audio(audioUrl);
 
+        audio.onended = () => {
+          if (activeTtsBtn === btnElem) {
+            btnElem.innerHTML = ' Escuchar respuesta';
+            btnElem.style.background = '#e2e8f0';
+            btnElem.style.color = '#1e293b';
+            activeTtsBtn = null;
+          }
+          currentAudio = null;
+        };
+
+        currentAudio = audio;
+        activeTtsBtn = btnElem;
+
         if (btnElem) {
-          btnElem.innerHTML = ' Escuchar respuesta';
+          btnElem.innerHTML = ' Detener lectura';
+          btnElem.style.background = '#fee2e2';
+          btnElem.style.color = '#991b1b';
           btnElem.disabled = false;
         }
-        audio.play();
+        audio.play().catch(e => console.log('Error reproduciendo audio:', e));
       } catch (e) {
         console.error('TTS error:', e);
-        if (btnElem) {
-          btnElem.innerHTML = ' Escuchar respuesta';
-          btnElem.disabled = false;
-        }
+        detenerAudio();
         alert('No se pudo reproducir el audio con ElevenLabs.');
       }
     }
@@ -432,7 +428,10 @@
       const msg = '¡Hola, vecino! Soy Cisternin y estoy aquí para orientarte con cualquier proceso municipal que necesites. ¿En qué te ayudo hoy?';
       bubble(msg, 'bot');
       renderQuickReplies();
-      const a = new Audio('/static/bienvenida.mp3');
+      detenerAudio();
+      const a = new Audio('/static/bienvenida.mp3?v=' + Date.now());
+      currentAudio = a;
+      a.onended = () => { if (currentAudio === a) currentAudio = null; };
       a.play().catch(e => console.log('Autoplay bloqueado:', e));
     }
 
