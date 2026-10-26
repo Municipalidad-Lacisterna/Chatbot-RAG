@@ -131,8 +131,8 @@
     <div id="chat" role="log" aria-live="polite"></div>
 
     <footer>
-      <input id="entrada" type="text" placeholder="Escribe tu consulta…" autocomplete="off" />
-      <button id="btn-mic" title="Hablar por voz" style="background:#0284c7; display:none;">🎙️</button>
+      <input id="entrada" type="text" placeholder="Escribe tu consulta o usa el micrófono…" autocomplete="off" />
+      <button id="btn-mic" title="Hablar por voz" style="background:#0284c7; width:32px; height:32px; min-width:32px; max-width:32px; border:none; border-radius:50%; color:#fff; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">🎙️</button>
       <button id="enviar" title="Enviar">➤</button>
     </footer>
   </div>
@@ -433,6 +433,61 @@
         enviar.disabled = false;
         entrada.focus();
       }
+    }
+
+    let mediaRecorder = null;
+    let audioChunks = [];
+    const btnMic = document.getElementById("btn-mic");
+    if (btnMic) {
+      btnMic.style.display = "flex";
+      btnMic.onclick = async () => {
+        if (!mediaRecorder || mediaRecorder.state === "inactive") {
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+            audioChunks = [];
+            mediaRecorder.ondataavailable = event => {
+              if (event.data.size > 0) audioChunks.push(event.data);
+            };
+            mediaRecorder.onstop = async () => {
+              const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+              const formData = new FormData();
+              formData.append("audio", audioBlob, "voz_vecino.webm");
+
+              btnMic.style.background = "#0284c7";
+              btnMic.title = "Hablar por voz";
+              entrada.placeholder = "Procesando voz con Gemini STT...";
+              showTyping();
+
+              try {
+                const r = await fetch("/stt", { method: "POST", body: formData });
+                const d = await r.json();
+                hideTyping();
+                if (d.ok && d.texto) {
+                  entrada.value = d.texto;
+                  enviarMensaje();
+                } else {
+                  alert("No se pudo transcribir el audio: " + (d.error || "Desconocido"));
+                }
+              } catch (err) {
+                hideTyping();
+                alert("Error de conexión al transcribir voz.");
+              } finally {
+                entrada.placeholder = "Escribe tu consulta o usa el micrófono…";
+              }
+            };
+            mediaRecorder.start();
+            btnMic.style.background = "#e5534b";
+            btnMic.title = "Grabando... Haz clic para enviar";
+            entrada.placeholder = "Escuchando tu voz... Habla ahora...";
+          } catch (err) {
+            alert("No se pudo acceder al micrófono. Verifica los permisos del navegador.");
+          }
+        } else if (mediaRecorder && mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+          mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+      };
     }
 
     enviar.addEventListener('click', enviarMensaje);

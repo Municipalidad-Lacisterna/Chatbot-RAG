@@ -774,8 +774,55 @@ async def admin_actualizar_api_endpoint(req: ActualizarApiRequest):
 
 
 # ---------------------------------------------------------------------------
-# Carga, Análisis y Gestión Programada de Documentos (/docs)
+# Sandbox Accesibilidad: Endpoint de transcripción de voz (STT)
 # ---------------------------------------------------------------------------
+from fastapi import UploadFile, File, HTTPException
+
+@app.post("/stt")
+async def speech_to_text(audio: UploadFile = File(...)):
+    """
+    Recibe un archivo de audio (grabado en el navegador), lo procesa con la
+    API de Google Gemini (usando la API_KEY configurada) y devuelve el texto transcrito.
+    """
+    api_key = getattr(settings, "API_KEY", "") or getattr(settings, "GOOGLE_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="No hay API_KEY configurada para transcripción de voz.")
+
+    try:
+        from google import genai
+        import tempfile
+
+        # Guardar audio temporalmente
+        suffix = os.path.splitext(audio.filename)[1] or ".webm"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            contents = await audio.read()
+            tmp.write(contents)
+            tmp_path = tmp.name
+
+        client = genai.Client(api_key=api_key)
+        
+        # Subir archivo al Files API de Gemini
+        print(f"[stt] Subiendo archivo de audio temporal: {tmp_path}")
+        audio_file = client.files.upload(file=tmp_path)
+
+        # Pedir transcripción al modelo flash
+        response = client.models.generate_content(
+            model='gemini-3.5-flash-lite',
+            contents=[
+                audio_file,
+                "Transcribe textualmente este audio de un ciudadano chileno a español. Devuelve ÚNICAMENTE el texto transcrito, sin explicaciones ni saludos."
+            ]
+        )
+
+        # Limpiar archivo temporal local
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+        texto_transcrito = (response.text or "").strip()
+        return {"ok": True, "texto": texto_transcrito}
+    except Exception as e:
+        print(f"[stt] Error en transcripción de voz: {e}")
+        return {"ok": False, "error": str(e)}
 @app.post("/docs_upload")
 async def docs_upload_endpoint(
     archivo: UploadFile = File(...),
