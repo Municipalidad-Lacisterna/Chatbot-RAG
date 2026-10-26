@@ -246,14 +246,36 @@
       return new Date().toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
     }
 
-    function leerEnVozAlta(textoLimpio) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel(); // cancelar lectura previa si la hay
+    let currentUtterance = null;
+
+    function leerEnVozAlta(textoLimpio, btnElem) {
+      if (!('speechSynthesis' in window)) {
+        alert("Tu navegador no soporta lectura de voz.");
+        return;
+      }
+
+      // Si ya está hablando y se hace clic de nuevo, detener
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
+        return;
+      }
+
       const clean = textoLimpio.replace(/<[^>]*>?/gm, '').replace(/\[\[TRANSFERIR\]\]/g, '');
       const utterance = new SpeechSynthesisUtterance(clean);
       utterance.lang = 'es-CL';
-      utterance.rate = 1.0;
+      utterance.rate = 0.95; // Un poco más pausado para adultos mayores
       utterance.pitch = 1.0;
+
+      if (btnElem) btnElem.innerHTML = '⏹ Detener lectura';
+
+      utterance.onend = () => {
+        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
+      };
+      utterance.onerror = () => {
+        if (btnElem) btnElem.innerHTML = '🔊 Escuchar respuesta';
+      };
+
       window.speechSynthesis.speak(utterance);
     }
 
@@ -269,15 +291,19 @@
       div.innerHTML = safeTexto;
       
       if (quien === 'bot') {
+        const ttsRow = document.createElement('div');
+        ttsRow.style.cssText = 'margin-top: 8px; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 6px; display: flex; align-items: center;';
+        
         const ttsBtn = document.createElement('button');
         ttsBtn.className = 'btn-tts';
-        ttsBtn.title = 'Escuchar respuesta';
-        ttsBtn.innerHTML = '🔊';
-        ttsBtn.style.cssText = 'background:none; border:none; cursor:pointer; font-size:14px; margin-left:8px; padding:2px 4px; vertical-align:middle; opacity:0.8; transition:opacity .15s;';
-        ttsBtn.onmouseover = () => ttsBtn.style.opacity = '1';
-        ttsBtn.onmouseout = () => ttsBtn.style.opacity = '0.8';
-        ttsBtn.onclick = () => leerEnVozAlta(texto);
-        div.appendChild(ttsBtn);
+        ttsBtn.innerHTML = '🔊 Escuchar respuesta';
+        ttsBtn.style.cssText = 'background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 16px; cursor: pointer; font-size: 13px; font-weight: 600; padding: 6px 12px; display: flex; align-items: center; gap: 6px; transition: background 0.2s;';
+        ttsBtn.onmouseover = () => ttsBtn.style.background = '#cbd5e1';
+        ttsBtn.onmouseout = () => ttsBtn.style.background = '#e2e8f0';
+        ttsBtn.onclick = () => leerEnVozAlta(texto, ttsBtn);
+
+        ttsRow.appendChild(ttsBtn);
+        div.appendChild(ttsRow);
       }
 
       const time = document.createElement('span');
