@@ -492,6 +492,22 @@ def _respuesta_easter_egg(texto: str) -> str:
         return "Esa es la actitud. Aquí estamos trabajando para que la comuna sea cada día mejor. ¿En qué trámite te puedo orientar hoy?"
     return "Buen sentido del humor. ¿En qué trámite municipal te ayudo hoy?"
 
+_PATRONES_ALCALDE = [
+    'alcalde', 'alcaldesa', 'quien manda', 'jefe comunal', 'autoridad maxima', 'quien dirige la municipalidad'
+]
+
+def _es_pregunta_alcalde(question: str) -> bool:
+    t = (question or '').lower().strip('?¡!¿¿. ')
+    return any(p in t for p in _PATRONES_ALCALDE)
+
+def _respuesta_alcalde() -> str:
+    return (
+        'El alcalde actual de la Ilustre Municipalidad de La Cisterna es '
+        '**Joel Olmos Espinoza**. Puedes contactar a la Alcaldía en el edificio consistorial '
+        'de Pedro Aguirre Cerda #0101, al correo alcaldia@cisterna.cl o al teléfono central (+)56572586200. '
+        '¿Hay algún otro dato o trámite en el que te pueda ayudar, vecino?'
+    )
+
 _PATRONES_IDENTIDAD = [
 
     "tu nombre", "cómo te llamas", "como te llamas", "quién eres", "quien eres",
@@ -627,6 +643,12 @@ def query_chatbot(question: str, session_id: str = None) -> str:
         return respuesta_sensible
 
     # 0b. Preguntas de identidad/presentación de Cisternin
+    if _es_pregunta_alcalde(pregunta_norm):
+        resp_alcalde = _respuesta_alcalde()
+        chat_memory.add_message(session_id, 'user', mensaje_usuario)
+        chat_memory.add_message(session_id, 'assistant', resp_alcalde)
+        return resp_alcalde
+
     if _es_pregunta_identidad(pregunta_norm):
         respuesta_identidad = _respuesta_identidad()
         chat_memory.add_message(session_id, "user", mensaje_usuario)

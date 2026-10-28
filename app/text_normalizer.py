@@ -294,6 +294,15 @@ def corregir_texto(texto: str) -> str:
 # Las claves ya están en minúsculas y sin tildes.
 
 _TRAMITES_SINONIMOS = {
+    'alcalde autoridades concejal joel olmos': [
+        'alcalde',
+        'alcaldesa',
+        'concejal',
+        'concejales',
+        'autoridades',
+        'municipalidad',
+        'joel olmos',
+    ],
     # --- Farmacia ---
     "farmacia comunal": [
         "farmacia", "la farmacia", "la farmacia comunal", "medicamentos",
