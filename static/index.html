@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chatbot Municipal - La Cisterna</title>
-    <style>
+      <style>
     :root {
       --primary: #0f766e;
       --primary-dark: #115e59;
@@ -127,17 +127,24 @@
       box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
     }
     .btn-action {
-      width: 40px; height: 40px; min-width: 40px; border: none; border-radius: 50%;
-      color: #fff; font-size: 16px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      transition: all 0.2s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 42px; height: 42px; min-width: 42px; border: none; border-radius: 50%;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
     }
-    .btn-action:hover { transform: scale(1.05); filter: brightness(1.05); }
-    .btn-action:active { transform: scale(0.95); }
-    #btn-mic { background: #0284c7; }
-    #enviar { background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%); }
-    #enviar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-action:hover { transform: scale(1.06); }
+    .btn-action:active { transform: scale(0.94); }
+    
+    #btn-mic { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    #btn-mic.recording { background: #ef4444; color: #fff; border-color: #dc2626; animation: pulseMic 1.5s infinite; }
+    @keyframes pulseMic {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    #enviar { background: var(--primary); color: #fff; }
+    #enviar:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 
     /* Typing indicator */
     .typing { display: flex; gap: 5px; padding: 14px 18px; align-items: center; width: fit-content; background: var(--bubble-bot); border: 1px solid var(--borde); border-radius: 16px; border-top-left-radius: 4px; }
@@ -573,7 +580,7 @@
               const formData = new FormData();
               formData.append("audio", audioBlob, "voz_vecino.webm");
 
-              btnMic.style.background = "#0284c7";
+              btnMic.classList.remove("recording");
               btnMic.title = "Hablar por voz";
               entrada.placeholder = "Procesando voz con Gemini STT...";
               showTyping();
@@ -596,7 +603,7 @@
               }
             };
             mediaRecorder.start();
-            btnMic.style.background = "#e5534b";
+            btnMic.classList.add("recording");
             btnMic.title = "Grabando... Haz clic para enviar";
             entrada.placeholder = "Escuchando tu voz... Habla ahora...";
           } catch (err) {
