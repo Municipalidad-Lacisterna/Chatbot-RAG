@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 """
 API FastAPI del chatbot municipal RAG (La Cisterna).
 
