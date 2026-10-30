@@ -23,7 +23,7 @@
     }
   }
 
-  const chatUrl = `${baseUrl}/chat`;
+  const chatUrl = `${baseUrl}/chat?v=20261028_v3`;
   const iconUrl = `${baseUrl}/static/cisternin.png`;
 
   // Estilos globales mínimos aislados
